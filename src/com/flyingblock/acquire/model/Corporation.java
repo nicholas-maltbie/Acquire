@@ -12,13 +12,26 @@ public class Corporation
     private AcquireBoard gameBoard;
     
     /**
+     * Constructs a new Corporation.
+     * @param name Company's name.
+     * @param region The game board that this corporation participates in.
+     * @param value The value of the corporation's products.
+     */
+    public Corporation(String name, AcquireBoard region, MarketValue value)
+    {
+        this.corporateName = name;
+        this.gameBoard = region;
+        this.value = value;
+    }
+    
+    /**
      * Gets the number of hotels owned by this company on the game board.
      * @return Returns the number of hotels that this corporation owns
      * within its game board.
      */
     public int getNumberOfHotels()
     {
-        
+        return 2;
     }
     
     /**

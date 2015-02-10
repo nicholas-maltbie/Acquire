@@ -32,7 +32,7 @@ public class Hotel extends Product
      */
     public Hotel(Location location, Corporation owner)
     {
-        super(owner, "Hotel" + (location.getRow()+1) + (char)(CAPITAL_LETTER_START+location.getCol()));
+        super(owner, "Hotel" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1) );
     }
     
     /**

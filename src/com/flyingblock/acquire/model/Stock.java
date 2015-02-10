@@ -33,6 +33,7 @@ public class Stock extends Product
     public Stock(Corporation company, MarketValue value)
     {
         super(company, company.getCorporateName() + " stock");
+        this.value = value;
     }
     
     /**
