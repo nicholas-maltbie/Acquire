@@ -69,8 +69,6 @@ public class AcquireBoard extends Board<Hotel>
     public List<Location> getBlob(Location start)
     {
         List<Location> locs = new ArrayList<>();
-        //This has been changed
-        System.out.println("git rid of me");
     }
     
 }
