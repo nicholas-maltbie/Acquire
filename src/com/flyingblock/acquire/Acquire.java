@@ -32,8 +32,13 @@ public class Acquire {
         System.out.println(board.getBlob(1,1));
         
         Corporation corporation = new Corporation("Nicklandia", board, MarketValue.HIGH);
+        corporation.setHeadquarters(new Location(1,1));
+        corporation.incorporateRegoin();
+        System.out.println(corporation);
         
         Stock stock = new Stock(corporation, MarketValue.HIGH);
         System.out.println(stock.getTradeInValue());
+        
+        System.out.println(board);
     }
 }

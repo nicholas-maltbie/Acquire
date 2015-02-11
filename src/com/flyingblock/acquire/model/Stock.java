@@ -52,7 +52,9 @@ public class Stock extends Product
      */
     public int getTradeInValue()
     {
-        return MarketValue.getStockValue(MarketValue.getLevel(value, this.getOwner()));
+        if(getOwner().isEstablished())
+            return MarketValue.getStockValue(MarketValue.getLevel(value, this.getOwner()));
+        return 0;
     }
     
     @Override

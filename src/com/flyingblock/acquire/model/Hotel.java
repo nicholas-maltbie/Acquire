@@ -32,7 +32,8 @@ public class Hotel extends Product
      */
     public Hotel(Location location, Corporation owner)
     {
-        super(owner, "Hotel" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1) );
+        super(owner, "H " + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1) );
+        this.location = location;
     }
     
     /**
@@ -42,6 +43,7 @@ public class Hotel extends Product
     public Hotel(Location location)
     {
         this(location, null);
+        this.location = location;
     }
     
     /**
@@ -98,6 +100,13 @@ public class Hotel extends Product
         return location;
     }   
     
+    @Override
+    public String toString()
+    {
+        if(!isIncorporated())
+            return super.toString() + " U";
+        return super.toString() + " " + getOwner().getCorporateName().charAt(0);
+    }
     
     @Override
     public boolean equals(Object other)
