@@ -66,12 +66,6 @@ public class Product
         return productName;
     }
     
-    @Override
-    public String toString()
-    {
-        return productName;
-    }
-    
     /**
      * Checks if the product is controlled by the same corporation as
      * the the another Product other.
@@ -81,5 +75,11 @@ public class Product
     public boolean sameOwner(Product other)
     {
         return other.getOwner().equals(supplier);
+    }
+    
+    @Override
+    public String toString()
+    {
+        return productName;
     }
 }
