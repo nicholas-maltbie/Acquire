@@ -13,7 +13,7 @@ package com.flyingblock.acquire.model;
  *
  * @author Nicholas Maltbie
  */
-public class Acquire {
+public class ModelTest {
     public static void main(String[] args)
     {
         AcquireBoard board = new AcquireBoard();

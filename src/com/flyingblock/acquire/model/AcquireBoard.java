@@ -30,11 +30,11 @@ public class AcquireBoard extends Board<Hotel>
     }
     
     /**
-     * Constructs a default board size 9x11, A-I, 1-11.
+     * Constructs a default board size 9x12, A-I, 1-12.
      */
     public AcquireBoard()
     {
-        this(9,11);
+        this(9,12);
     }
     
     /**
