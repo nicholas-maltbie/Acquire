@@ -34,7 +34,7 @@ public class AcquireBoard extends Board<Hotel>
      */
     public AcquireBoard()
     {
-        this(9,12);
+        this(9,11);
     }
     
     /**

@@ -7,14 +7,7 @@
  *
  *
  */
-package com.flyingblock.acquire;
-
-import com.flyingblock.acquire.model.AcquireBoard;
-import com.flyingblock.acquire.model.Corporation;
-import com.flyingblock.acquire.model.Hotel;
-import com.flyingblock.acquire.model.Location;
-import com.flyingblock.acquire.model.MarketValue;
-import com.flyingblock.acquire.model.Stock;
+package com.flyingblock.acquire.model;
 
 /**
  *
