@@ -18,7 +18,7 @@ import com.flyingblock.acquire.model.Stock;
 
 /**
  *
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Acquire {
     public static void main(String[] args)
