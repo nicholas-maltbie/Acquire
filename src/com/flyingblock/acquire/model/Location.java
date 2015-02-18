@@ -106,7 +106,7 @@ public class Location
     @Override
     public String toString()
     {
-        return "Location row: " + row + ", col: " + col;
+        return "Location row: " + row + " col: " + col;
     }
     
     @Override

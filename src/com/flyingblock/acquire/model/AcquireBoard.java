@@ -96,9 +96,9 @@ public class AcquireBoard extends Board<Hotel>
     /**
      * Gets a blob of orthogonally connected locations within the grid starting
      * starting from Location start and going out in a flood pattern.
-     * @param row
-     * @param col
-     * @return 
+     * @param row Row of starting location
+     * @param col Column of starting location
+     * @return Returns an array containing all hotels of the affected area
      */
     public List<Location> getBlob(int row, int col)
     {
@@ -115,5 +115,4 @@ public class AcquireBoard extends Board<Hotel>
         set(row, col, hotel);
         return locs;
     }
-    
 }

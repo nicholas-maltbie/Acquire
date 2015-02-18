@@ -81,9 +81,14 @@ public class Corporation
      */
     public int getNumberOfHotels()
     {
+        int hotels = 0;
         if(hq == null)
             return 0;
-        return gameBoard.getBlob(hq.getLocation().getRow(), hq.getLocation().getCol()).size();
+        for(int row = 0; row < gameBoard.getNumRows(); row++)
+            for(int col = 0; col < gameBoard.getNumCols(); col++)
+                if(!gameBoard.isEmpty(row, col) && gameBoard.get(row, col).isIncorporated() && gameBoard.get(row, col).getOwner().equals(this))
+                    hotels++;
+        return hotels;
     }
     
     /**
@@ -100,6 +105,26 @@ public class Corporation
                 if(!h.isIncorporated())
                     h.exchangeOwner(this);
             }
+    }
+    
+    /**
+     * Based on the company's current state, it will return the majority
+     * shareholder bonus.
+     * @return Returns the dollar value that the majority shareholder bonus.
+     */
+    public int getMajorityBonus()
+    {
+        return MarketValue.getMajorityBonus(MarketValue.getLevel(value, this));
+    }
+    
+    /**
+     * Based on the company's current state, it will return the minority
+     * shareholder bonus.
+     * @return Returns the dollar value that the minority shareholder bonus.
+     */
+    public int getMinorityBonus()
+    {
+        return MarketValue.getMinorityBonus(MarketValue.getLevel(value, this));
     }
     
     /**
