@@ -53,6 +53,8 @@ public class Hotel extends Product
      */
     public String getLocationText()
     {
+        if(location.getCol() < 10)
+            return "" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1);
         return "" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1);
     }
     
