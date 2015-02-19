@@ -32,7 +32,7 @@ public class Hotel extends Product
      */
     public Hotel(Location location, Corporation owner)
     {
-        super(owner, "H_" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1) );
+        super(owner, "H_" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1));
         this.location = location;
     }
     
@@ -44,6 +44,16 @@ public class Hotel extends Product
     {
         this(location, null);
         this.location = location;
+    }
+    
+    /**
+     * Gets a string representation of the hotel's location as a character then
+     * an integer to represent the row and column.
+     * @return Returns the hotel's location as a String, ex: "A1".
+     */
+    public String getLocationText()
+    {
+        return "" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1);
     }
     
     /**

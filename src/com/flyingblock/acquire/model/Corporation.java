@@ -1,5 +1,6 @@
 package com.flyingblock.acquire.model;
 
+import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -9,22 +10,51 @@ import java.util.Objects;
  */
 public class Corporation 
 {
+    /**
+     * Name of the corporation.
+     */
     private String corporateName;
+    /**
+     * MarketValue of the corporation's hotels.
+     */
     private MarketValue value;
+    /**
+     * The region in which the corporation operates.
+     */
     private AcquireBoard gameBoard;
+    /**
+     * Location in which the corporation has it's base of operations.
+     */
     private Hotel hq;
+    /**
+     * This color will provide identification for the corporation's products.
+     */
+    private Color color;
     
     /**
      * Constructs a new Corporation.
      * @param name Company's name.
      * @param region The game board that this corporation participates in.
      * @param value The value of the corporation's products.
+     * @param color Color representation for the corporation for easy graphical
+     * identification.
      */
-    public Corporation(String name, AcquireBoard region, MarketValue value)
+    public Corporation(String name, AcquireBoard region, MarketValue value, Color color)
     {
         this.corporateName = name;
         this.gameBoard = region;
         this.value = value;
+        this.color = color;
+    }
+    
+    /**
+     * Gets the color representation for the corporation.
+     * @return Returns a color for graphical identification of the corporation's 
+     * products.
+     */
+    public Color getColor()
+    {
+        return color;
     }
     
     /**
@@ -61,7 +91,7 @@ public class Corporation
     /**
      * Dissolves the corporation within its region. This will remove its
      * headquarters and it will not longer appear as being established. This will
-     * additionally unincorporate any hotels connected to the headquarters.
+     * additionally un-incorporate any hotels connected to the headquarters.
      */
     public void dissolve()
     {

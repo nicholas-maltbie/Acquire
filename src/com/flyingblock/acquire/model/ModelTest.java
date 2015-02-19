@@ -9,6 +9,8 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.awt.Color;
+
 /**
  *
  * @author Nicholas Maltbie
@@ -25,7 +27,7 @@ public class ModelTest {
         
         System.out.println(board.getBlob(1,1));
         
-        Corporation corporation = new Corporation("Nicklandia", board, MarketValue.HIGH);
+        Corporation corporation = new Corporation("Nicklandia", board, MarketValue.HIGH, Color.ORANGE);
         corporation.setHeadquarters(new Location(1,1));
         corporation.incorporateRegoin();
         System.out.println(corporation);

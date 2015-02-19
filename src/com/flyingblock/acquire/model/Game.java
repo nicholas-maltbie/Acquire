@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,10 +56,16 @@ public class Game
      * Default company names.
      */
     private static final String[] DEFAULT_COMPANIES = {"TOWER", "NICKLANDIA"};
+    
     /**
      * Default company market values.
      */
     private static final MarketValue[] DEFAULT_VALUES = {MarketValue.LOW, MarketValue.HIGH};
+    
+    /**
+     * Default company colors.
+     */
+    private static final Color[] DEFAULT_COLORS = {Color.YELLOW.darker(), Color.ORANGE};
     
     /**
      * Constructs a default game with variable player names.
@@ -73,7 +80,7 @@ public class Game
         for(String name : playerNames)
             players.add(new Investor(name, 6000, 6));
         for(int company = 0; company < DEFAULT_COMPANIES.length; company++)
-            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard, DEFAULT_VALUES[company]));
+            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard, DEFAULT_VALUES[company], DEFAULT_COLORS[company]));
     }
     
     /**
@@ -87,7 +94,7 @@ public class Game
         gameTiles = new HotelMarket(gameBoard);
         companies = new ArrayList<>(DEFAULT_COMPANIES.length);
         for(int company = 0; company < DEFAULT_COMPANIES.length; company++)
-            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard, DEFAULT_VALUES[company]));
+            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard, DEFAULT_VALUES[company], DEFAULT_COLORS[company]));
     }
     
     /**
