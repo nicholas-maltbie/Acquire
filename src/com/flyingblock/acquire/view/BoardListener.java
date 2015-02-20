@@ -41,10 +41,10 @@ public interface BoardListener
      * Called whenever the mouse enters the grid.
      * @param event Mouse event that holds data about the action.
      */
-    public void buttonEnter(MouseEvent event);
+    public void enterBoard(MouseEvent event);
     /**
      * Called whenever the mouse exits the grid.
      * @param event Mouse event that holds data about the action.
      */
-    public void buttonExit(MouseEvent event);
+    public void exitBoard(MouseEvent event);
 }

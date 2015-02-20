@@ -59,12 +59,12 @@ public class ViewTest implements BoardListener
     }
 
     @Override
-    public void buttonEnter(MouseEvent event) {
+    public void enterBoard(MouseEvent event) {
         System.out.println("entered");
     }
 
     @Override
-    public void buttonExit(MouseEvent event) {
+    public void exitBoard(MouseEvent event) {
         System.out.println("exited");
     }
 }

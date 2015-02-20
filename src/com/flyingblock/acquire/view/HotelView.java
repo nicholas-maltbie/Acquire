@@ -130,15 +130,18 @@ public class HotelView extends JPanel
         
         if(!isEmpty)
         {
-            RoundRectangle2D rect = new RoundRectangle2D.Float(width*.05f, height*.05f, width*.9f, height*.9f, width*.2f, height*.2f);
+            RoundRectangle2D rect = new RoundRectangle2D.Float(width*.1f, height*.1f, width*.8f, height*.8f, width*.2f, height*.2f);
             if(hotel.isIncorporated())
                 g2.setColor(hotel.getOwner().getColor());
             else
                 g2.setColor(Color.GRAY);
             g2.fill(rect);
 
-            RoundRectangle2D rect2 = new RoundRectangle2D.Float(width*.1f, height*.1f, width*.8f, height*.8f, width*.2f, height*.2f);
-            g2.setColor(background);
+            RoundRectangle2D rect2 = new RoundRectangle2D.Float(width*.15f, height*.15f, width*.7f, height*.7f, width*.2f, height*.2f);
+            if(hotel.isIncorporated())
+                g2.setColor(background);
+            else
+                g2.setColor(Color.WHITE);
             g2.fill(rect2);
         }
         

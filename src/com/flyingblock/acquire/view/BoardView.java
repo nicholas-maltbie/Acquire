@@ -19,7 +19,9 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
@@ -28,7 +30,7 @@ import javax.swing.JPanel;
  * Graphical representation of an AcquireBoard.
  * @author Nicholas Maltbie
  */
-public class BoardView extends JPanel implements MouseListener
+public class BoardView extends JPanel implements MouseListener, MouseMotionListener
 {
     /**
      * Listeners to this BoardView.
@@ -79,15 +81,16 @@ public class BoardView extends JPanel implements MouseListener
             {
                 HotelView hotel;
                 if(board.isEmpty(row, col))
-                    hotel = new HotelView(new Location(row, col), this.getBackground(), emptyColor, font);                    
+                    hotel = new HotelView(new Location(row, col), Color.WHITE, emptyColor, font);                    
                 else
-                    hotel = new HotelView(board.get(row, col), this.getBackground(), font);
+                    hotel = new HotelView(board.get(row, col), background, font);
                 hotel.setSizeString("A" + (int)(Math.pow(10, Math.log10(board.getNumCols()))-1));
                 hotelButtons.set(row, col, hotel);
                 this.add(hotel);
             }
         
-        this.addMouseListener(this);
+        addMouseListener(this);
+        addMouseMotionListener(this);
     }
     
     /**
@@ -145,6 +148,14 @@ public class BoardView extends JPanel implements MouseListener
                 g2.draw(new Line2D.Float(width*col,0,width*col,this.getHeight()));
             g2.draw(new Line2D.Float(0,height*row,this.getWidth(),height*row));
         }
+        
+        if(lastLocation != null && lastLocation.getRow() >= 0 && lastLocation.getRow() < board.getNumRows()
+                && lastLocation.getCol() >= 0 && lastLocation.getCol() < board.getNumCols())
+        {
+            g2.setColor(new Color(255,255,255, 50));
+            g2.fill(new Rectangle2D.Float(lastLocation.getCol()*width, 
+                    lastLocation.getRow()*height, width, height));
+        }
     }
     
     /**
@@ -200,18 +211,50 @@ public class BoardView extends JPanel implements MouseListener
         synchronized(listeners)
         {
             listeners.stream().forEach((listener) -> {
-                listener.buttonEnter(e);
+                listener.enterBoard(e);
             });
         }
     }
 
     @Override
-    public void mouseExited(MouseEvent e) {
+    public void mouseExited(MouseEvent e) 
+    {
+        lastLocation = null;
+        this.repaint();
         synchronized(listeners)
         {
             listeners.stream().forEach((listener) -> {
-                listener.buttonExit( e);
+                listener.exitBoard(e);
             });
+        }
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) 
+    {
+        //Nothing happens here so there is no code for it.
+    }
+
+    /**
+     * This is the last saved location of the mouse, it's used to identify if
+     * the mouse has moved within the grid. Additionally, to highlight the
+     * current mouse location.
+     */
+    private Location lastLocation;
+    
+    @Override
+    public void mouseMoved(MouseEvent e)
+    {
+        Location loc = getGridLocation(e.getPoint());
+        if(loc != lastLocation)
+        {
+            lastLocation = loc;
+            this.repaint();
+        }
+        else if(lastLocation != null && !loc.equals(lastLocation))
+        {
+            lastLocation = loc;
+            this.repaint();
         }
     }
     
