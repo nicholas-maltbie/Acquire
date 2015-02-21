@@ -175,13 +175,22 @@ public class Corporation
         return corporateName;
     }
     
+    /**
+     * Gets a stock for this company at the corporation's market value.
+     * @return Returns a stock for this company.
+     */
+    public Stock getStock()
+    {
+        return new Stock(this, getMarketValue());
+    }
+    
     @Override
     public boolean equals(Object other)
     {
         if(other instanceof Corporation)
         {
             Corporation c = (Corporation) other;
-            return c.corporateName.equals(corporateName) && c.hq.equals(hq) &&
+            return c.corporateName.equals(corporateName) &&
                     c.value.equals(value) && c.gameBoard.equals(gameBoard);
         }
         return false;

@@ -138,23 +138,24 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(gridColor);
         int width = this.getWidth()/board.getNumCols();
         int height = this.getHeight()/board.getNumRows();
-        
-        for(int row = 1; row < board.getNumRows(); row++)
-        {
-            for(int col = 1; col < board.getNumCols(); col++)
-                g2.draw(new Line2D.Float(width*col,0,width*col,this.getHeight()));
-            g2.draw(new Line2D.Float(0,height*row,this.getWidth(),height*row));
-        }
         
         if(lastLocation != null && lastLocation.getRow() >= 0 && lastLocation.getRow() < board.getNumRows()
                 && lastLocation.getCol() >= 0 && lastLocation.getCol() < board.getNumCols())
         {
-            g2.setColor(new Color(255,255,255, 50));
+            g2.setColor(new Color(255-getBackground().getRed(),
+                    255-getBackground().getGreen(),255-getBackground().getBlue(), 50));
             g2.fill(new Rectangle2D.Float(lastLocation.getCol()*width, 
                     lastLocation.getRow()*height, width, height));
+        }
+        
+        g2.setColor(gridColor);
+        for(int row = 0; row <= board.getNumRows(); row++)
+        {
+            for(int col = 0; col <= board.getNumCols(); col++)
+                g2.draw(new Line2D.Float(width*col,0,width*col,this.getHeight()));
+            g2.draw(new Line2D.Float(0,height*row,this.getWidth(),height*row));
         }
     }
     

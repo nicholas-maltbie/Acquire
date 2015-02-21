@@ -11,7 +11,7 @@ package com.flyingblock.acquire.model;
 
 /**
  * Something made or exchanged by a Corporation(s).
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Product 
 {

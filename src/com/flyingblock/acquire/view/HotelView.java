@@ -22,7 +22,7 @@ import javax.swing.JPanel;
 
 /**
  * Provides a graphical representation of a hotel.
- * @author Nick_Pro
+ * @author Nicholas Maltbie
  */
 public class HotelView extends JPanel
 {
@@ -139,38 +139,22 @@ public class HotelView extends JPanel
 
             RoundRectangle2D rect2 = new RoundRectangle2D.Float(width*.15f, height*.15f, width*.7f, height*.7f, width*.2f, height*.2f);
             if(hotel.isIncorporated())
-                g2.setColor(background);
-            else
                 g2.setColor(Color.WHITE);
+            else
+                g2.setColor(Color.BLACK);
             g2.fill(rect2);
         }
         
         String text = hotel.getLocationText();
         if(sizeString != null)
             text = sizeString;
-        Rectangle2D targetBounds = new Rectangle2D.Float(0,0,width*.7f,height*.7f);
         
-        int fontSize = 2;
-        FontMetrics metrics = g2.getFontMetrics(new Font(font, Font.BOLD, fontSize));
-        Rectangle2D fontBounds = metrics.getStringBounds(text, g2);
-        Rectangle2D bounds = new Rectangle2D.Float(0,0,(float)fontBounds.getWidth(), (float)fontBounds.getHeight());
-        while(targetBounds.contains(bounds))
-        {
-            fontSize *= 2;
-            metrics = g2.getFontMetrics(new Font(font, Font.BOLD, fontSize));
-            fontBounds = metrics.getStringBounds(text, g2);
-            bounds = new Rectangle2D.Float(0,0,(float)fontBounds.getWidth(), (float)fontBounds.getHeight());
-        }
-        while(!targetBounds.contains(bounds))
-        {
-            fontSize--;
-            metrics = g2.getFontMetrics(new Font(font, Font.BOLD, fontSize));
-            fontBounds = metrics.getStringBounds(text, g2);
-            bounds = new Rectangle2D.Float(0,0,(float)fontBounds.getWidth(), (float)fontBounds.getHeight());
-        }
         g2.setColor(fontColor);
-        g2.setFont(new Font(font, Font.BOLD, fontSize));
-        fontBounds = metrics.getStringBounds(hotel.getLocationText(), g2);
-        g2.drawString(hotel.getLocationText(), this.getWidth()/2 - (int)fontBounds.getWidth()/2, this.getHeight()/2 + (int)fontBounds.getHeight()/4);
+        Font sizedFont = new Font(font, Font.BOLD, GUIOperations.findFontSize(text, font, 
+                Font.BOLD, new Rectangle2D.Float(0,0,width*.7f,height*.7f), g2));
+        g2.setFont(sizedFont);
+        Rectangle2D fontBounds = g2.getFontMetrics(sizedFont).getStringBounds(hotel.getLocationText(), g2);
+        g2.drawString(hotel.getLocationText(), this.getWidth()/2 - (int)fontBounds.getWidth()/2,
+                this.getHeight()/2 + (int)fontBounds.getHeight()/4);
     }
 }

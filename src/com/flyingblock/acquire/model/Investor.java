@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Influences the market. This represents a player in the game.
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Investor 
 {
@@ -41,6 +41,7 @@ public class Investor
     /**
      * Constructs an investor with a specified amount of starting money, a 
      * maximum hand size and no stocks.
+     * @param name Name of the player.
      * @param startingMoney The money that the investor starts with.
      * @param handSize The maximum amount of hotels that a player can hold.
      */
@@ -88,7 +89,7 @@ public class Investor
     public Hotel removeFromHand(int index)
     {
         Hotel held = hand[index];
-        hand[index] = held;
+        hand[index] = null;
         return held;
     }
     

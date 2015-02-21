@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * A grid that represents the available space for hotel chains to grow within
  * the game bounds.
- * @author Nick_Pro
+ * @author Nicholas Maltbie
  */
 public class AcquireBoard extends Board<Hotel>
 {

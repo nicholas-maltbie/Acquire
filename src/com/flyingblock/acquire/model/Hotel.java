@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * A game piece that has an immutable location corresponding to its location
  * within the game's board. Hotels can be incorporated or unincorporated.
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Hotel extends Product
 {

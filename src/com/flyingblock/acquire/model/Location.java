@@ -12,12 +12,10 @@ package com.flyingblock.acquire.model;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * A location is a position on a grid measure in rows and columns.
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Location 
 {
