@@ -230,12 +230,6 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         }
     }
 
-    @Override
-    public void mouseDragged(MouseEvent e) 
-    {
-        //Nothing happens here so there is no code for it.
-    }
-
     /**
      * This is the last saved location of the mouse, it's used to identify if
      * the mouse has moved within the grid. Additionally, to highlight the
@@ -245,6 +239,22 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     
     @Override
     public void mouseMoved(MouseEvent e)
+    {
+        Location loc = getGridLocation(e.getPoint());
+        if(loc != lastLocation)
+        {
+            lastLocation = loc;
+            this.repaint();
+        }
+        else if(lastLocation != null && !loc.equals(lastLocation))
+        {
+            lastLocation = loc;
+            this.repaint();
+        }
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) 
     {
         Location loc = getGridLocation(e.getPoint());
         if(loc != lastLocation)

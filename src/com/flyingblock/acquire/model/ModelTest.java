@@ -27,7 +27,7 @@ public class ModelTest {
         
         System.out.println(board.getBlob(1,1));
         
-        Corporation corporation = new Corporation("Nicklandia", board, MarketValue.HIGH, Color.ORANGE);
+        Corporation corporation = new Corporation("Nicklandia", board, MarketValue.HIGH, Color.ORANGE, 10);
         corporation.setHeadquarters(new Location(1,1));
         corporation.incorporateRegoin();
         System.out.println(corporation);

@@ -60,26 +60,25 @@ public class PlayerView extends JPanel
      * @param handFont The font of hotels in the player's hand.
      * @param background Background color for the this graphical component.
      * @param gridColor Color of grid separators within the hand.
-     * @param nameColor Color of the name text.
-     * @param moneyColor Color of the money text.
      * @param nameStyle Style for name text.
      * @param moneyStyle style for money text.
      */
     public PlayerView(Investor player, List<Corporation> corporatoins, String stockFont,
             String nameFont, String moneyFont, String handFont, Color background,
-            Color gridColor, Color nameColor, Color moneyColor, int nameStyle,
-            int moneyStyle)
+            Color gridColor, int nameStyle, int moneyStyle)
     {
         this.player = player;
         this.setBackground(background);
         handView = new HandView(player, handFont, background, gridColor);
         money = new JLabel("$" + Integer.toString(player.getMoney()));
         money.setFont(new Font(moneyFont, moneyStyle, 10));
-        money.setForeground(moneyColor);
+        money.setForeground(Color.GREEN.brighter());
+        money.setHorizontalAlignment(JLabel.CENTER);
         name = new JLabel(player.getName());
         name.setFont(new Font(nameFont, nameStyle, 10));
-        name.setForeground(nameColor);
-        display = new StockDisplay(player, corporatoins, stockFont, Font.BOLD);
+        name.setForeground(player.getColor());
+        name.setHorizontalAlignment(JLabel.CENTER);
+        display = new StockDisplay(player, corporatoins, stockFont, Font.BOLD, background);
         
         GridBagLayout layout = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
@@ -158,5 +157,26 @@ public class PlayerView extends JPanel
                 new Rectangle2D.Float(0,0,getWidth()*.25f,getHeight()*1f/3f), g2)));
         name.setText(player.getName());
         this.repaint();
-    }    
+    }
+    
+    /**
+     * Adds a listener to the hand listeners. Hand listeners listen to mouse
+     * actions that are located within the hand.
+     * @param listener Listener to add.
+     */
+    public void addHandLIstener(HandListener listener)
+    {
+        handView.addHandLIstener(listener);
+    }
+    
+    /**
+     * Removes a listener to the hand listeners. Hand listeners listen to mouse
+     * actions that are located within the hand.
+     * @param listener Listener to remove.
+     * @return If the listener was successfully removed from the list.
+     */
+    public boolean removeHandListener(HandListener listener)
+    {
+        return handView.removeHandListener(listener);
+    }
 }

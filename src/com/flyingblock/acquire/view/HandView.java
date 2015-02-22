@@ -147,11 +147,11 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
     }
     
     /**
-     * Adds a listener to the board listeners. Board listeners listen to mouse
-     * actions that are located within the board.
+     * Adds a listener to the hand listeners. Hand listeners listen to mouse
+     * actions that are located within the hand.
      * @param listener Listener to add.
      */
-    public void addBoardListener(HandListener listener)
+    public void addHandLIstener(HandListener listener)
     {
         synchronized(listeners)
         {
@@ -160,12 +160,12 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
     }
     
     /**
-     * Removes a listener to the board listeners. Board listeners listen to mouse
-     * actions that are located within the board.
+     * Removes a listener to the hand listeners. Hand listeners listen to mouse
+     * actions that are located within the hand.
      * @param listener Listener to remove.
      * @return If the listener was successfully removed from the list.
      */
-    public boolean removeBoardListener(HandListener listener)
+    public boolean removeHandListener(HandListener listener)
     {
         synchronized(listeners)
         {
@@ -223,12 +223,6 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
         this.repaint();
     }
 
-    @Override
-    public void mouseDragged(MouseEvent e) 
-    {
-        //nothing goes in here
-    }
-
     /**
      * The last index of the mouse, -1 or a number greater than the investor's
      * hand size indicates that the mouse is outside of the grid.
@@ -237,6 +231,19 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
     
     @Override
     public void mouseMoved(MouseEvent e) 
+    {
+        int index = getGridLocation(e.getPoint());
+        if(e.getPoint().getY() < 0 || e.getPoint().getY() >=  this.getHeight())
+            index = -1;
+        if(lastIndex != index)
+        {
+            this.repaint();
+        }
+        lastIndex = index;
+    }
+    
+    @Override
+    public void mouseDragged(MouseEvent e) 
     {
         int index = getGridLocation(e.getPoint());
         if(e.getPoint().getY() < 0 || e.getPoint().getY() >=  this.getHeight())

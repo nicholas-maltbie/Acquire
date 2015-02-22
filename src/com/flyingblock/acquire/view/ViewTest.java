@@ -15,18 +15,23 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.model.MarketValue;
+import com.flyingblock.acquire.view.PlayerStatusIcon.PlayerStatus;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.swing.JFrame;
 
 /**
  *
  * @author Nicholas Maltbie
  */
-public class ViewTest implements BoardListener
+public class ViewTest implements BoardListener, HandListener
 {
     public static void main(String[] args)
     {
@@ -35,20 +40,26 @@ public class ViewTest implements BoardListener
         
         AcquireBoard board = new AcquireBoard();
         Corporation nicklandia = new Corporation("Nicklandia", board, 
-                MarketValue.HIGH, new Color(255, 128, 0));
+                MarketValue.HIGH, new Color(255, 128, 0), 10);
         Corporation tower = new Corporation("Tower", board, 
-                MarketValue.LOW, new Color(144, 106, 40));
+                MarketValue.LOW, new Color(144, 106, 40), 10);
         Corporation american = new Corporation("MERICA\'", board, 
-                MarketValue.MEDIUM, new Color(110, 242, 242));
+                MarketValue.MEDIUM, new Color(110, 242, 242), 10);
         Corporation red = new Corporation("Red", board, 
-                MarketValue.MEDIUM, Color.RED);
+                MarketValue.MEDIUM, Color.RED, 10);
         Corporation analantis = new Corporation("Analantis", board,
-                MarketValue.LOW, Color.GREEN.brighter());
+                MarketValue.LOW, Color.GREEN.brighter(), 10);
+        Corporation imperial = new Corporation("Imperial", board, 
+                MarketValue.HIGH, Color.YELLOW, 10);
+        Corporation contiental = new Corporation("Contiental", board,
+                MarketValue.MEDIUM, Color.MAGENTA, 10);
+        
         
         ArrayList<Corporation> companies = new ArrayList<>(
-                Arrays.asList(nicklandia, tower, american, red, analantis));
+                Arrays.asList(nicklandia, tower, american, red, analantis,
+                        imperial, contiental));
         
-        Investor investor = new Investor("Nick", 6000, 6);
+        Investor investor = new Investor("VeryVeryVeryLongName", 6000, 6, Color.CYAN);
         
         investor.addStock(nicklandia.getStock());
         investor.addStock(nicklandia.getStock());
@@ -61,28 +72,42 @@ public class ViewTest implements BoardListener
                 investor.setInHand(i, new Hotel(new Location(0,i), nicklandia));
         }
         
-        /*
         Hotel hotel = new Hotel(new Location(1,2), nicklandia);
         frame.setLayout(new GridLayout(1,2));
         board.set(1,2, hotel);
         board.set(1,1, new Hotel(new Location(1,1)));
         board.set(1,11, new Hotel(new Location(1,11)));
-        BoardView view = new BoardView(board, Color.BLACK, Color.WHITE, Color.BLUE, "TIMES NEW ROMAN");
-        frame.add(view);
-        view.addBoardListener(new ViewTest());*/
+        BoardView boardView = new BoardView(board, Color.BLACK, Color.WHITE, Color.BLUE, "TIMES NEW ROMAN");
+        boardView.addBoardListener(new ViewTest());
+        
+        OtherPlayerView view = new OtherPlayerView(investor, companies, "TIMES NEW ROMAN",
+                "TIMES NEW ROMAN", "TIMES NEW ROMAN", Color.BLACK, Font.BOLD, Font.ITALIC, true);
+        //view.addHandLIstener(new ViewTest());
         
         /*
         Investor player, List<Corporation> corporatoins, String stockFont,
             String nameFont, String moneyFont, String handFont, Color background,
-            Color gridColor)
+            Color gridColor, int nameStyle, int moneyStyle
         */
+        PlayerView playerView = new PlayerView(investor, companies, "TIMES NEW ROMAN",
+                "TIMES NEW ROMAN", "TIMES NEW ROMAN", "TIMES NEW ROMAN"
+                , Color.BLACK, Color.BLUE, Font.BOLD, Font.ITALIC);
         
-        PlayerView view = new PlayerView(investor, companies, "TIMES NEW ROMAN",
-                "TIMES NEW ROMAN", "TIMES NEW ROMAN", "TIMES NEW ROMAN", 
-                Color.BLACK, Color.BLUE, Color.MAGENTA, Color.GREEN.brighter(),
-                Font.BOLD, Font.ITALIC);
+        Investor o1 = new Investor("CPU1", 6000, 6, Color.CYAN);
+        Investor o2 = new Investor("Brian", 6000, 6, Color.RED);
+        Investor o3 = new Investor("Hue", 6000, 6, Color.BLUE);
+        Investor o4 = new Investor("GreenPlayer", 6000, 6, Color.GREEN);
+        Investor o5 = new Investor("PurplePeeps", 6000, 6, Color.MAGENTA);
         
-        frame.add(view);
+        List<Investor> opponents = new ArrayList<>(Arrays.asList(o1,o2,o3,o4,o5));
+        
+        OpponentsPanel oppsView = new OpponentsPanel(opponents.toArray(new Investor[opponents.size()]), 
+                companies, Color.BLACK, "TIMES NEW ROMAN", Font.BOLD,
+                new Dimension(100,400), true, new Rectangle(0,0,100,100));
+        
+        PlayerStatusIcon icon = new PlayerStatusIcon(PlayerStatus.ACTING, investor, "TIMES NEW ROMAN", Font.BOLD, Color.BLACK);
+        
+        frame.add(playerView);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -90,8 +115,11 @@ public class ViewTest implements BoardListener
             new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    investor.removeFromHand(2);
-                    view.update();
+                    o1.addStock(imperial.getStock());
+                    o1.addStock(imperial.getStock());
+                    o1.addStock(imperial.getStock());
+                    o1.addStock(imperial.getStock());
+                    oppsView.repaint();
                 }
             }, 
             5000 
@@ -121,5 +149,20 @@ public class ViewTest implements BoardListener
     @Override
     public void exitBoard(MouseEvent event) {
         System.out.println("exited");
+    }
+
+    @Override
+    public void handClicked(int index, MouseEvent event) {
+        System.out.println("hand clicked " + index);
+    }
+
+    @Override
+    public void handPressed(int index, MouseEvent event) {
+        System.out.println("hand pressed " + index);
+    }
+
+    @Override
+    public void handReleased(int index, MouseEvent event) {
+        System.out.println("hand released " + index);
     }
 }

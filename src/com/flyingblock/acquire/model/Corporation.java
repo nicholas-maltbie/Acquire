@@ -30,6 +30,10 @@ public class Corporation
      * This color will provide identification for the corporation's products.
      */
     private Color color;
+    /**
+     * This is the number of stocks a company has to offer.
+     */
+    private int numStocks;
     
     /**
      * Constructs a new Corporation.
@@ -38,13 +42,17 @@ public class Corporation
      * @param value The value of the corporation's products.
      * @param color Color representation for the corporation for easy graphical
      * identification.
+     * @param maxStocks The number of stocks that this corporation can offer for
+     * sale.
      */
-    public Corporation(String name, AcquireBoard region, MarketValue value, Color color)
+    public Corporation(String name, AcquireBoard region, MarketValue value, 
+            Color color, int maxStocks)
     {
         this.corporateName = name;
         this.gameBoard = region;
         this.value = value;
         this.color = color;
+        this.numStocks = maxStocks;
     }
     
     /**
@@ -176,12 +184,42 @@ public class Corporation
     }
     
     /**
-     * Gets a stock for this company at the corporation's market value.
-     * @return Returns a stock for this company.
+     * Gets a stock for this company at the corporation's market value. Removes
+     * one stock from the company's current store of stocks. If there is no stock,
+     * this will return null.
+     * @return Returns a stock for this company or null if there are no stocks
+     * left in the company's store.
      */
     public Stock getStock()
     {
-        return new Stock(this, getMarketValue());
+        if(numStocks > 0)
+        {
+            numStocks--;
+            return new Stock(this, getMarketValue());
+        }
+        return null;
+    }
+    
+    /**
+     * Gets the number of available stocks in the company's store.
+     * @return Returns the number of stocks available.
+     */
+    public int getAvailableStocks()
+    {
+        return numStocks;
+    }
+    
+    /**
+     * Adds a stock back into the company's store. This will happen during
+     * mergers where stocks can be sold or traded.
+     * @param stock Stock that will be traded in for a company's store. The 
+     * stock's owner must be of this company or it will not count for this
+     * company.
+     */
+    public void returnStock(Stock stock)
+    {
+        if(stock.getOwner().equals(this))
+            numStocks++;
     }
     
     @Override

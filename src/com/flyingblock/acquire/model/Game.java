@@ -61,26 +61,32 @@ public class Game
      * Default company market values.
      */
     private static final MarketValue[] DEFAULT_VALUES = {MarketValue.LOW, MarketValue.HIGH};
-    
     /**
      * Default company colors.
      */
     private static final Color[] DEFAULT_COLORS = {Color.YELLOW.darker(), Color.ORANGE};
+    /**
+     * Default company starting stock values.
+     */
+    private static final int[] DEFAULT_STOCKS = {10,10};
     
     /**
      * Constructs a default game with variable player names.
      * @param playerNames Names of participating players.
+     * @param playerColors Colors of participating players.
      */
-    public Game(String[] playerNames)
+    public Game(String[] playerNames, Color[] playerColors)
     {
         gameBoard = new AcquireBoard();
         gameTiles = new HotelMarket(gameBoard);
         companies = new ArrayList<>(DEFAULT_COMPANIES.length);
         players = new ArrayList<>(playerNames.length);
-        for(String name : playerNames)
-            players.add(new Investor(name, 6000, 6));
+        for(int i = 0; i < playerNames.length; i++)
+            players.add(new Investor(playerNames[i], 6000, 6, playerColors[i]));
         for(int company = 0; company < DEFAULT_COMPANIES.length; company++)
-            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard, DEFAULT_VALUES[company], DEFAULT_COLORS[company]));
+            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard,
+                    DEFAULT_VALUES[company], DEFAULT_COLORS[company],
+                    DEFAULT_STOCKS[company]));
     }
     
     /**
@@ -94,7 +100,9 @@ public class Game
         gameTiles = new HotelMarket(gameBoard);
         companies = new ArrayList<>(DEFAULT_COMPANIES.length);
         for(int company = 0; company < DEFAULT_COMPANIES.length; company++)
-            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard, DEFAULT_VALUES[company], DEFAULT_COLORS[company]));
+            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard,
+                    DEFAULT_VALUES[company], DEFAULT_COLORS[company],
+                    DEFAULT_STOCKS[company]));
     }
     
     /**
