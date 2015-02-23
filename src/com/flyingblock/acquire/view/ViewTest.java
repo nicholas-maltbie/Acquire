@@ -85,7 +85,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         board.set(1,2, hotel);
         board.set(1,1, new Hotel(new Location(1,1)));
         board.set(1,11, new Hotel(new Location(1,11)));
-        BoardView boardView = new BoardView(board, Color.BLACK, Color.WHITE, Color.BLUE, "TIMES NEW ROMAN");
+        BoardView boardView = new BoardView(board, Color.BLACK, Color.WHITE, Color.WHITE, "TIMES NEW ROMAN");
         boardView.addBoardListener(new ViewTest());
         
         OtherPlayerView view = new OtherPlayerView(investor, companies, "TIMES NEW ROMAN",
@@ -99,7 +99,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         */
         PlayerView playerView = new PlayerView(investor, companies, "TIMES NEW ROMAN",
                 "TIMES NEW ROMAN", "TIMES NEW ROMAN", "TIMES NEW ROMAN"
-                , Color.BLACK, Color.BLUE, Font.BOLD, Font.ITALIC);
+                , Color.BLACK, Color.WHITE, Font.BOLD, Font.ITALIC);
         playerView.addHandLIstener(new ViewTest());
         Investor o1 = new Investor("CPU1", 6000, 6, Color.CYAN);
         Investor o2 = new Investor("Brian", 6000, 6, Color.RED);
@@ -110,7 +110,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         
         OpponentsPanel oppsView = new OpponentsPanel(opponents.toArray(new Investor[opponents.size()]), 
                 companies, Color.BLACK, "TIMES NEW ROMAN", Font.BOLD,
-                new Dimension(100,400), true, new Rectangle(0,0,100,100));
+                new Dimension(100,100), false, new Rectangle(0,0,100,100));
         
         PlayerStatusIcon icon = new PlayerStatusIcon(PlayerStatus.ACTING, investor, "TIMES NEW ROMAN", Font.BOLD, Color.BLACK);
         /*
@@ -148,7 +148,9 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         c.weightx = 1;
         panel.add(companiesView, c);
         
-        frame.setContentPane(panel);
+        FollowMouse follow = new FollowMouse(new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100));
+        
+        frame.setContentPane(follow);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
