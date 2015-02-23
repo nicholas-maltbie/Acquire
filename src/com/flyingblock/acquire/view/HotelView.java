@@ -13,7 +13,6 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Location;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
@@ -149,7 +148,10 @@ public class HotelView extends JPanel
         if(sizeString != null)
             text = sizeString;
         
-        g2.setColor(fontColor);
+        if(hotel.isIncorporated())
+            g2.setColor(hotel.getOwner().getColor());
+        else
+            g2.setColor(fontColor);
         Font sizedFont = new Font(font, Font.BOLD, GUIOperations.findFontSize(text, font, 
                 Font.BOLD, new Rectangle2D.Float(0,0,width*.7f,height*.7f), g2));
         g2.setFont(sizedFont);

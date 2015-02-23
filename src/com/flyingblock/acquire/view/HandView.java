@@ -10,7 +10,6 @@
 package com.flyingblock.acquire.view;
 
 import com.flyingblock.acquire.model.Investor;
-import com.flyingblock.acquire.model.Location;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;

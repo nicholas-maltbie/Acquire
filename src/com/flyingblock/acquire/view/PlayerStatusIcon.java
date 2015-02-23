@@ -98,10 +98,9 @@ public class PlayerStatusIcon extends JPanel
         int offset = this.getWidth()/2-radius;
         int textHeight = (int)(radius*2/3*1.2f);
         
-        g2.setColor(Color.BLACK);
         g2.setFont(new Font(font, style, GUIOperations.findFontSize(player.getName(), font, style, 
                 new Rectangle2D.Float(0,0,getWidth(),getHeight()-bodyA*.9f-radius*2 - (getHeight()-bodyA*.9f-radius*2-textHeight)), g2)));
-        g2.setColor(Color.WHITE);
+        g2.setColor(player.getColor());
         Rectangle2D bounds = g2.getFontMetrics().getStringBounds(player.getName(), g2);
         g2.drawString(player.getName(), getWidth()/2-(int)bounds.getWidth()/2, getHeight()-bodyA*.9f-radius*2);
         
@@ -113,6 +112,7 @@ public class PlayerStatusIcon extends JPanel
             default:
                 g2.fill(new Ellipse2D.Float(offset,getHeight()-bodyA,radius*2,bodyA*2));
                 g2.fill(new Ellipse2D.Float(offset,getHeight()-bodyA*.8f-radius*2,radius*2,radius*2));
+                break;
         }
     }
 }

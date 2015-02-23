@@ -154,8 +154,8 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         for(int row = 0; row <= board.getNumRows(); row++)
         {
             for(int col = 0; col <= board.getNumCols(); col++)
-                g2.draw(new Line2D.Float(width*col,0,width*col,this.getHeight()));
-            g2.draw(new Line2D.Float(0,height*row,this.getWidth(),height*row));
+                g2.draw(new Line2D.Float(width*col,0,width*col,height*board.getNumRows()));
+            g2.draw(new Line2D.Float(0,height*row,width*board.getNumCols(),height*row));
         }
     }
     
