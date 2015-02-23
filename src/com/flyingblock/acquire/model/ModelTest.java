@@ -7,38 +7,37 @@
  *
  *
  */
-package com.flyingblock.acquire;
+package com.flyingblock.acquire.model;
 
-import com.flyingblock.acquire.model.AcquireBoard;
-import com.flyingblock.acquire.model.Corporation;
-import com.flyingblock.acquire.model.Hotel;
-import com.flyingblock.acquire.model.Location;
-import com.flyingblock.acquire.model.MarketValue;
-import com.flyingblock.acquire.model.Stock;
+import java.awt.Color;
 
 /**
  *
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
-public class Acquire {
+public class ModelTest {
     public static void main(String[] args)
     {
         AcquireBoard board = new AcquireBoard();
         board.set(1, 1, new Hotel(new Location(1,1)));
         board.set(1, 2, new Hotel(new Location(1,2)));
+        board.set(1, 3, new Hotel(new Location(1,3)));
         board.set(2, 3, new Hotel(new Location(2,3)));
         System.out.println(board);
         
         System.out.println(board.getBlob(1,1));
         
-        Corporation corporation = new Corporation("Nicklandia", board, MarketValue.HIGH);
+        Corporation corporation = new Corporation("Nicklandia", board, MarketValue.HIGH, Color.ORANGE, 10);
         corporation.setHeadquarters(new Location(1,1));
         corporation.incorporateRegoin();
         System.out.println(corporation);
         
         Stock stock = new Stock(corporation, MarketValue.HIGH);
         System.out.println(stock.getTradeInValue());
+        System.out.println(corporation.getMajorityBonus());
+        System.out.println(corporation.getMinorityBonus());
         
         System.out.println(board);
+        System.out.println(board.getBlob(1,1));
     }
 }

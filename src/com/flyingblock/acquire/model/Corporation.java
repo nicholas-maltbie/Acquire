@@ -1,5 +1,6 @@
 package com.flyingblock.acquire.model;
 
+import java.awt.Color;
 import java.util.Objects;
 
 /**
@@ -9,22 +10,59 @@ import java.util.Objects;
  */
 public class Corporation 
 {
+    /**
+     * Name of the corporation.
+     */
     private String corporateName;
+    /**
+     * MarketValue of the corporation's hotels.
+     */
     private MarketValue value;
+    /**
+     * The region in which the corporation operates.
+     */
     private AcquireBoard gameBoard;
+    /**
+     * Location in which the corporation has it's base of operations.
+     */
     private Hotel hq;
+    /**
+     * This color will provide identification for the corporation's products.
+     */
+    private Color color;
+    /**
+     * This is the number of stocks a company has to offer.
+     */
+    private int numStocks;
     
     /**
      * Constructs a new Corporation.
      * @param name Company's name.
      * @param region The game board that this corporation participates in.
      * @param value The value of the corporation's products.
+     * @param color Color representation for the corporation for easy graphical
+     * identification.
+     * @param maxStocks The number of stocks that this corporation can offer for
+     * sale.
      */
-    public Corporation(String name, AcquireBoard region, MarketValue value)
+    public Corporation(String name, AcquireBoard region, MarketValue value, 
+            Color color, int maxStocks)
     {
         this.corporateName = name;
         this.gameBoard = region;
         this.value = value;
+        this.color = color;
+        this.numStocks = maxStocks;
+    }
+    
+    /**
+     * Gets the color representation for the corporation.
+     * @return Returns a color for graphical identification of the corporation's 
+     * products.
+     */
+    public Color getColor()
+    {
+        return color;
     }
     
     /**
@@ -61,7 +99,7 @@ public class Corporation
     /**
      * Dissolves the corporation within its region. This will remove its
      * headquarters and it will not longer appear as being established. This will
-     * additionally unincorporate any hotels connected to the headquarters.
+     * additionally un-incorporate any hotels connected to the headquarters.
      */
     public void dissolve()
     {
@@ -81,9 +119,14 @@ public class Corporation
      */
     public int getNumberOfHotels()
     {
+        int hotels = 0;
         if(hq == null)
             return 0;
-        return gameBoard.getBlob(hq.getLocation().getRow(), hq.getLocation().getCol()).size();
+        for(int row = 0; row < gameBoard.getNumRows(); row++)
+            for(int col = 0; col < gameBoard.getNumCols(); col++)
+                if(!gameBoard.isEmpty(row, col) && gameBoard.get(row, col).isIncorporated() && gameBoard.get(row, col).getOwner().equals(this))
+                    hotels++;
+        return hotels;
     }
     
     /**
@@ -100,6 +143,26 @@ public class Corporation
                 if(!h.isIncorporated())
                     h.exchangeOwner(this);
             }
+    }
+    
+    /**
+     * Based on the company's current state, it will return the majority
+     * shareholder bonus.
+     * @return Returns the dollar value that the majority shareholder bonus.
+     */
+    public int getMajorityBonus()
+    {
+        return MarketValue.getMajorityBonus(MarketValue.getLevel(value, this));
+    }
+    
+    /**
+     * Based on the company's current state, it will return the minority
+     * shareholder bonus.
+     * @return Returns the dollar value that the minority shareholder bonus.
+     */
+    public int getMinorityBonus()
+    {
+        return MarketValue.getMinorityBonus(MarketValue.getLevel(value, this));
     }
     
     /**
@@ -120,13 +183,52 @@ public class Corporation
         return corporateName;
     }
     
+    /**
+     * Gets a stock for this company at the corporation's market value. Removes
+     * one stock from the company's current store of stocks. If there is no stock,
+     * this will return null.
+     * @return Returns a stock for this company or null if there are no stocks
+     * left in the company's store.
+     */
+    public Stock getStock()
+    {
+        if(numStocks > 0)
+        {
+            numStocks--;
+            return new Stock(this, getMarketValue());
+        }
+        return null;
+    }
+    
+    /**
+     * Gets the number of available stocks in the company's store.
+     * @return Returns the number of stocks available.
+     */
+    public int getAvailableStocks()
+    {
+        return numStocks;
+    }
+    
+    /**
+     * Adds a stock back into the company's store. This will happen during
+     * mergers where stocks can be sold or traded.
+     * @param stock Stock that will be traded in for a company's store. The 
+     * stock's owner must be of this company or it will not count for this
+     * company.
+     */
+    public void returnStock(Stock stock)
+    {
+        if(stock.getOwner().equals(this))
+            numStocks++;
+    }
+    
     @Override
     public boolean equals(Object other)
     {
         if(other instanceof Corporation)
         {
             Corporation c = (Corporation) other;
-            return c.corporateName.equals(corporateName) && c.hq.equals(hq) &&
+            return c.corporateName.equals(corporateName) &&
                     c.value.equals(value) && c.gameBoard.equals(gameBoard);
         }
         return false;

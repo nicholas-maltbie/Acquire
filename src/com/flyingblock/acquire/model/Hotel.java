@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * A game piece that has an immutable location corresponding to its location
  * within the game's board. Hotels can be incorporated or unincorporated.
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Hotel extends Product
 {
@@ -32,7 +32,7 @@ public class Hotel extends Product
      */
     public Hotel(Location location, Corporation owner)
     {
-        super(owner, "H " + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1) );
+        super(owner, "H_" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1));
         this.location = location;
     }
     
@@ -44,6 +44,18 @@ public class Hotel extends Product
     {
         this(location, null);
         this.location = location;
+    }
+    
+    /**
+     * Gets a string representation of the hotel's location as a character then
+     * an integer to represent the row and column.
+     * @return Returns the hotel's location as a String, ex: "A1".
+     */
+    public String getLocationText()
+    {
+        if(location.getCol() < 10)
+            return "" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1);
+        return "" + (char)(CAPITAL_LETTER_START+location.getRow()) + (location.getCol()+1);
     }
     
     /**
@@ -104,8 +116,8 @@ public class Hotel extends Product
     public String toString()
     {
         if(!isIncorporated())
-            return super.toString() + " U";
-        return super.toString() + " " + getOwner().getCorporateName().charAt(0);
+            return super.toString() + "_U";
+        return super.toString() + "_" + getOwner().getCorporateName().charAt(0);
     }
     
     @Override
@@ -114,8 +126,7 @@ public class Hotel extends Product
         if(other instanceof Hotel)
         {
             Hotel otherHotel = (Hotel) other;
-            return otherHotel.sameOwner(this) && 
-                    otherHotel.getLocation().equals(this.getLocation());
+            return super.equals(other) && getLocation().equals(otherHotel.getLocation());
         }
         return false;
     }

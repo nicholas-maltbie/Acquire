@@ -15,7 +15,7 @@ import java.util.HashSet;
 
 /**
  * A location is a position on a grid measure in rows and columns.
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Location 
 {
@@ -104,7 +104,7 @@ public class Location
     @Override
     public String toString()
     {
-        return "Location row: " + row + ", col: " + col;
+        return "Location row: " + row + " col: " + col;
     }
     
     @Override

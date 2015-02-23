@@ -9,16 +9,21 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 
 
 /**
  * Influences the market. This represents a player in the game.
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Investor 
 {
+    /**
+     * Name of the investor.
+     */
+    private String name;
     /**
      * The current balance of a player
      */
@@ -33,18 +38,44 @@ public class Investor
      * Player hold stocks that can be bought or sold.
      */
     private List<Stock> stocks;
+    /**
+     * Color to graphically identify player.
+     */
+    private Color color;
     
     /**
      * Constructs an investor with a specified amount of starting money, a 
      * maximum hand size and no stocks.
+     * @param name Name of the player.
      * @param startingMoney The money that the investor starts with.
      * @param handSize The maximum amount of hotels that a player can hold.
+     * @param color Color to graphically identify the player.
      */
-    public Investor(int startingMoney, int handSize)
+    public Investor(String name, int startingMoney, int handSize, Color color)
     {
+        this.name = name;
+        this.color = color;
         money = startingMoney;
         hand = new Hotel[handSize];
         stocks = new ArrayList<>();
+    }
+    
+    /**
+     * Gets the color to graphically identify the player.
+     * @return Returns a color to identify the player.
+     */
+    public Color getColor()
+    {
+        return color;
+    }
+    
+    /**
+     * Gets the name of the investor.
+     * @return Returns the name field.
+     */
+    public String getName()
+    {
+        return name;
     }
     
     /**
@@ -74,7 +105,7 @@ public class Investor
     public Hotel removeFromHand(int index)
     {
         Hotel held = hand[index];
-        hand[index] = held;
+        hand[index] = null;
         return held;
     }
     

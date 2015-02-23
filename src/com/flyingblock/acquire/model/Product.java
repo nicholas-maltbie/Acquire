@@ -11,7 +11,7 @@ package com.flyingblock.acquire.model;
 
 /**
  * Something made or exchanged by a Corporation(s).
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class Product 
 {
@@ -66,6 +66,12 @@ public class Product
         return productName;
     }
     
+    @Override
+    public String toString()
+    {
+        return productName;
+    }
+    
     /**
      * Checks if the product is controlled by the same corporation as
      * the the another Product other.
@@ -75,11 +81,5 @@ public class Product
     public boolean sameOwner(Product other)
     {
         return other.getOwner().equals(supplier);
-    }
-    
-    @Override
-    public String toString()
-    {
-        return productName;
     }
 }

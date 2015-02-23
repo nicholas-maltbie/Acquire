@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * A grid that represents the available space for hotel chains to grow within
  * the game bounds.
- * @author Nick_Pro
+ * @author Nicholas Maltbie
  */
 public class AcquireBoard extends Board<Hotel>
 {
@@ -30,7 +30,7 @@ public class AcquireBoard extends Board<Hotel>
     }
     
     /**
-     * Constructs a default board size 9x11, A-I, 1-11.
+     * Constructs a default board size 9x12, A-I, 1-12.
      */
     public AcquireBoard()
     {
@@ -96,9 +96,9 @@ public class AcquireBoard extends Board<Hotel>
     /**
      * Gets a blob of orthogonally connected locations within the grid starting
      * starting from Location start and going out in a flood pattern.
-     * @param row
-     * @param col
-     * @return 
+     * @param row Row of starting location
+     * @param col Column of starting location
+     * @return Returns an array containing all hotels of the affected area
      */
     public List<Location> getBlob(int row, int col)
     {
@@ -115,5 +115,4 @@ public class AcquireBoard extends Board<Hotel>
         set(row, col, hotel);
         return locs;
     }
-    
 }
