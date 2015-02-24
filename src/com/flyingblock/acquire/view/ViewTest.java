@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -154,28 +155,24 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
+        follow.moveComponent(new Point(500,500), 10000l);
+        follow.pause();
         new java.util.Timer().schedule( 
             new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    nicklandia.incorporateRegoin();
                     while(true)
                     {
-                        Stock s = imperial.getStock();
-                        if(s != null)
-                            o1.addStock(s);
-                        else
-                            return;
-                        panel.repaint();
+                        //follow.toggle();
                         try {
-                            Thread.sleep(1000l);
+                            Thread.sleep(2000);
                         } catch (InterruptedException ex) {
                             Logger.getLogger(ViewTest.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
             }, 
-            1000 
+            2000 
         );
     }
 
