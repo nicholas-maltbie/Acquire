@@ -13,6 +13,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -61,6 +62,10 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      * Initial point of the component.
      */
     private Point intial;
+    /**
+     * saved position of component as floats.
+     */
+    private float componentX, componentY;
     
     /**
      * Constructs a mouse following panel. It starts following the mouse.
@@ -95,7 +100,9 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     {
         if(!new ArrayList<>(Arrays.asList(this.getMouseMotionListeners())).
                 contains(this))
+        {
             this.addMouseMotionListener(this);
+        }
     }
     
     /**
@@ -119,9 +126,10 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     {
         timeLeft = time;
         this.target = target;
-        this.intial = new Point(follow.getX() + (int)size.getWidth(),
-                follow.getY() + (int)size.getHeight());
+        this.intial = new Point(follow.getX(), follow.getY());
         totalTime = time;
+        componentX = (float)intial.getX();
+        componentY = (float)intial.getY();
     }
     
     /**
@@ -156,31 +164,24 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     public void paintComponent(Graphics g)
     {
         long time = System.currentTimeMillis();
-        if(target == null)
-            follow.setBounds(location.x-size.width/2, location.y-size.height/2, 
-                    size.width, size.height);
-        else
+        Point draw = location;
+        if(target != null)
         {
             long elapsed = time - lastTime;
             
             if(elapsed >= timeLeft)
             {
-                follow.setBounds(target.x-size.width/2, target.y-size.height/2,
-                        size.width, size.height);
                 timeLeft = 0;
-                location = target;
+                draw = target;
                 target = null;
-                return;
+                location = target;
             }
             else
             {
-                double percent = elapsed / totalTime;
-                System.out.println(totalTime);
-                int xDist = (int)(percent * (target.getX() - this.intial.getX()));
-                int yDist = (int)(percent * (target.getY() - this.intial.getY()));
-                System.out.println(xDist + ", " + yDist);
-                follow.setLocation(xDist + follow.getX(), yDist + 
-                        follow.getY());
+                float percent = (float)elapsed / totalTime;
+                componentX += percent * (float)(target.getX() - this.intial.getX());
+                componentY += percent * (float)(target.getY() - this.intial.getY());
+                draw = new Point((int) componentX, (int) componentY);
             }
             
             timeLeft -= elapsed;
@@ -192,8 +193,10 @@ public class FollowMouse extends JPanel implements MouseMotionListener
                         repaint();
                     }
                 }, 
-                100);
+                10);
         }
+        follow.setBounds(draw.x-size.width/2, draw.y-size.height/2, 
+                size.width, size.height);
         lastTime = time;
         super.paintComponent(g);
     }

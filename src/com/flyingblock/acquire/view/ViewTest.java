@@ -155,21 +155,13 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        follow.moveComponent(new Point(500,500), 10000l);
+        follow.moveComponent(new Point(500,500), 1000l);
         follow.pause();
         new java.util.Timer().schedule( 
             new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    while(true)
-                    {
-                        //follow.toggle();
-                        try {
-                            Thread.sleep(2000);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ViewTest.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
+                    follow.moveComponent(new Point(100,500), 1000l);
                 }
             }, 
             2000 
