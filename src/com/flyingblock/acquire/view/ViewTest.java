@@ -149,11 +149,14 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         c.weightx = 1;
         panel.add(companiesView, c);
         
-        FollowMouse follow = new FollowMouse(new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100));
+        FollowMouse follow = new FollowMouse(new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100), 100);
         
-        frame.setContentPane(follow);
-        frame.setVisible(true);
+        //frame.setContentPane(follow);
+        //frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        FollowMouseTest followMouseTest = new FollowMouseTest(new HotelView(
+                hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100));
         
         follow.moveComponent(new Point(500,500), 1000l);
         follow.pause();
@@ -161,7 +164,15 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
             new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    follow.moveComponent(new Point(100,500), 1000l);
+                    while(true)
+                    {
+                        try {
+                            follow.toggle();
+                            Thread.sleep(1000l);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ViewTest.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                 }
             }, 
             2000 

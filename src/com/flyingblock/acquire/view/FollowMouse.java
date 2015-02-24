@@ -13,13 +13,16 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.IllegalComponentStateException;
 import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
@@ -66,20 +69,50 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      * saved position of component as floats.
      */
     private float componentX, componentY;
+    /**
+     * Time delay between request to start following the mouse and 
+     * the actual start;
+     */
+    private int delay;
+    /**
+     * Listeners to this FollowerMouse.
+     */
+    private List<FollowMouseListener> listeners;
+    
     
     /**
-     * Constructs a mouse following panel. It starts following the mouse.
+     * Constructs a mouse following panel. It starts NOT following the mouse. 
+     * Starting the component at point (0,0).
      * @param follow Component to follow the mouse.
      * @param size Dimensions of the component.
+     * @param delay Transition length when the component starts following the cursor.
      */
-    public FollowMouse(Component follow, Dimension size)
+    public FollowMouse(Component follow, Dimension size, int delay)
+    {
+        this(follow, size, delay, null);
+    }
+    
+    /**
+     * Constructs a mouse following panel. It starts NOT following the mouse.
+     * @param follow Component to follow the mouse.
+     * @param size Dimensions of the component.
+     * @param delay Transition length when the component starts following the cursor.
+     * @param startingLocation Starting center for the component. If startingLocation
+     * is null, it will start at point (0,0).
+     */
+    public FollowMouse(Component follow, Dimension size, int delay, Point startingLocation)
     {
         this.follow = follow;
         this.size = size;
-        follow.setPreferredSize(size);
-        this.addMouseMotionListener(this);
-        location = new Point(0,0);
+        this.delay = delay;
+        this.follow.setPreferredSize(size);
+        if(startingLocation != null)
+            location = startingLocation;
+        else
+            location = new Point(0,0);
+        follow.setLocation(location);
         lastTime = System.currentTimeMillis();
+        listeners = new ArrayList<>();
         this.add(follow);
     }
     
@@ -102,6 +135,16 @@ public class FollowMouse extends JPanel implements MouseMotionListener
                 contains(this))
         {
             this.addMouseMotionListener(this);
+            Point mouse = MouseInfo.getPointerInfo().getLocation();
+            try{
+                Point screen = this.getLocationOnScreen();
+                moveComponent(new Point(mouse.x - screen.x, mouse.y - screen.y), delay);
+            }
+            catch(IllegalComponentStateException e)
+            {
+                return;
+            }
+            
         }
     }
     
@@ -112,24 +155,46 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     {
         if(new ArrayList<>(Arrays.asList(this.getMouseMotionListeners())).
                 contains(this))
-            this.removeMouseMotionListener(this);        
+            this.pause();        
         else
-            this.addMouseMotionListener(this);            
+            this.startFolowing();            
     }
     
     /**
-     * Starts moving the component to the target location over time.
+     * Starts moving the component to the target location over time. This also
+     * pauses the movement of the mouse from the cursor.
      * @param target Target location for the component (center of the component).
      * @param time Time (in milliseconds) for the component to move to the target.
      */
     public void moveComponent(Point target, long time)
     {
         timeLeft = time;
-        this.target = target;
-        this.intial = new Point(follow.getX(), follow.getY());
         totalTime = time;
+        this.target = target;
+        this.intial = new Point(follow.getX() + size.width/2, follow.getY() +
+                size.height/2);
         componentX = (float)intial.getX();
         componentY = (float)intial.getY();
+        lastTime = System.currentTimeMillis();
+        this.repaint();
+    }
+    
+    /**
+     * Adds a FollowMouseListener to the current listeners of this class.
+     * @param listener Listeners to add.
+     */
+    public void addListener(FollowMouseListener listener)
+    {
+        listeners.add(listener);
+    }
+    
+    /**
+     * Removes a FollowMouseListener from the current listeners of this class.
+     * @param listener Listener to remove.
+     */
+    public void removeListener(FollowMouseListener listener)
+    {
+        listeners.remove(listener);
     }
     
     /**
@@ -172,9 +237,21 @@ public class FollowMouse extends JPanel implements MouseMotionListener
             if(elapsed >= timeLeft)
             {
                 timeLeft = 0;
-                draw = target;
+                draw = new Point(target);
+                location = draw;
                 target = null;
-                location = target;
+                
+                new java.util.Timer().schedule( 
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            synchronized(listeners)
+                            {
+                                for(FollowMouseListener listener : listeners)
+                                    listener.finishedMove(target);
+                            }
+                        }
+                    }, 10);
             }
             else
             {
@@ -195,10 +272,15 @@ public class FollowMouse extends JPanel implements MouseMotionListener
                 }, 
                 10);
         }
-        follow.setBounds(draw.x-size.width/2, draw.y-size.height/2, 
-                size.width, size.height);
+        follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
         lastTime = time;
         super.paintComponent(g);
+    }
+    
+    @Override
+    public Rectangle getBounds()
+    {
+        return follow.getBounds();
     }
 
     @Override
