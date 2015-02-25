@@ -48,7 +48,7 @@ public class FollowMouseTest implements MouseListener
     @Override
     public void mousePressed(MouseEvent e)
     {
-        if(follow.getBounds().contains(e.getPoint()))
+        if(follow.getComponentBounds().contains(e.getPoint()))
             follow.startFolowing();        
     }
 

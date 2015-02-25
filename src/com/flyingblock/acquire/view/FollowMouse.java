@@ -277,8 +277,11 @@ public class FollowMouse extends JPanel implements MouseMotionListener
         super.paintComponent(g);
     }
     
-    @Override
-    public Rectangle getBounds()
+    /**
+     * Retrieves the bounds for the moving component.
+     * @return Returns the component's bounds.
+     */
+    public Rectangle getComponentBounds()
     {
         return follow.getBounds();
     }
