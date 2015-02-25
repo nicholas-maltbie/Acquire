@@ -150,15 +150,36 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         c.weightx = 1;
         panel.add(companiesView, c);
         
-        FollowMouse follow = new FollowMouse(new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100), 100);
+        JLayeredPane layeredPane = new JLayeredPane();
         
-        JLayeredPane pane = new JLayeredPane();
-        pane.add(panel);
-        //pane.add(follow, JLayeredPane.DRAG_LAYER);
+        FollowMouse follow = new FollowMouse(panel, new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100), 100);
+        follow.setBackground(Color.WHITE);
+        follow.startFolowing();
         
-        frame.setContentPane(pane);
+        layeredPane.add(follow, JLayeredPane.DRAG_LAYER);
+        layeredPane.setBackground(Color.BLACK);
+        follow.setBounds(0,0,100,100);
+        
+        frame.setContentPane(panel);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        new java.util.Timer().schedule( 
+            new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    while(true)
+                    {
+                        try {
+                            follow.toggle();
+                            Thread.sleep(1000l);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ViewTest.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }, 
+            1000);
     }
 
     @Override

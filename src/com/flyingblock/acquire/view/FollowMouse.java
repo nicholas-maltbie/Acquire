@@ -9,7 +9,9 @@
  */
 package com.flyingblock.acquire.view;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -25,14 +27,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 /**
  * This will draw a component on a given graphics following the mouse.
- * @author Maltbie_N
+ * @author Nicholas Maltbie
  */
 public class FollowMouse extends JPanel implements MouseMotionListener
 {
+    /**
+     * Container this is being drawn on.
+     */
+    private Container parent;
     /**
      * Component that will follow the mouse.
      */
@@ -86,10 +93,11 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      * @param follow Component to follow the mouse.
      * @param size Dimensions of the component.
      * @param delay Transition length when the component starts following the cursor.
+     * @param parent Container this is being drawn on.
      */
-    public FollowMouse(Component follow, Dimension size, int delay)
+    public FollowMouse(Container parent, Component follow, Dimension size, int delay)
     {
-        this(follow, size, delay, null);
+        this(parent, follow, size, delay, null);
     }
     
     /**
@@ -99,9 +107,11 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      * @param delay Transition length when the component starts following the cursor.
      * @param startingLocation Starting center for the component. If startingLocation
      * is null, it will start at point (0,0).
+     * @param parent Container this is being drawn on.
      */
-    public FollowMouse(Component follow, Dimension size, int delay, Point startingLocation)
+    public FollowMouse(Container parent, Component follow, Dimension size, int delay, Point startingLocation)
     {
+        this.parent = parent;
         this.follow = follow;
         this.size = size;
         this.delay = delay;
@@ -113,7 +123,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
         follow.setLocation(location);
         lastTime = System.currentTimeMillis();
         listeners = new ArrayList<>();
-        this.add(follow);
+        this.add(follow, JLayeredPane.DRAG_LAYER);
     }
     
     /**
@@ -121,9 +131,9 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      */
     public void pause()
     {
-        if(new ArrayList<>(Arrays.asList(this.getMouseMotionListeners())).
+        if(new ArrayList<>(Arrays.asList(parent.getMouseMotionListeners())).
                 contains(this))
-            this.removeMouseMotionListener(this);
+            parent.removeMouseMotionListener(this);
     }
     
     /**
@@ -131,13 +141,13 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      */
     public void startFolowing()
     {
-        if(!new ArrayList<>(Arrays.asList(this.getMouseMotionListeners())).
+        if(!new ArrayList<>(Arrays.asList(parent.getMouseMotionListeners())).
                 contains(this))
         {
-            this.addMouseMotionListener(this);
+            parent.addMouseMotionListener(this);
             Point mouse = MouseInfo.getPointerInfo().getLocation();
             try{
-                Point screen = this.getLocationOnScreen();
+                Point screen = parent.getLocationOnScreen();
                 moveComponent(new Point(mouse.x - screen.x, mouse.y - screen.y), delay);
             }
             catch(IllegalComponentStateException e)
@@ -153,7 +163,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      */
     public void toggle()
     {
-        if(new ArrayList<>(Arrays.asList(this.getMouseMotionListeners())).
+        if(new ArrayList<>(Arrays.asList(parent.getMouseMotionListeners())).
                 contains(this))
             this.pause();        
         else
@@ -171,7 +181,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
         timeLeft = time;
         totalTime = time;
         this.target = target;
-        this.intial = new Point(follow.getX() + size.width/2, follow.getY() +
+        this.intial = new Point(this.getX() + size.width/2, this.getY() +
                 size.height/2);
         componentX = (float)intial.getX();
         componentY = (float)intial.getY();
@@ -205,6 +215,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     {
         this.remove(follow);
         this.follow = c;
+        this.repaint();
     }
     
     /**
@@ -213,6 +224,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     public void removeComponent()
     {
         this.remove(follow);
+        this.repaint();
     }
     
     /**
@@ -228,6 +240,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     @Override
     public void paintComponent(Graphics g)
     {
+        super.paintComponent(g);
         long time = System.currentTimeMillis();
         Point draw = location;
         if(target != null)
@@ -272,9 +285,10 @@ public class FollowMouse extends JPanel implements MouseMotionListener
                 }, 
                 10);
         }
-        follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+        System.out.println("red");
+        this.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+        //follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
         lastTime = time;
-        super.paintComponent(g);
     }
     
     /**

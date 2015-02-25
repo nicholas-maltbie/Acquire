@@ -28,7 +28,7 @@ public class FollowMouseTest implements MouseListener
    
     public FollowMouseTest(Component c, Dimension dimensions)
     {
-        follow = new FollowMouse(c,dimensions,100);
+        //follow = new FollowMouse(c,dimensions,100);
         follow.pause();
         follow.addMouseListener(this);
         JFrame frame = new JFrame("Follow Mouse Test");
