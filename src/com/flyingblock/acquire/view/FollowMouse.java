@@ -186,7 +186,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
         componentX = (float)intial.getX();
         componentY = (float)intial.getY();
         lastTime = System.currentTimeMillis();
-        this.repaint();
+        this.paintComponent(this.getGraphics());
     }
     
     /**
@@ -215,7 +215,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     {
         this.remove(follow);
         this.follow = c;
-        this.repaint();
+        this.paintComponent(this.getGraphics());
     }
     
     /**
@@ -224,7 +224,7 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     public void removeComponent()
     {
         this.remove(follow);
-        this.repaint();
+        this.paintComponent(this.getGraphics());
     }
     
     /**
@@ -240,7 +240,6 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     @Override
     public void paintComponent(Graphics g)
     {
-        super.paintComponent(g);
         long time = System.currentTimeMillis();
         Point draw = location;
         if(target != null)
@@ -280,12 +279,11 @@ public class FollowMouse extends JPanel implements MouseMotionListener
                 new java.util.TimerTask() {
                     @Override
                     public void run() {
-                        repaint();
+                        paintComponent(getGraphics());
                     }
                 }, 
                 10);
         }
-        System.out.println("red");
         this.setLocation(draw.x - size.width/2, draw.y - size.height/2);
         //follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
         lastTime = time;
@@ -303,13 +301,13 @@ public class FollowMouse extends JPanel implements MouseMotionListener
     @Override
     public void mouseDragged(MouseEvent e) {
         location = e.getPoint();
-        this.repaint();
+        this.paintComponent(this.getGraphics());
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
         location = e.getPoint();
-        this.repaint();
+        this.paintComponent(this.getGraphics());
     }
     
 }

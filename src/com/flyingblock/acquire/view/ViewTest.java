@@ -17,6 +17,7 @@ import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.model.MarketValue;
 import com.flyingblock.acquire.model.Stock;
 import com.flyingblock.acquire.view.PlayerStatusIcon.PlayerStatus;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -152,15 +153,23 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         
         JLayeredPane layeredPane = new JLayeredPane();
         
-        FollowMouse follow = new FollowMouse(panel, new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100), 100);
+        JPanel followPlane = new JPanel();
+        FollowMouse follow = new FollowMouse(followPlane, new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100), 100);
         follow.setBackground(Color.WHITE);
-        follow.startFolowing();
+        //follow.startFolowing();
         
-        layeredPane.add(follow, JLayeredPane.DRAG_LAYER);
+        followPlane.add(follow);
+        
+        layeredPane.add(followPlane, JLayeredPane.DRAG_LAYER);
         layeredPane.setBackground(Color.BLACK);
-        follow.setBounds(0,0,100,100);
+        follow.setBounds(0,0,500,500);
+        layeredPane.setBounds(0,0,1000,500);
+        layeredPane.add(panel, JLayeredPane.DEFAULT_LAYER);
+        panel.setBounds(0,0, 500,500);
+        panel.setBackground(Color.BLACK);
         
-        frame.setContentPane(panel);
+        frame.setLayout(new BorderLayout());
+        frame.add(layeredPane, BorderLayout.CENTER);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
