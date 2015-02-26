@@ -27,6 +27,7 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,8 +42,10 @@ import javax.swing.JScrollPane;
  * Class meant for testing the view components.
  * @author Nicholas Maltbie
  */
-public class ViewTest implements BoardListener, HandListener, CompanyPanelListener
+public class ViewTest implements BoardListener, HandListener, CompanyPanelListener, MouseListener
 {
+    private static FollowMouse follower;
+    
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("Test");
@@ -128,7 +131,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
                 Color.BLACK, new Dimension(400,100));
         companiesView.addButtonListener(new ViewTest());
         
-        JPanel panel = new JPanel();
+        /*JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         
@@ -149,46 +152,35 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         
         c.gridx = 1;
         c.weightx = 1;
-        panel.add(companiesView, c);
+        panel.add(companiesView, c);*/
         
         JLayeredPane layeredPane = new JLayeredPane();
         
-        JPanel followPlane = new JPanel();
-        FollowMouse follow = new FollowMouse(followPlane, new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN"), new Dimension(100,100), 100);
-        follow.setBackground(Color.WHITE);
-        //follow.startFolowing();
-        
-        followPlane.add(follow);
-        
-        layeredPane.add(followPlane, JLayeredPane.DRAG_LAYER);
         layeredPane.setBackground(Color.BLACK);
-        follow.setBounds(0,0,500,500);
-        layeredPane.setBounds(0,0,1000,500);
-        layeredPane.add(panel, JLayeredPane.DEFAULT_LAYER);
-        panel.setBounds(0,0, 500,500);
-        panel.setBackground(Color.BLACK);
+        layeredPane.add(playerView, JLayeredPane.DEFAULT_LAYER);
+        playerView.setBounds(0,0, 500,200);
+        layeredPane.add(boardView, JLayeredPane.DEFAULT_LAYER);
+        boardView.setBounds(0,200,800,600);
+        layeredPane.add(oppsView, JLayeredPane.DEFAULT_LAYER);
+        oppsView.setBounds(500, 0, 300, 200);
+        layeredPane.add(companiesView, JLayeredPane.DEFAULT_LAYER);
+        companiesView.setBounds(800,0,400,600);
         
+        HotelView testDrag = new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN");
+        layeredPane.add(testDrag, JLayeredPane.DRAG_LAYER);
+        testDrag.setBounds(0,0,50,50);
+        
+        follower = new FollowMouse(frame.getContentPane(), testDrag,
+                new Dimension(50,50), 100);
+        //follower.startFolowing();
+        follower.moveComponent(new Point(500,5000), 3000);
+        frame.getContentPane().addMouseListener(new ViewTest());
+        frame.setBounds(0,0,1300,900);
+        frame.setBackground(Color.BLACK);
         frame.setLayout(new BorderLayout());
         frame.add(layeredPane, BorderLayout.CENTER);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        new java.util.Timer().schedule( 
-            new java.util.TimerTask() {
-                @Override
-                public void run() {
-                    while(true)
-                    {
-                        try {
-                            follow.toggle();
-                            Thread.sleep(1000l);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ViewTest.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }
-            }, 
-            1000);
     }
 
     @Override
@@ -208,12 +200,12 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
 
     @Override
     public void enterBoard(MouseEvent event) {
-        System.out.println("entered");
+        //System.out.println("entered");
     }
 
     @Override
     public void exitBoard(MouseEvent event) {
-        System.out.println("exited");
+        //System.out.println("exited");
     }
 
     @Override
@@ -234,5 +226,33 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
     @Override
     public void buyButtonPressed(Corporation company) {
         System.out.println(company);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
+        
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e)
+    {
+        follower.startFolowing();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e)
+    {
+        follower.pause();
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

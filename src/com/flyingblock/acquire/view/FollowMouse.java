@@ -9,32 +9,24 @@
  */
 package com.flyingblock.acquire.view;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.IllegalComponentStateException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 
 /**
- * This will draw a component on a given graphics following the mouse.
+ * This will draw a component on a given Container following the mouse.
  * @author Nicholas Maltbie
  */
-public class FollowMouse extends JPanel implements MouseMotionListener
+public class FollowMouse implements MouseMotionListener
 {
     /**
      * Container this is being drawn on.
@@ -123,7 +115,6 @@ public class FollowMouse extends JPanel implements MouseMotionListener
         follow.setLocation(location);
         lastTime = System.currentTimeMillis();
         listeners = new ArrayList<>();
-        this.add(follow, JLayeredPane.DRAG_LAYER);
     }
     
     /**
@@ -181,12 +172,12 @@ public class FollowMouse extends JPanel implements MouseMotionListener
         timeLeft = time;
         totalTime = time;
         this.target = target;
-        this.intial = new Point(this.getX() + size.width/2, this.getY() +
+        this.intial = new Point(follow.getX() + size.width/2, follow.getY() +
                 size.height/2);
         componentX = (float)intial.getX();
         componentY = (float)intial.getY();
         lastTime = System.currentTimeMillis();
-        this.paintComponent(this.getGraphics());
+        update();
     }
     
     /**
@@ -213,9 +204,8 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      */
     public void setComponent(Component c)
     {
-        this.remove(follow);
         this.follow = c;
-        this.paintComponent(this.getGraphics());
+        update();
     }
     
     /**
@@ -223,8 +213,8 @@ public class FollowMouse extends JPanel implements MouseMotionListener
      */
     public void removeComponent()
     {
-        this.remove(follow);
-        this.paintComponent(this.getGraphics());
+        parent.remove(follow);
+        update();
     }
     
     /**
@@ -237,15 +227,17 @@ public class FollowMouse extends JPanel implements MouseMotionListener
         follow.setPreferredSize(size);
     }
     
-    @Override
-    public void paintComponent(Graphics g)
+    /**
+     * Updates the location of the following piece based on current location
+     * of mouse or preset locations if it is being moved currently.
+     */
+    public void update()
     {
         long time = System.currentTimeMillis();
         Point draw = location;
         if(target != null)
         {
             long elapsed = time - lastTime;
-            
             if(elapsed >= timeLeft)
             {
                 timeLeft = 0;
@@ -279,13 +271,13 @@ public class FollowMouse extends JPanel implements MouseMotionListener
                 new java.util.TimerTask() {
                     @Override
                     public void run() {
-                        paintComponent(getGraphics());
+                        update();
                     }
                 }, 
                 10);
         }
-        this.setLocation(draw.x - size.width/2, draw.y - size.height/2);
-        //follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+        //this.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+        follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
         lastTime = time;
     }
     
@@ -300,14 +292,20 @@ public class FollowMouse extends JPanel implements MouseMotionListener
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        location = e.getPoint();
-        this.paintComponent(this.getGraphics());
+        if(target == null)
+        {
+            location = e.getPoint();
+            update();
+        }
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        location = e.getPoint();
-        this.paintComponent(this.getGraphics());
+        if(target == null)
+        {
+            location = e.getPoint();
+            update();
+        }
     }
     
 }
