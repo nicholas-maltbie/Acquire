@@ -12,6 +12,7 @@ package com.flyingblock.acquire.view;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Investor;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -115,6 +116,26 @@ public class PlayerView extends JPanel
         this.add(display, c);
     }
     
+    /**
+     * Makes this component listen to parent for events.
+     * @param parent Component to listen to.
+     */
+    public void setupListeners(Container parent)
+    {
+        handView.setupListener(parent);
+    }
+    
+    /**
+     * Removes this component as a listener to the parent.
+     * @param parent Must first be listening to this.
+     */
+    public void closeListener(Container parent)
+    {
+        handView.closeListener(parent);
+    }
+    
+    /*
+    Temporarilly removed
     @Override
     public void paintComponent(Graphics g)
     {
@@ -133,7 +154,7 @@ public class PlayerView extends JPanel
                 name.getFont().getName(), name.getFont().getStyle(), 
                 new Rectangle2D.Float(0,0,getWidth()*.25f,getHeight()*1f/3f), g2)));
         name.setText(player.getName());
-    }
+    }*/
     
     /**
      * Updates the graphical components from the investor that this view

@@ -12,10 +12,12 @@ package com.flyingblock.acquire.view;
 import com.flyingblock.acquire.model.Investor;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -85,9 +87,26 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
                 this.add(Box.createHorizontalStrut(10));
             }
         }
-        
-        this.addMouseListener(this);
-        this.addMouseMotionListener(this);
+    }
+    
+    /**
+     * Makes this component listen to parent for events.
+     * @param parent Component to listen to.
+     */
+    public void setupListener(Container parent)
+    {
+        parent.addMouseListener(this);
+        parent.addMouseMotionListener(this);
+    }
+    
+    /**
+     * Removes this component as a listener to the parent.
+     * @param parent Must first be listening to this.
+     */
+    public void closeListener(Container parent)
+    {
+        parent.removeMouseListener(this);
+        parent.removeMouseMotionListener(this);        
     }
     
     /**
@@ -172,39 +191,68 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
         }
     }
 
+    /**
+     * Gets where this point is found on the screen or null if the point is not 
+     * within the JPanel.
+     * @param onScreen Point on the screen.
+     * @return Returns Point within the JPanel or null if it is not within the
+     * JPanel.
+     */
+    private Point getRelativeToThis(Point onScreen)
+    {
+        Point screen = this.getLocationOnScreen();
+        Rectangle bounds = new Rectangle(screen.x, screen.y,
+                this.getWidth(), this.getHeight());
+        if(!bounds.contains(onScreen))
+            return null;
+        return new Point(onScreen.x - screen.x, onScreen.y - screen.y);
+    }
+    
     @Override
     public void mouseClicked(MouseEvent e) 
     {
-        int index = getGridLocation(e.getPoint());
-        synchronized(listeners)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            listeners.stream().forEach((listener) -> {
-                listener.handClicked(index, e);
-            });
+            int index = getGridLocation(relative);
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) -> {
+                    listener.handClicked(index, e);
+                });
+            }
         }
     }
 
     @Override
     public void mousePressed(MouseEvent e) 
     {
-        int index = getGridLocation(e.getPoint());
-        synchronized(listeners)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            listeners.stream().forEach((listener) -> {
-                listener.handPressed(index, e);
-            });
+            int index = getGridLocation(relative);
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) -> {
+                    listener.handPressed(index, e);
+                });
+            }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) 
     {
-        int index = getGridLocation(e.getPoint());
-        synchronized(listeners)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            listeners.stream().forEach((listener) -> {
-                listener.handReleased(index, e);
-            });
+            int index = getGridLocation(relative);
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) -> {
+                    listener.handReleased(index, e);
+                });
+            }
         }
     }
 
@@ -231,26 +279,45 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
     @Override
     public void mouseMoved(MouseEvent e) 
     {
-        int index = getGridLocation(e.getPoint());
-        if(e.getPoint().getY() < 0 || e.getPoint().getY() >=  this.getHeight())
-            index = -1;
-        if(lastIndex != index)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            this.repaint();
+            int index = getGridLocation(relative);
+            if(relative.getY() < 0 || relative.getY() >=  this.getHeight())
+                index = -1;
+            if(lastIndex != index)
+            {
+                this.repaint();
+            }
+            lastIndex = index;
         }
-        lastIndex = index;
+        else
+        {
+            lastIndex = -1;
+            repaint();
+        }
+            
     }
     
     @Override
     public void mouseDragged(MouseEvent e) 
     {
-        int index = getGridLocation(e.getPoint());
-        if(e.getPoint().getY() < 0 || e.getPoint().getY() >=  this.getHeight())
-            index = -1;
-        if(lastIndex != index)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            this.repaint();
+            int index = getGridLocation(relative);
+            if(relative.getY() < 0 || relative.getY() >=  this.getHeight())
+                index = -1;
+            if(lastIndex != index)
+            {
+                this.repaint();
+            }
+            lastIndex = index;
         }
-        lastIndex = index;
+        else
+        {
+            lastIndex = -1;
+            repaint();
+        }
     }
 }

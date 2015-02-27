@@ -12,6 +12,7 @@ package com.flyingblock.acquire.view;
 import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Location;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;

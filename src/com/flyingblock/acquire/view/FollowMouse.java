@@ -87,7 +87,8 @@ public class FollowMouse implements MouseMotionListener
      * @param delay Transition length when the component starts following the cursor.
      * @param parent Container this is being drawn on.
      */
-    public FollowMouse(Container parent, Component follow, Dimension size, int delay)
+    public FollowMouse(Container parent, Component follow, Dimension size,
+            int delay)
     {
         this(parent, follow, size, delay, null);
     }
@@ -101,7 +102,8 @@ public class FollowMouse implements MouseMotionListener
      * is null, it will start at point (0,0).
      * @param parent Container this is being drawn on.
      */
-    public FollowMouse(Container parent, Component follow, Dimension size, int delay, Point startingLocation)
+    public FollowMouse(Container parent, Component follow, Dimension size, 
+            int delay, Point startingLocation)
     {
         this.parent = parent;
         this.follow = follow;

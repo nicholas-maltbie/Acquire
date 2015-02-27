@@ -131,54 +131,27 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
                 Color.BLACK, new Dimension(400,100));
         companiesView.addButtonListener(new ViewTest());
         
-        /*JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
+        JPanel test = new JPanel();
         
-        c.fill =  GridBagConstraints.BOTH;
-        c.weightx = 2.5;
-        c.weighty = 1;
-        panel.add(playerView, c);
-        
-        c.gridx = 1;
-        c.weightx = 1;
-        panel.add(oppsView, c);
-        
-        c.gridx = 0;
-        c.gridy = 1;
-        c.weightx = 2.5;
-        c.weighty = 3;
-        panel.add(boardView, c);
-        
-        c.gridx = 1;
-        c.weightx = 1;
-        panel.add(companiesView, c);*/
-        
-        JLayeredPane layeredPane = new JLayeredPane();
-        
-        layeredPane.setBackground(Color.BLACK);
-        layeredPane.add(playerView, JLayeredPane.DEFAULT_LAYER);
-        playerView.setBounds(0,0, 500,200);
-        layeredPane.add(boardView, JLayeredPane.DEFAULT_LAYER);
-        boardView.setBounds(0,200,800,600);
-        layeredPane.add(oppsView, JLayeredPane.DEFAULT_LAYER);
-        oppsView.setBounds(500, 0, 300, 200);
-        layeredPane.add(companiesView, JLayeredPane.DEFAULT_LAYER);
-        companiesView.setBounds(800,0,400,600);
-        
+        test.add(playerView);
+        playerView.setBounds(0,0,500,100);
+        playerView.setupListeners(test);
+        test.add(boardView);
+        boardView.setBounds(0,100,500,500);
         HotelView testDrag = new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN");
-        layeredPane.add(testDrag, JLayeredPane.DRAG_LAYER);
         testDrag.setBounds(0,0,50,50);
-        
-        follower = new FollowMouse(frame.getContentPane(), testDrag,
+        test.add(testDrag, 0);
+        follower = new FollowMouse(test, testDrag,
                 new Dimension(50,50), 100);
-        //follower.startFolowing();
-        follower.moveComponent(new Point(500,5000), 3000);
+        follower.startFolowing();
+        follower.moveComponent(new Point(500,500), 3000);
+        
+        test.setLayout(null);
         frame.getContentPane().addMouseListener(new ViewTest());
         frame.setBounds(0,0,1300,900);
         frame.setBackground(Color.BLACK);
         frame.setLayout(new BorderLayout());
-        frame.add(layeredPane, BorderLayout.CENTER);
+        frame.add(test, BorderLayout.CENTER);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }

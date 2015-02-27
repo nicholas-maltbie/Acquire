@@ -9,11 +9,13 @@
  */
 package com.flyingblock.acquire.view;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  * Class meant to test the FollowMouse class.
@@ -28,15 +30,13 @@ public class FollowMouseTest implements MouseListener
    
     public FollowMouseTest(Component c, Dimension dimensions)
     {
-        //follow = new FollowMouse(c,dimensions,100);
-        follow.pause();
-        follow.addMouseListener(this);
         JFrame frame = new JFrame("Follow Mouse Test");
+        frame.setContentPane(new JPanel());
+        c.setBackground(Color.BLACK);
+        follow = new FollowMouse(frame.getContentPane(), c, dimensions, 100);
         frame.setBounds(100,100,900,900);
-        frame.setContentPane(follow);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
     }
 
     @Override

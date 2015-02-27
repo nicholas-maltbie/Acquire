@@ -13,6 +13,7 @@ import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Board;
 import com.flyingblock.acquire.model.Location;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -88,9 +89,27 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
                 hotelButtons.set(row, col, hotel);
                 this.add(hotel);
             }
-        
-        addMouseListener(this);
-        addMouseMotionListener(this);
+    }
+    
+    
+    /**
+     * Makes this component listen to parent for events.
+     * @param parent Component to listen to.
+     */
+    public void setupListener(Container parent)
+    {
+        parent.addMouseListener(this);
+        parent.addMouseMotionListener(this);
+    }
+    
+    /**
+     * Removes this component as a listener to the parent.
+     * @param parent Must first be listening to this.
+     */
+    public void closeListener(Container parent)
+    {
+        parent.removeMouseListener(this);
+        parent.removeMouseMotionListener(this);        
     }
     
     /**
