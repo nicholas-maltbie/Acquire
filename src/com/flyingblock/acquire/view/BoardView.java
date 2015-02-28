@@ -18,6 +18,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -33,6 +34,10 @@ import javax.swing.JPanel;
  */
 public class BoardView extends JPanel implements MouseListener, MouseMotionListener
 {
+    /**
+     * Parent this is drawn on and will listen to.
+     */
+    private Container parent;
     /**
      * Listeners to this BoardView.
      */
@@ -100,6 +105,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     {
         parent.addMouseListener(this);
         parent.addMouseMotionListener(this);
+        this.parent = parent;
     }
     
     /**
@@ -109,7 +115,8 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     public void closeListener(Container parent)
     {
         parent.removeMouseListener(this);
-        parent.removeMouseMotionListener(this);        
+        parent.removeMouseMotionListener(this);
+        this.parent = this;
     }
     
     /**
@@ -121,7 +128,10 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         for(int row = 0; row < board.getNumRows(); row++)
             for(int col = 0; col < board.getNumCols(); col++)
                 if(board.isEmpty(row, col) != hotelButtons.isEmpty(row, col))
-                    hotelButtons.get(row, col).setHotel(board.get(row, col));
+                    if(!board.isEmpty(row, col))
+                        hotelButtons.get(row, col).setHotel(board.get(row, col));
+                    else
+                        hotelButtons.get(row, col).setHotel(new Location(row, col));
     }
     
     /**
@@ -155,8 +165,9 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void paintComponent(Graphics g)
     {
-        super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(getBackground());
+        g2.fill(new Rectangle(0,0,this.getWidth(),this.getHeight()));
         int width = this.getWidth()/board.getNumCols();
         int height = this.getHeight()/board.getNumRows();
         
@@ -189,64 +200,81 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         int height = this.getHeight()/board.getNumRows();
         return new Location((int)p.getY()/height, (int)p.getX()/width);
     }
+    
+        /**
+     * Gets where this point is found on the screen or null if the point is not 
+     * within the JPanel.
+     * @param onScreen Point on the screen.
+     * @return Returns Point within the JPanel or null if it is not within the
+     * JPanel.
+     */
+    private Point getRelativeToThis(Point onScreen)
+    {
+        Point screen = this.getLocationOnScreen();
+        Rectangle bounds = new Rectangle(screen.x, screen.y,
+                this.getWidth(), this.getHeight());
+        if(!bounds.contains(onScreen))
+            return null;
+        return new Point(onScreen.x - screen.x, onScreen.y - screen.y);
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) 
     {
-        Location loc = getGridLocation(e.getPoint());
-        synchronized(listeners)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            listeners.stream().forEach((listener) -> {
-                listener.buttonClicked(loc, e);
-            });
+            Location loc = getGridLocation(relative);
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) -> {
+                    listener.buttonClicked(loc, e);
+                });
+            }
         }
     }
 
     @Override
     public void mousePressed(MouseEvent e) 
     {
-        Location loc = getGridLocation(e.getPoint());
-        synchronized(listeners)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            listeners.stream().forEach((listener) -> {
-                listener.buttonPressed(loc, e);
-            });
+            Location loc = getGridLocation(relative);
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) -> {
+                    listener.buttonPressed(loc, e);
+                });
+            }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) 
     {
-        Location loc = getGridLocation(e.getPoint());
-        synchronized(listeners)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            listeners.stream().forEach((listener) -> {
-                listener.buttonRelease(loc, e);
-            });
+            Location loc = getGridLocation(relative);
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) -> {
+                    listener.buttonRelease(loc, e);
+                });
+            }
         }
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        synchronized(listeners)
-        {
-            listeners.stream().forEach((listener) -> {
-                listener.enterBoard(e);
-            });
-        }
+        
     }
 
     @Override
     public void mouseExited(MouseEvent e) 
     {
-        lastLocation = null;
-        this.repaint();
-        synchronized(listeners)
-        {
-            listeners.stream().forEach((listener) -> {
-                listener.exitBoard(e);
-            });
-        }
+        
     }
 
     /**
@@ -259,32 +287,50 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     @Override
     public void mouseMoved(MouseEvent e)
     {
-        Location loc = getGridLocation(e.getPoint());
-        if(loc != lastLocation)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            lastLocation = loc;
-            this.repaint();
+            Location loc = getGridLocation(relative);
+            if(loc != lastLocation)
+            {
+                lastLocation = loc;
+                parent.repaint();
+            }
+            else if(lastLocation != null && !loc.equals(lastLocation))
+            {
+                lastLocation = loc;
+                parent.repaint();
+            }
         }
-        else if(lastLocation != null && !loc.equals(lastLocation))
+        else
         {
-            lastLocation = loc;
-            this.repaint();
+            lastLocation = null;
+            parent.repaint();
         }
     }
 
     @Override
     public void mouseDragged(MouseEvent e) 
     {
-        Location loc = getGridLocation(e.getPoint());
-        if(loc != lastLocation)
+        Point relative = getRelativeToThis(e.getLocationOnScreen());
+        if(relative != null)
         {
-            lastLocation = loc;
-            this.repaint();
+            Location loc = getGridLocation(relative);
+            if(loc != lastLocation)
+            {
+                lastLocation = loc;
+                parent.repaint();
+            }
+            else if(lastLocation != null && !loc.equals(lastLocation))
+            {
+                lastLocation = loc;
+                parent.repaint();
+            }
         }
-        else if(lastLocation != null && !loc.equals(lastLocation))
+        else
         {
-            lastLocation = loc;
-            this.repaint();
+            lastLocation = null;
+            parent.repaint();
         }
     }
     

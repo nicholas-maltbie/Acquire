@@ -25,6 +25,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -45,6 +46,12 @@ import javax.swing.JScrollPane;
 public class ViewTest implements BoardListener, HandListener, CompanyPanelListener, MouseListener
 {
     private static FollowMouse follower;
+    
+    private static int[] xPoints = {0,0,900,900,800,800};
+    private static int[] yPoints = {0,1300,1300,200,200,0};
+    private Point[] points = {new Point(0,0), new Point(0,1300),
+        new Point(900,1300), new Point(900,200), new Point(200,800),
+        new Point(0,800)};
     
     public static void main(String[] args)
     {
@@ -128,23 +135,32 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
                 Color.BLACK);
         CompaniesScrollView companiesView = new CompaniesScrollView(companies,
                 "TIMES NEW ROMAN", Font.BOLD, "TIMES NEW ROMAN", Font.ITALIC,
-                Color.BLACK, new Dimension(400,100));
+                Color.BLACK, new Dimension(360,200));
         companiesView.addButtonListener(new ViewTest());
         
         JPanel test = new JPanel();
         
-        test.add(playerView);
-        playerView.setBounds(0,0,500,100);
-        playerView.setupListeners(test);
-        test.add(boardView);
-        boardView.setBounds(0,100,500,500);
         HotelView testDrag = new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN");
         testDrag.setBounds(0,0,50,50);
         test.add(testDrag, 0);
         follower = new FollowMouse(test, testDrag,
-                new Dimension(50,50), 100);
+                new Dimension(50,50), 1000);
         follower.startFolowing();
         follower.moveComponent(new Point(500,500), 3000);
+        follower.setBounds(new Rectangle(0,0,900,1300));
+        
+        test.setBackground(Color.BLACK);
+        
+        test.add(playerView);
+        playerView.setBounds(0,0,900,200);
+        playerView.setupListeners(test);
+        test.add(boardView);
+        boardView.setBounds(0,200,900,660);
+        boardView.setupListener(test);
+        test.add(oppsView);
+        oppsView.setBounds(900,0,380,200);
+        test.add(companiesView);
+        companiesView.setBounds(900,200,380,660);
         
         test.setLayout(null);
         frame.getContentPane().addMouseListener(new ViewTest());
@@ -154,6 +170,29 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         frame.add(test, BorderLayout.CENTER);
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        boardView.update();
+        playerView.update();
+        oppsView.update();
+        companiesView.update();
+        
+        follower.startFolowing();
+        /*new java.util.Timer().schedule( 
+            new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    while(true)
+                    {
+                        try {
+                            follower.toggle();
+                            Thread.sleep(3000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ViewTest.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+            }, 
+            5000);*/
     }
 
     @Override
@@ -170,17 +209,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
     public void buttonRelease(Location button, MouseEvent event) {
         System.out.println("released " + button);
     }
-
-    @Override
-    public void enterBoard(MouseEvent event) {
-        //System.out.println("entered");
-    }
-
-    @Override
-    public void exitBoard(MouseEvent event) {
-        //System.out.println("exited");
-    }
-
+    
     @Override
     public void handClicked(int index, MouseEvent event) {
         System.out.println("hand clicked " + index);

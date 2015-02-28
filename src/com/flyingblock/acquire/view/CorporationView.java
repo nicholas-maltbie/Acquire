@@ -140,10 +140,12 @@ public class CorporationView extends JPanel implements ActionListener
         return company;
     }
     
-    @Override
-    public void paintComponent(Graphics g)
+    /**
+     * Updates the view.
+     */
+    public void update()
     {
-        Graphics2D g2 = (Graphics2D) g;
+        Graphics g = this.getGraphics();
         buyButton.setFont(new Font(buyButton.getFont().getName(), buyButton.getFont().getStyle(), 
                 GUIOperations.findFontSize(buyButton.getText(), buyButton.getFont().getName(),
                     buyButton.getFont().getStyle(),new Rectangle2D.Float(
@@ -151,14 +153,12 @@ public class CorporationView extends JPanel implements ActionListener
         name.setFont(new Font(name.getFont().getName(), name.getFont().getStyle(), 
                 GUIOperations.findFontSize(name.getText(), name.getFont().getName(),
                     name.getFont().getStyle(),new Rectangle2D.Float(
-                            0, 0,this.getWidth(),this.getHeight()/2), g)));
+                            0, 0,this.getWidth()*.8f,this.getHeight()/2), g)));
         stockCount.setText(Integer.toString(company.getAvailableStocks()));
         stockCount.setFont(new Font(stockCount.getFont().getName(), stockCount.getFont().getStyle(), 
                 GUIOperations.findFontSize(stockCount.getText(), stockCount.getFont().getName(),
                     stockCount.getFont().getStyle(),new Rectangle2D.Float(
                             0, 0,this.getWidth()/3f*.75f,this.getHeight()/2*.75f), g)));
-        
-        super.paintComponent(g);
     }
 
     @Override

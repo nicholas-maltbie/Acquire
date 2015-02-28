@@ -29,6 +29,10 @@ import java.util.List;
 public class FollowMouse implements MouseMotionListener
 {
     /**
+     * Bounds in which the follow component can move.
+     */
+    private Rectangle bounds;
+    /**
      * Container this is being drawn on.
      */
     private Container parent;
@@ -126,7 +130,10 @@ public class FollowMouse implements MouseMotionListener
     {
         if(new ArrayList<>(Arrays.asList(parent.getMouseMotionListeners())).
                 contains(this))
+        {
             parent.removeMouseMotionListener(this);
+            update();
+        }
     }
     
     /**
@@ -147,7 +154,7 @@ public class FollowMouse implements MouseMotionListener
             {
                 return;
             }
-            
+            update();
         }
     }
     
@@ -189,6 +196,7 @@ public class FollowMouse implements MouseMotionListener
     public void addListener(FollowMouseListener listener)
     {
         listeners.add(listener);
+        update();
     }
     
     /**
@@ -198,6 +206,7 @@ public class FollowMouse implements MouseMotionListener
     public void removeListener(FollowMouseListener listener)
     {
         listeners.remove(listener);
+        update();
     }
     
     /**
@@ -227,6 +236,17 @@ public class FollowMouse implements MouseMotionListener
     {
         this.size = size;
         follow.setPreferredSize(size);
+        update();
+    }
+    
+    /**
+     * Sets the bounds to bounds or removes the bounds if bounds is equal
+     * to null.
+     * @param bounds New bounds or nothing if the bounds were null.
+     */
+    public void setBounds(Rectangle bounds)
+    {
+        this.bounds = bounds;
     }
     
     /**
@@ -279,7 +299,12 @@ public class FollowMouse implements MouseMotionListener
                 10);
         }
         //this.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+        Point lastLocation = follow.getLocation();
         follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+        if(bounds != null && !bounds.contains(follow.getBounds()))
+        {
+            follow.setLocation(lastLocation);
+        }
         lastTime = time;
     }
     

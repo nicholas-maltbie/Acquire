@@ -119,7 +119,7 @@ public class StockDisplay extends JPanel
         }
         int lineHeight = (int)(getHeight()*.7f/entriesPerColumn);
         g2.setColor(Color.GREEN.darker().darker());
-        for(int r = 1; r <= entriesPerColumn+1; r++) {
+        for(int r = 1; r < entriesPerColumn+1; r++) {
             g2.draw(new Line2D.Float(getWidth()*.1f,r*lineHeight+getHeight()*.2f,getWidth()*.9f,r*lineHeight+getHeight()*.2f));
         }
         for(int c = 0; c <= columns; c++) {

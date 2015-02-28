@@ -37,14 +37,4 @@ public interface BoardListener
      * @param event Mouse event that holds data about the action.
      */
     public void buttonRelease(Location button, MouseEvent event);
-    /**
-     * Called whenever the mouse enters the grid.
-     * @param event Mouse event that holds data about the action.
-     */
-    public void enterBoard(MouseEvent event);
-    /**
-     * Called whenever the mouse exits the grid.
-     * @param event Mouse event that holds data about the action.
-     */
-    public void exitBoard(MouseEvent event);
 }

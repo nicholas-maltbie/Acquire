@@ -12,7 +12,6 @@ package com.flyingblock.acquire.view;
 import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Location;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -107,7 +106,10 @@ public class HotelView extends JPanel
     {
         isEmpty = false;
         this.hotel = hotel;
-        this.fontColor = hotel.getOwner().getColor();
+        if(hotel.getOwner() != null)
+            this.fontColor = hotel.getOwner().getColor();
+        else
+            this.fontColor = Color.WHITE;
     }
     
     /**
@@ -118,7 +120,7 @@ public class HotelView extends JPanel
     {
         isEmpty = true;
         this.hotel = new Hotel(loc);   
-        this.fontColor = Color.BLACK;     
+        this.fontColor = Color.WHITE;     
     }
     
     @Override

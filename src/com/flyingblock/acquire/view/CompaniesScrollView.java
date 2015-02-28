@@ -60,7 +60,7 @@ public class CompaniesScrollView extends JScrollPane
         this.setViewportView(pane);
         this.setBackground(background);
         this.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         this.setBounds(0,0,preferedCompanySize.width, preferedCompanySize.height);
     }
     
@@ -85,6 +85,17 @@ public class CompaniesScrollView extends JScrollPane
         for(CorporationView view : views)
         {
             view.removeButtonListener(listener);
+        }
+    }
+    
+    /**
+     * Updates the view for current company data.
+     */
+    public void update()
+    {
+        for(CorporationView view : views)
+        {
+            view.update();
         }
     }
 }

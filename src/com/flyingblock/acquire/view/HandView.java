@@ -35,6 +35,10 @@ import javax.swing.JPanel;
 public class HandView extends JPanel implements MouseListener, MouseMotionListener
 {
     /**
+     * Parent this is drawn on and will listen to.
+     */
+    private Container parent;
+    /**
      * Listeners tracking this class's actions.
      */
     private List<HandListener> listeners;
@@ -97,6 +101,7 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
     {
         parent.addMouseListener(this);
         parent.addMouseMotionListener(this);
+        this.parent = parent;
     }
     
     /**
@@ -106,7 +111,8 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
     public void closeListener(Container parent)
     {
         parent.removeMouseListener(this);
-        parent.removeMouseMotionListener(this);        
+        parent.removeMouseMotionListener(this);
+        this.parent = this;
     }
     
     /**
@@ -267,7 +273,7 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
     {
         //set last index to -1 to indicate that it has exited the grid.
         lastIndex = -1;
-        this.repaint();
+        parent.repaint();
     }
 
     /**
@@ -287,14 +293,14 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
                 index = -1;
             if(lastIndex != index)
             {
-                this.repaint();
+                parent.repaint();
             }
             lastIndex = index;
         }
         else
         {
             lastIndex = -1;
-            repaint();
+            parent.repaint();
         }
             
     }
@@ -310,14 +316,14 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
                 index = -1;
             if(lastIndex != index)
             {
-                this.repaint();
+                parent.repaint();
             }
             lastIndex = index;
         }
         else
         {
             lastIndex = -1;
-            repaint();
+            parent.repaint();
         }
     }
 }

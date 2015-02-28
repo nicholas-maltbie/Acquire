@@ -98,7 +98,7 @@ public class OtherPlayerView extends JPanel
         }
     }
     
-    @Override
+    /*@Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
@@ -116,7 +116,7 @@ public class OtherPlayerView extends JPanel
                 name.getFont().getName(), name.getFont().getStyle(), 
                 new Rectangle2D.Float(0,0,getWidth()*.25f,getHeight()*1f/3f), g2)));
         name.setText(opponent.getName());
-    }
+    }*/
     
     /**
      * Updates the graphical components from the investor that this view
