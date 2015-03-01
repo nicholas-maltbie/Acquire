@@ -14,7 +14,6 @@ import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
-import com.flyingblock.acquire.model.MarketValue;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -22,13 +21,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.event.MouseListener;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -67,6 +64,10 @@ public class GameView extends JFrame implements ComponentListener
      * Panel that holds game elements.
      */
     private JPanel panel;
+    /**
+     * Last bounds of the window.
+     */
+    private Rectangle lastBounds;
     
     public GameView(AcquireBoard board, List<Corporation> companies,
             Investor investor, List<Investor> opponents, String font,
@@ -88,8 +89,8 @@ public class GameView extends JFrame implements ComponentListener
                 Color.BLACK);
         
         game = new JPanel();
-        
-        follower = new FollowMouse(game, null, new Dimension(50,50), 1000);
+
+        follower = new FollowMouse(game, null, new Dimension(100,100), 1000);
         game.setBackground(Color.BLACK);
         
         panel = new JPanel();
@@ -98,7 +99,7 @@ public class GameView extends JFrame implements ComponentListener
         
         c.fill =  GridBagConstraints.BOTH;
         c.weightx = 1.5;
-        c.weighty = 1;
+        c.weighty = .8;
         panel.add(playerView, c);
         
         c.gridx = 1;
@@ -115,12 +116,18 @@ public class GameView extends JFrame implements ComponentListener
         c.weightx = 1;
         panel.add(companiesView, c);
         
-        game.setLayout(new BorderLayout());
+        game.setLayout(null);
         game.add(panel);
+        
         panel.setBounds(0,0,1280,860);
         setBounds(0,0,1300,900);
+        
+        lastBounds = this.getBounds();
     }
     
+    /**
+     * Sets up and GUI and listeners for the JFrame.
+     */
     public void setupAndDisplayGUI()
     {
         playerView.setupListeners(game);
@@ -138,16 +145,63 @@ public class GameView extends JFrame implements ComponentListener
         componentResized(new ComponentEvent(this, 0));
     }
     
+    /**
+     * Moves the component that is following the mouse.
+     * @param point Point to transfer the component to.
+     * @param time Time to delay.
+     */
+    public void moveComponent(Point point, int time)
+    {
+        follower.moveComponent(point, time);
+    }
+    
+    /**
+     * This resumes or starts the component to follow the mouse.
+     */
+    public void startFollowing()
+    {
+        follower.startFolowing();
+    }
+    
+    /**
+     * This will stop the component from following the mouse.
+     */
+    public void stopFollowing()
+    {
+        follower.pause();
+    }
+    
+    /**
+     * Adds a listener to watch the component following the mouse.
+     * @param listener Listener to add.
+     */
     public void addFollowMouseListener(FollowMouseListener listener)
     {
         follower.addListener(listener);
     }
     
+    /**
+     * Removes a listener from the follow mouse component.
+     * @param listener Listener to remove.
+     */
+    public void removeFollowMouseListener(FollowMouseListener listener)
+    {
+        follower.removeListener(listener);
+    }
+    
+    /**
+     * Sets the component following the mouse.
+     * @param c Component to follow the mouse.
+     */
     public void setFollowingComponent(Component c)
     {
         follower.setComponent(c);
+        game.add(c, 0);
     }
     
+    /**
+     * Removes the component following the mouse.
+     */
     public void removeFollowingComponent()
     {
         follower.removeComponent();
@@ -163,6 +217,8 @@ public class GameView extends JFrame implements ComponentListener
         oppsView.update();
         companiesView.update();
         game.validate();
+        follower.setBounds(new Rectangle(0,0,boardView.getWidth() + 20, 
+                playerView.getHeight() + boardView.getHeight()));
     }
 
     @Override
@@ -176,15 +232,28 @@ public class GameView extends JFrame implements ComponentListener
             game.setSize(this.getSize());
             panel.setSize(new Dimension(getWidth()-15, getHeight()-35));
             //System.out.println(this.getSize() + ", " +  game.getSize());
-            follower.setBounds(new Rectangle(0,0,playerView.getWidth(), 
+            follower.setBounds(new Rectangle(0,0,boardView.getWidth() + 20, 
                     playerView.getHeight() + boardView.getHeight()));
-            this.update();
+            lastBounds = this.getBounds();
         }
     }
 
     @Override
+    public void addMouseListener(MouseListener listener)
+    {
+        game.addMouseListener(listener);
+    }
+    
+    @Override
+    public void removeMouseListener(MouseListener listener)
+    {
+        game.removeMouseListener(listener);
+    }
+    
+    @Override
     public void componentMoved(ComponentEvent e) {
-        componentResized(e);
+        if(!this.getBounds().equals(lastBounds))
+            componentResized(e);
     }
 
     @Override
@@ -195,5 +264,62 @@ public class GameView extends JFrame implements ComponentListener
     @Override
     public void componentHidden(ComponentEvent e) {
         //do nothing
+    }
+    
+    /**
+     * Removes a CompanyPanelListener from the companies panel.
+     * @param listener Listener to remove.
+     */
+    public void removeCompanyPanelListener(CompanyPanelListener listener)
+    {
+        companiesView.removeButtonListener(listener);
+    }
+    
+    /**
+     * Adds a CompanyPanelListener to the companies panel.
+     * @param listener Listener to add.
+     */
+    public void addCompanyPanelListener(CompanyPanelListener listener)
+    {
+        companiesView.addButtonListener(listener);
+    }
+    
+    /**
+     * Adds a hand listener to the playerView.
+     * @param listener Listener to add.
+     */
+    public void addHandListener(HandListener listener)
+    {
+        playerView.addHandLIstener(listener);
+    }
+    
+    /**
+     * Removes a hand listener from the playerView.
+     * @param listener Listener to remove.
+     */
+    public void removeHandListener(HandListener listener)
+    {
+        playerView.removeHandListener(listener);
+    }
+    
+    /**
+     * Adds a listener to the boardView. Board listeners listen to mouse
+     * actions that are located within the board.
+     * @param listener Listener to add.
+     */
+    public void addBoardListener(BoardListener listener)
+    {
+        boardView.addBoardListener(listener);
+    }
+    
+    /**
+     * Removes a listener from the board. Board listeners listen to mouse
+     * actions that are located within the board.
+     * @param listener Listener to remove.
+     * @return If the listener was successfully removed from the list.
+     */
+    public boolean removeBoardListener(BoardListener listener)
+    {
+        return boardView.removeBoardListener(listener);
     }
 }

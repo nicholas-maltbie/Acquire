@@ -18,4 +18,5 @@ import java.awt.Point;
 public interface FollowMouseListener
 {
     public void finishedMove(Point target);
+    public void exitedBounds(Point component);
 }

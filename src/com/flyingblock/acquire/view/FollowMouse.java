@@ -12,11 +12,13 @@ package com.flyingblock.acquire.view;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.IllegalComponentStateException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -144,14 +146,17 @@ public class FollowMouse implements MouseMotionListener
         {
             parent.addMouseMotionListener(this);
             Point mouse = MouseInfo.getPointerInfo().getLocation();
+            Point screen = parent.getLocationOnScreen();
+            location = new Point(mouse.x - screen.x, mouse.y - screen.y);
+            /*removed because... i don't really know. I didn't like the way
+            it looked
             try{
-                Point screen = parent.getLocationOnScreen();
                 moveComponent(new Point(mouse.x - screen.x, mouse.y - screen.y), delay);
             }
             catch(IllegalComponentStateException e)
             {
                 return;
-            }
+            }*/
             update();
         }
     }
@@ -216,7 +221,6 @@ public class FollowMouse implements MouseMotionListener
         removeComponent();
         this.follow = c;
         parent.add(follow);
-        update();
     }
     
     /**
@@ -224,8 +228,10 @@ public class FollowMouse implements MouseMotionListener
      */
     public void removeComponent()
     {
-        parent.remove(follow);
-        update();
+        if(follow != null)
+        {
+            parent.remove(follow);
+        }
     }
     
     /**
@@ -298,14 +304,21 @@ public class FollowMouse implements MouseMotionListener
                 }, 
                 10);
         }
-        
         if(follow != null)
         {
             Point lastLocation = follow.getLocation();
-            follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+            follow.setBounds(draw.x - size.width/2, draw.y - size.height/2, size.width, size.height);
             if(bounds != null && !bounds.contains(follow.getBounds()))
             {
-                follow.setLocation(lastLocation);
+                follow.setBounds(lastLocation.x, lastLocation.y, size.width, size.height);
+                synchronized(listeners)
+                {
+                    for(FollowMouseListener listener : listeners)
+                    {
+                        listener.exitedBounds(new Point(draw.x - size.width/2, 
+                                draw.y - size.height/2));
+                    }
+                }
             }
             lastTime = time;
         }
@@ -336,6 +349,5 @@ public class FollowMouse implements MouseMotionListener
             location = e.getPoint();
             update();
         }
-    }
-    
+    }    
 }

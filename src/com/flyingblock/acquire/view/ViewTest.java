@@ -15,37 +15,27 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.model.MarketValue;
-import com.flyingblock.acquire.model.Stock;
-import com.flyingblock.acquire.view.PlayerStatusIcon.PlayerStatus;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
 /**
  * Class meant for testing the view components.
  * @author Nicholas Maltbie
  */
-public class ViewTest implements BoardListener, HandListener, CompanyPanelListener, MouseListener
+public class ViewTest implements BoardListener, HandListener, 
+        CompanyPanelListener, MouseListener, FollowMouseListener
 {
     private static FollowMouse follower;
+    
+    private static GameView gameView;
     
     private static int[] xPoints = {0,0,900,900,800,800};
     private static int[] yPoints = {0,1300,1300,200,200,0};
@@ -53,13 +43,17 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         new Point(900,1300), new Point(900,200), new Point(200,800),
         new Point(0,800)};
     
+    private static Investor investor;
+    private static AcquireBoard board;
+    private static Corporation nicklandia;
+    
     public static void main(String[] args)
     {
         JFrame frame = new JFrame("Test");
         frame.setBounds(100,100,900,900);
         
-        AcquireBoard board = new AcquireBoard();
-        Corporation nicklandia = new Corporation("Nicklandia", board, 
+        board = new AcquireBoard();
+        nicklandia = new Corporation("Nicklandia", board, 
                 MarketValue.HIGH, new Color(255, 128, 0), 10);
         nicklandia.setHeadquarters(new Location(1,1));
         Corporation tower = new Corporation("Tower", board, 
@@ -80,7 +74,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
                 Arrays.asList(nicklandia, tower, american, red, analantis,
                         imperial, contiental));
         
-        Investor investor = new Investor("VeryVeryVeryLongName", 6000, 6, Color.CYAN);
+        investor = new Investor("VeryVeryVeryLongName", 6000, 6, Color.CYAN);
         
         investor.addStock(nicklandia.getStock());
         investor.addStock(nicklandia.getStock());
@@ -142,10 +136,19 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         HotelView testDrag = new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN");
         /*AcquireBoard board, List<Corporation> companies,
             Investor investor, List<Investor> opponents, String font*/
-        GameView gameView = new GameView(board, companies, investor,
+        
+        gameView = new GameView(board, companies, investor,
                 opponents, "TIMES NEW ROMAN", true);
         gameView.setupAndDisplayGUI();
         
+        ViewTest viewTest = new ViewTest();
+        
+        gameView.addBoardListener(viewTest);
+        gameView.addHandListener(viewTest);
+        gameView.addCompanyPanelListener(viewTest);
+        gameView.addMouseListener(viewTest);
+        gameView.addFollowMouseListener(viewTest);
+        gameView.removeFollowingComponent();
         /*JPanel test = new JPanel();
         
         testDrag.setBounds(0,0,50,50);
@@ -210,24 +213,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         oppsView.update();
         companiesView.update();
         test.validate();
-        
-        follower.startFolowing();
-        /*new java.util.Timer().schedule( 
-            new java.util.TimerTask() {
-                @Override
-                public void run() {
-                    while(true)
-                    {
-                        try {
-                            follower.toggle();
-                            Thread.sleep(3000);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(ViewTest.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }
-            }, 
-            5000);*/
+        */
     }
 
     @Override
@@ -242,17 +228,35 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
 
     @Override
     public void buttonRelease(Location button, MouseEvent event) {
-        System.out.println("released " + button);
+        if(held != null)
+        {
+            board.set(button.getRow(), button.getCol(), held);
+            held = null;
+            gameView.update();
+            gameView.repaint();
+            gameView.removeFollowingComponent();
+            
+            nicklandia.incorporateRegoin();
+        }
     }
     
     @Override
     public void handClicked(int index, MouseEvent event) {
         System.out.println("hand clicked " + index);
     }
+    
+    Hotel held = null;
 
     @Override
     public void handPressed(int index, MouseEvent event) {
-        System.out.println("hand pressed " + index);
+        if(investor.getFromHand(index) != null)
+        {
+            held = investor.removeFromHand(index);
+            hand = index;
+            gameView.setFollowingComponent(new HotelView(held, Color.WHITE, "TIMES NEW ROMAN"));
+            gameView.startFollowing();
+            gameView.update();
+        }
     }
 
     @Override
@@ -274,22 +278,53 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
     @Override
     public void mousePressed(MouseEvent e)
     {
-        follower.startFolowing();
+        
     }
 
+    int hand = 0;
+    
     @Override
     public void mouseReleased(MouseEvent e)
     {
-        follower.pause();
+        if(held != null)
+        {
+            gameView.moveComponent(new Point(100*hand, 100), 1000);
+        }
     }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
+    public void mouseEntered(MouseEvent e)
+    {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void mouseExited(MouseEvent e) {
+    public void mouseExited(MouseEvent e) 
+    {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void finishedMove(Point target)
+    {
+        if(held != null)
+        {
+            investor.setInHand(hand, held);
+            gameView.removeFollowingComponent();
+            held = null;
+            gameView.update();
+        }
+    }
+
+    @Override
+    public void exitedBounds(Point currentLocation) 
+    {
+        if(held != null)
+        {
+            investor.setInHand(hand, held);
+            gameView.removeFollowingComponent();
+            held = null;
+            gameView.update();
+        }
     }
 }
