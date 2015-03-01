@@ -121,7 +121,7 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         
         List<Investor> opponents = new ArrayList<>(Arrays.asList(o1,o2,o3,o4));
         
-        OpponentsPanel oppsView = new OpponentsPanel(opponents.toArray(new Investor[opponents.size()]), 
+        /*OpponentsPanel oppsView = new OpponentsPanel(opponents.toArray(new Investor[opponents.size()]), 
                 companies, Color.BLACK, "TIMES NEW ROMAN", Font.BOLD,
                 new Dimension(100,100), false, new Rectangle(0,0,100,100));
         
@@ -135,12 +135,19 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
                 Color.BLACK);
         CompaniesScrollView companiesView = new CompaniesScrollView(companies,
                 "TIMES NEW ROMAN", Font.BOLD, "TIMES NEW ROMAN", Font.ITALIC,
-                Color.BLACK, new Dimension(360,200));
+                Color.BLACK);
         companiesView.addButtonListener(new ViewTest());
-        
-        JPanel test = new JPanel();
+        companiesView.setBounds(0,0,100,100);
         
         HotelView testDrag = new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN");
+        /*AcquireBoard board, List<Corporation> companies,
+            Investor investor, List<Investor> opponents, String font*/
+        GameView gameView = new GameView(board, companies, investor,
+                opponents, "TIMES NEW ROMAN", true);
+        gameView.setupAndDisplayGUI();
+        
+        /*JPanel test = new JPanel();
+        
         testDrag.setBounds(0,0,50,50);
         test.add(testDrag, 0);
         follower = new FollowMouse(test, testDrag,
@@ -151,15 +158,40 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         
         test.setBackground(Color.BLACK);
         
-        test.add(playerView);
-        playerView.setBounds(0,0,900,200);
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        
+        c.fill =  GridBagConstraints.BOTH;
+        c.weightx = 1.5;
+        c.weighty = 1;
+        panel.add(playerView, c);
+        
+        c.gridx = 1;
+        c.weightx = 1;
+        panel.add(oppsView, c);
+        
+        c.gridx = 0;
+        c.gridy = 1;
+        c.weightx = 1.5;
+        c.weighty = 3;
+        panel.add(boardView, c);
+        
+        c.gridx = 1;
+        c.weightx = 1;
+        panel.add(companiesView, c);
+        
+        test.add(panel);
+        panel.setBounds(0,0,1280,860);
         playerView.setupListeners(test);
+        boardView.setupListener(test);
+        
+        /*test.add(playerView);
+        playerView.setBounds(0,0,900,200);
         test.add(boardView);
         boardView.setBounds(0,200,900,660);
-        boardView.setupListener(test);
         test.add(oppsView);
         oppsView.setBounds(900,0,380,200);
-        test.add(companiesView);
         companiesView.setBounds(900,200,380,660);
         
         test.setLayout(null);
@@ -171,10 +203,13 @@ public class ViewTest implements BoardListener, HandListener, CompanyPanelListen
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
+        companiesView.setPreferredCompanySize(new Dimension(200,100));
+        
         boardView.update();
         playerView.update();
         oppsView.update();
         companiesView.update();
+        test.validate();
         
         follower.startFolowing();
         /*new java.util.Timer().schedule( 

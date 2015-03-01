@@ -38,11 +38,9 @@ public class CompaniesScrollView extends JScrollPane
      * @param stockFont Font of stock counts.
      * @param stockStyle Style of stock counts.
      * @param background Background color of the panel.
-     * @param preferedCompanySize Size of the panels.
      */
-    public CompaniesScrollView(List<Corporation> corporations,
-            String nameFont, int nameStyle, String stockFont, int stockStyle,
-            Color background, Dimension preferedCompanySize)
+    public CompaniesScrollView(List<Corporation> corporations, String nameFont,
+            int nameStyle, String stockFont, int stockStyle, Color background)
     {
         super();
         views = new ArrayList<>();
@@ -52,7 +50,6 @@ public class CompaniesScrollView extends JScrollPane
         {
             CorporationView view = new CorporationView(c, nameFont, nameStyle,
                     stockFont, stockStyle,background);
-            view.setPreferredSize(preferedCompanySize);
             view.setBorder(BorderFactory.createLineBorder(c.getColor(), 5));
             pane.add(view);
             views.add(view);
@@ -61,7 +58,6 @@ public class CompaniesScrollView extends JScrollPane
         this.setBackground(background);
         this.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        this.setBounds(0,0,preferedCompanySize.width, preferedCompanySize.height);
     }
     
     /**
@@ -97,5 +93,15 @@ public class CompaniesScrollView extends JScrollPane
         {
             view.update();
         }
+    }
+    
+    /**
+     * Sets the preferred size for the corporation views.
+     * @param dims Dimensions of the panels
+     */
+    public void setPreferredCompanySize(Dimension dims)
+    {
+        for(CorporationView view : views)
+            view.setPreferredSize(dims);
     }
 }

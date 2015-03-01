@@ -113,12 +113,10 @@ public class FollowMouse implements MouseMotionListener
         this.follow = follow;
         this.size = size;
         this.delay = delay;
-        this.follow.setPreferredSize(size);
         if(startingLocation != null)
             location = startingLocation;
         else
             location = new Point(0,0);
-        follow.setLocation(location);
         lastTime = System.currentTimeMillis();
         listeners = new ArrayList<>();
     }
@@ -215,7 +213,9 @@ public class FollowMouse implements MouseMotionListener
      */
     public void setComponent(Component c)
     {
+        removeComponent();
         this.follow = c;
+        parent.add(follow);
         update();
     }
     
@@ -298,14 +298,17 @@ public class FollowMouse implements MouseMotionListener
                 }, 
                 10);
         }
-        //this.setLocation(draw.x - size.width/2, draw.y - size.height/2);
-        Point lastLocation = follow.getLocation();
-        follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
-        if(bounds != null && !bounds.contains(follow.getBounds()))
+        
+        if(follow != null)
         {
-            follow.setLocation(lastLocation);
+            Point lastLocation = follow.getLocation();
+            follow.setLocation(draw.x - size.width/2, draw.y - size.height/2);
+            if(bounds != null && !bounds.contains(follow.getBounds()))
+            {
+                follow.setLocation(lastLocation);
+            }
+            lastTime = time;
         }
-        lastTime = time;
     }
     
     /**

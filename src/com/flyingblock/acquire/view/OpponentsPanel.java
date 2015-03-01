@@ -48,15 +48,11 @@ public class OpponentsPanel extends JPanel
      * @param background Background color of the panel.
      * @param font Font of all text within the panel.
      * @param style Style of all text within the panel.
-     * @param preferredPanelSize The preferred panel size of the OtherPlayerViews
-     * within the panel.
      * @param showStocks A decision of whether to show the stocks of opposing 
      * players.
-     * @param displayArea Area of the opposing player views to display.
      */
     public OpponentsPanel(Investor[] opponents, List<Corporation> companies,
-            Color background, String font, int style, Dimension preferredPanelSize,
-            boolean showStocks, Rectangle displayArea)
+            Color background, String font, int style, boolean showStocks)
     {
         int investors = opponents.length;
         this.opponentIcons = new PlayerStatusIcon[investors];
@@ -77,7 +73,6 @@ public class OpponentsPanel extends JPanel
                     opponents[i], font, style, background);
             this.opponents[i] = new OtherPlayerView(opponents[i], companies,
                     font, font, font, background, style, style, showStocks);
-            this.opponents[i].setPreferredSize(preferredPanelSize);
             holdViews.add(this.opponents[i]);
             this.opponents[i].setBorder(BorderFactory.createLineBorder(
                     opponents[i].getColor(), 5, true));
@@ -103,7 +98,6 @@ public class OpponentsPanel extends JPanel
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         otherViews.setBackground(background);
-        otherViews.scrollRectToVisible(displayArea);
         otherViews.setWheelScrollingEnabled(true);
         
         c.fill = GridBagConstraints.BOTH;
@@ -132,6 +126,16 @@ public class OpponentsPanel extends JPanel
             }
         }
         return false;
+    }
+    
+    /**
+     * Sets the preferred size for the corporation views.
+     * @param dims Dimensions of the panels
+     */
+    public void setPreferredCompanySize(Dimension dims)
+    {
+        for(OtherPlayerView view : opponents)
+            view.setPreferredSize(dims);
     }
     
     /**
