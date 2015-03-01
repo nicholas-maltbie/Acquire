@@ -184,7 +184,7 @@ public class GameView extends JFrame implements ComponentListener
 
     @Override
     public void componentMoved(ComponentEvent e) {
-        //do nothing
+        componentResized(e);
     }
 
     @Override
