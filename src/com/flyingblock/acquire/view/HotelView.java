@@ -43,7 +43,7 @@ public class HotelView extends JPanel
      */
     private Hotel hotel;
     /**
-     * Background and text color.
+     * Background color.
      */
     private Color background;
     /**

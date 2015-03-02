@@ -14,6 +14,7 @@ import com.flyingblock.acquire.model.Board;
 import com.flyingblock.acquire.model.Location;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -334,4 +335,13 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
         }
     }
     
+    /**
+     * Gets the size of any piece within the board.
+     * @return Returns the width and height of any hotel view within the board.
+     */
+    public Dimension getPieceBounds()
+    {
+        return new Dimension(this.getWidth()/board.getNumCols(), 
+                this.getHeight()/board.getNumRows());
+    }
 }

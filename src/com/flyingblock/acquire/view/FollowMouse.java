@@ -176,11 +176,12 @@ public class FollowMouse implements MouseMotionListener
     /**
      * Starts moving the component to the target location over time. This also
      * pauses the movement of the mouse from the cursor.
-     * @param target Target location for the component (center of the component).
+     * @param target Target location for the component (upper left corner).
      * @param time Time (in milliseconds) for the component to move to the target.
      */
     public void moveComponent(Point target, long time)
     {
+        target = new Point(target.x + size.width/2, target.y + size.height/2);
         timeLeft = time;
         totalTime = time;
         this.target = target;
@@ -221,6 +222,7 @@ public class FollowMouse implements MouseMotionListener
         removeComponent();
         this.follow = c;
         parent.add(follow);
+        update();
     }
     
     /**
@@ -241,7 +243,6 @@ public class FollowMouse implements MouseMotionListener
     public void setFollowSize(Dimension size)
     {
         this.size = size;
-        follow.setPreferredSize(size);
         update();
     }
     
@@ -349,5 +350,16 @@ public class FollowMouse implements MouseMotionListener
             location = e.getPoint();
             update();
         }
-    }    
+    }  
+    
+    /**
+     * Instantly moves the component that is following the mouse.
+     * @param point Point to translate the component to.
+     */
+    public void moveComponent(Point point)
+    {
+        location = point;
+        if(follow != null)
+            follow.setLocation(point);
+    }
 }

@@ -201,6 +201,15 @@ public class Corporation
     }
     
     /**
+     * Gets the price of any stock that this company owns.
+     * @return Returns the current price of a stock.
+     */
+    public int getStockPrice()
+    {
+        return new Stock(this, getMarketValue()).getTradeInValue();
+    }
+    
+    /**
      * Gets the number of available stocks in the company's store.
      * @return Returns the number of stocks available.
      */

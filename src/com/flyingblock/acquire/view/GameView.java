@@ -85,7 +85,7 @@ public class GameView extends JFrame implements ComponentListener
                 companies, Color.BLACK, font, Font.BOLD, displayStocks);
         
         companiesView = new CompaniesScrollView(companies,
-                font, Font.BOLD, font, Font.ITALIC,
+                font, font, Font.ITALIC,
                 Color.BLACK);
         
         game = new JPanel();
@@ -98,7 +98,7 @@ public class GameView extends JFrame implements ComponentListener
         GridBagConstraints c = new GridBagConstraints();
         
         c.fill =  GridBagConstraints.BOTH;
-        c.weightx = 1.5;
+        c.weightx = 2;
         c.weighty = .8;
         panel.add(playerView, c);
         
@@ -107,7 +107,7 @@ public class GameView extends JFrame implements ComponentListener
         panel.add(oppsView, c);
         
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 2;
         c.weightx = 1.5;
         c.weighty = 3;
         panel.add(boardView, c);
@@ -153,6 +153,15 @@ public class GameView extends JFrame implements ComponentListener
     public void moveComponent(Point point, int time)
     {
         follower.moveComponent(point, time);
+    }
+    
+    /**
+     * Instantly moves the component that is following the mouse.
+     * @param point Point to translate the component to.
+     */
+    public void moveComponent(Point point)
+    {
+        follower.moveComponent(point);
     }
     
     /**
@@ -321,5 +330,43 @@ public class GameView extends JFrame implements ComponentListener
     public boolean removeBoardListener(BoardListener listener)
     {
         return boardView.removeBoardListener(listener);
+    }
+    
+    /**
+     * Gets the location of a hand piece in the GUI.
+     * @param index Index in the hand.
+     * @return Returns a point that is the upper left corner of the hand location.
+     */
+    public Point getHandLocation(int index)
+    {
+        return playerView.getHandLocation(index);
+    }
+    
+    /**
+     * Gets the size of any piece within the player's hand.
+     * @return Returns the width and height of any piece in the player's hand.
+     */
+    public Dimension getHandPieceBounds()
+    {
+        return playerView.getPieceBounds();
+    }
+    
+    /**
+     * Gets the size of any piece within the board.
+     * @return Returns the width and height of any hotel view within the board.
+     */
+    public Dimension getBoardPieceBounds()
+    {
+        return boardView.getPieceBounds();
+    }
+    
+    /**
+     * Sets the size of the component following the cursor.
+     * @param size Dimensions to size the component following the cursor
+     * in pixels.
+     */
+    public void setFollowSize(Dimension size)
+    {
+        follower.setFollowSize(size);
     }
 }

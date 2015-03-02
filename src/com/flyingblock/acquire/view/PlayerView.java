@@ -13,11 +13,13 @@ import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Investor;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import javax.swing.JLabel;
@@ -199,5 +201,27 @@ public class PlayerView extends JPanel
     public boolean removeHandListener(HandListener listener)
     {
         return handView.removeHandListener(listener);
+    }
+    
+    /**
+     * Gets the location of a hand piece in the GUI.
+     * @param index Index in the hand.
+     * @return Returns a point that is the upper left corner of the hand location.
+     */
+    public Point getHandLocation(int index)
+    {
+        return new Point(handView.getX()+handView.getWidth()/
+                player.getHandSize()*index, handView.getY());
+    }
+    
+    
+    /**
+     * Gets the size of any piece within the player's hand.
+     * @return Returns the width and height of any piece in the player's hand.
+     */
+    public Dimension getPieceBounds()
+    {
+        return new Dimension(handView.getWidth()/player.getHandSize(),
+                handView.getHeight());
     }
 }

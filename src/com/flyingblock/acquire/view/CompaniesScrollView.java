@@ -34,13 +34,12 @@ public class CompaniesScrollView extends JScrollPane
      * Constructs a scroll pane for multiple companies.
      * @param corporations Companies to display in a game.
      * @param nameFont Font of company names.
-     * @param nameStyle Style of company names.
      * @param stockFont Font of stock counts.
      * @param stockStyle Style of stock counts.
      * @param background Background color of the panel.
      */
     public CompaniesScrollView(List<Corporation> corporations, String nameFont,
-            int nameStyle, String stockFont, int stockStyle, Color background)
+            String stockFont, int stockStyle, Color background)
     {
         super();
         views = new ArrayList<>();
@@ -48,7 +47,7 @@ public class CompaniesScrollView extends JScrollPane
         pane.setLayout(new BoxLayout(pane, BoxLayout.Y_AXIS));
         for(Corporation c : corporations)
         {
-            CorporationView view = new CorporationView(c, nameFont, nameStyle,
+            CorporationView view = new CorporationView(c, nameFont,
                     stockFont, stockStyle,background);
             view.setBorder(BorderFactory.createLineBorder(c.getColor(), 5));
             pane.add(view);

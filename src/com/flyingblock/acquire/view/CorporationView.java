@@ -57,13 +57,12 @@ public class CorporationView extends JPanel implements ActionListener
      * Constructs a CorperateView.
      * @param corporation Corporation to display graphically.
      * @param nameFont The font for the corporation name.
-     * @param nameStyle The style of the corporation name.
      * @param stockFont The font for the stock count indication.
      * @param stockStyle The style of the stock count indication.
      * @param background Background color.
      */
     public CorporationView(Corporation corporation, String nameFont, 
-            int nameStyle, String stockFont, int stockStyle, Color background)
+            String stockFont, int stockStyle, Color background)
     {
         this.setBackground(background);
         this.company = corporation;
@@ -150,7 +149,12 @@ public class CorporationView extends JPanel implements ActionListener
                 GUIOperations.findFontSize(buyButton.getText(), buyButton.getFont().getName(),
                     buyButton.getFont().getStyle(),new Rectangle2D.Float(
                             0, 0,this.getWidth()*2f/3f*.6f,this.getHeight()/2*.6f), g)));
-        name.setFont(new Font(name.getFont().getName(), name.getFont().getStyle(), 
+        int style = 0;
+        if(company.isEstablished())
+            style = Font.BOLD;
+        else
+            style = Font.ITALIC;
+        name.setFont(new Font(name.getFont().getName(), style, 
                 GUIOperations.findFontSize(name.getText(), name.getFont().getName(),
                     name.getFont().getStyle(),new Rectangle2D.Float(
                             0, 0,this.getWidth()*.8f,this.getHeight()/2), g)));

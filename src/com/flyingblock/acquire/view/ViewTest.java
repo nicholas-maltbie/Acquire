@@ -74,7 +74,7 @@ public class ViewTest implements BoardListener, HandListener,
                 Arrays.asList(nicklandia, tower, american, red, analantis,
                         imperial, contiental));
         
-        investor = new Investor("VeryVeryVeryLongName", 6000, 6, Color.CYAN);
+        investor = new Investor("Clyde", 6000, 6, Color.CYAN);
         
         investor.addStock(nicklandia.getStock());
         investor.addStock(nicklandia.getStock());
@@ -124,14 +124,6 @@ public class ViewTest implements BoardListener, HandListener,
         Corporation corporation, Font nameFont, 
             int nameStyle, Font stockFont, int stockStyle
         */
-        CorporationView companyView = new CorporationView(nicklandia, 
-                "TIMES NEW ROMAN", Font.BOLD, "TIMES NEW ROMAN", Font.ITALIC, 
-                Color.BLACK);
-        CompaniesScrollView companiesView = new CompaniesScrollView(companies,
-                "TIMES NEW ROMAN", Font.BOLD, "TIMES NEW ROMAN", Font.ITALIC,
-                Color.BLACK);
-        companiesView.addButtonListener(new ViewTest());
-        companiesView.setBounds(0,0,100,100);
         
         HotelView testDrag = new HotelView(hotel, Color.WHITE, "TIMES NEW ROMAN");
         /*AcquireBoard board, List<Corporation> companies,
@@ -251,11 +243,14 @@ public class ViewTest implements BoardListener, HandListener,
     public void handPressed(int index, MouseEvent event) {
         if(investor.getFromHand(index) != null)
         {
+            gameView.moveComponent(event.getPoint());
             held = investor.removeFromHand(index);
             hand = index;
+            gameView.setFollowSize(gameView.getHandPieceBounds());
             gameView.setFollowingComponent(new HotelView(held, Color.WHITE, "TIMES NEW ROMAN"));
             gameView.startFollowing();
             gameView.update();
+            gameView.repaint();
         }
     }
 
@@ -288,7 +283,7 @@ public class ViewTest implements BoardListener, HandListener,
     {
         if(held != null)
         {
-            gameView.moveComponent(new Point(100*hand, 100), 1000);
+            gameView.moveComponent(gameView.getHandLocation(hand), 500);
         }
     }
 
@@ -321,10 +316,7 @@ public class ViewTest implements BoardListener, HandListener,
     {
         if(held != null)
         {
-            investor.setInHand(hand, held);
-            gameView.removeFollowingComponent();
-            held = null;
-            gameView.update();
+            gameView.moveComponent(gameView.getHandLocation(hand), 500);
         }
     }
 }
