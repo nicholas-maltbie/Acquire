@@ -55,20 +55,25 @@ public class Game
     /**
      * Default company names.
      */
-    private static final String[] DEFAULT_COMPANIES = {"TOWER", "NICKLANDIA"};
+    private static final String[] DEFAULT_COMPANIES = {"Worldwide", "Nicklandia"
+            ,"Festival", "Imperial", "American", "Continental", "Tower"};
     
     /**
      * Default company market values.
      */
-    private static final MarketValue[] DEFAULT_VALUES = {MarketValue.LOW, MarketValue.HIGH};
+    private static final MarketValue[] DEFAULT_VALUES = {MarketValue.LOW,
+            MarketValue.LOW, MarketValue.MEDIUM, MarketValue.MEDIUM, 
+            MarketValue.MEDIUM, MarketValue.HIGH, MarketValue.HIGH};
     /**
      * Default company colors.
      */
-    private static final Color[] DEFAULT_COLORS = {Color.YELLOW.darker(), Color.ORANGE};
+    private static final Color[] DEFAULT_COLORS = {new Color(76,0,153),
+            new Color(204,102,0), new Color(76,153,0), new Color(204,204,0),
+            new Color(0,76,153), new Color(204,0,0), new Color(51,25,0)};
     /**
      * Default company starting stock values.
      */
-    private static final int[] DEFAULT_STOCKS = {10,10};
+    private static final int[] DEFAULT_STOCKS = {25,25,25,25,25,25,25};
     
     /**
      * Constructs a default game with variable player names.

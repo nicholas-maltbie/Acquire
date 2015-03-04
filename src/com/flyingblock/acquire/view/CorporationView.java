@@ -72,7 +72,7 @@ public class CorporationView extends JPanel implements ActionListener
         buyButton.setFont(new Font("TIMES NEW ROMAN", Font.BOLD, 10));
         buyButton.setForeground(background);
         buyButton.setHorizontalAlignment(SwingConstants.CENTER);
-        buyButton.addActionListener(this);
+        //buyButton.addActionListener(this);
         
         name = new JLabel(corporation.getCorporateName());
         name.setForeground(corporation.getColor());
@@ -103,7 +103,7 @@ public class CorporationView extends JPanel implements ActionListener
         c.gridx = 1;
         c.gridy = 1;
         c.weightx = 2;
-        this.add(buyButton, c);
+        //this.add(buyButton, c);
     }
     
     /**

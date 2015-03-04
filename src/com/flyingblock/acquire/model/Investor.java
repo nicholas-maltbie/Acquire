@@ -127,12 +127,12 @@ public class Investor
      */
     public void drawFromDeck(HotelMarket deck)
     {
-        for(int i = 0; i < getHandSize() && deck.getSize() == 0; i++)
+        for(int i = 0; i < getHandSize() && deck.getSize() > 0; i++)
         {
             if(getFromHand(i) == null)
                 setInHand(i, deck.draw());
         }
-        for(int i = 0; i < getHandSize(); i++)
+        for(int i = 0; i < getHandSize()-1; i++)
         {
             if(getFromHand(i) == null && i < getHandSize())
                 setInHand(i, getFromHand(i+1));
