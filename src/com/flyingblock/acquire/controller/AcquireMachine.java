@@ -92,6 +92,11 @@ public class AcquireMachine extends AbstractFSM<GameState>
                 player.drawFromDeck(market);
                 view.setupAndDisplayGUI();
                 view.update();
+                this.setState(GameState.PLAYER_TURN);
+                break;
+            case PLAYER_TURN:
+                HumanPlayerFSM turn = new HumanPlayerFSM(board, market, 
+                    player, companies, view);
                 break;
         }
     }

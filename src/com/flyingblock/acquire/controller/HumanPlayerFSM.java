@@ -56,6 +56,12 @@ public class HumanPlayerFSM
     public HumanPlayerFSM(AcquireBoard board, HotelMarket deck, Investor player,
             List<Corporation> companies, GameView view)
     {
-        
+        this.board = board;
+        this.deck = deck;
+        this.player = player;
+        this.companies = companies;
+        this.view = view;
+        HandManager manager = new HandManager(view, player);
+        manager.start();
     }
 }

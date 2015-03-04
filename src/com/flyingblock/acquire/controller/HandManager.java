@@ -16,12 +16,13 @@ import com.flyingblock.acquire.view.HandListener;
 import com.flyingblock.acquire.view.HotelView;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 /**
  * A class that allows a player to manage the pieces in his/her hand.
  * @author Nicholas Maltbie
  */
-public class HandManager implements HandListener
+public class HandManager implements HandListener, MouseListener
 {
     /**
      * The index the last piece was pulled from.
@@ -59,6 +60,7 @@ public class HandManager implements HandListener
     public void start()
     {
         view.addHandListener(this);
+        view.addMouseListener(this);
     }
     
     /**
@@ -67,6 +69,24 @@ public class HandManager implements HandListener
     public void stop()
     {
         view.removeHandListener(this);
+        view.addMouseListener(this);
+    }
+    
+    /**
+     * Moves the piece in new location to the original position of the held
+     * piece and then puts the held piece in the new location. If there is no
+     * @param newLocation Location of the piece to switch to. If the current
+     * index is passed, it will put the piece back in its location.
+     */
+    private void switchPlaces(int newLocation)
+    {
+        if(piece != null)
+        {
+            Hotel move = investor.removeFromHand(newLocation);
+            investor.setInHand(current, move);
+            investor.setInHand(newLocation, piece);
+            piece = null;
+        }
     }
     
     @Override
@@ -80,18 +100,64 @@ public class HandManager implements HandListener
     {
         if(investor.getFromHand(index) != null)
         {
+            System.out.println("red");
             piece = investor.removeFromHand(index);
             current = index;
             view.setFollowingComponent(new HotelView(piece, Color.BLACK
                     , "TIMES NEW ROMAN"));
             view.setFollowSize(view.getHandPieceBounds());
+            view.startFollowing();
+            view.update();
+            view.repaint();
         }
     }
-
+    
     @Override
     public void handReleased(int index, MouseEvent event) 
     {
+        switchPlaces(index);
+        view.stopFollowing();
+        view.removeFollowingComponent();
+        view.update();
+        view.repaint();
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
         
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e)
+    {
+        
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) 
+    {
+        switchPlaces(current);
+        view.stopFollowing();
+        view.removeFollowingComponent();
+        view.update();
+        view.repaint();
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) 
+    {
+        
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e)
+    {
+        switchPlaces(current);
+        view.stopFollowing();
+        view.removeFollowingComponent();
+        view.update();
+        view.repaint();
     }
     
 }

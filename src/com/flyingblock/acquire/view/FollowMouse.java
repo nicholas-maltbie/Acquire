@@ -309,7 +309,7 @@ public class FollowMouse implements MouseMotionListener
         {
             Point lastLocation = follow.getLocation();
             follow.setBounds(draw.x - size.width/2, draw.y - size.height/2, size.width, size.height);
-            if(bounds != null && !bounds.contains(follow.getBounds()))
+            if(bounds != null && !bounds.contains(draw))
             {
                 follow.setBounds(lastLocation.x, lastLocation.y, size.width, size.height);
                 synchronized(listeners)
