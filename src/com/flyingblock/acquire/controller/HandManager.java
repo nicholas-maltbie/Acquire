@@ -100,7 +100,6 @@ public class HandManager implements HandListener, MouseListener
     {
         if(investor.getFromHand(index) != null)
         {
-            System.out.println("red");
             piece = investor.removeFromHand(index);
             current = index;
             view.setFollowingComponent(new HotelView(piece, Color.BLACK
