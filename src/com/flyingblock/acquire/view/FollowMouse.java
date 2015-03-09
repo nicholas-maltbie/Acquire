@@ -83,7 +83,11 @@ public class FollowMouse implements MouseMotionListener
      * Listeners to this FollowerMouse.
      */
     private List<FollowMouseListener> listeners;
-    
+    /**
+     * boolean to check whether or not the mouse must be dragged for this 
+     * to move the component.
+     */
+    private boolean mustDrag;
     
     /**
      * Constructs a mouse following panel. It starts NOT following the mouse. 
@@ -345,7 +349,7 @@ public class FollowMouse implements MouseMotionListener
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        if(target == null)
+        if(target == null && !mustDrag)
         {
             location = e.getPoint();
             update();
@@ -361,5 +365,25 @@ public class FollowMouse implements MouseMotionListener
         location = point;
         if(follow != null)
             follow.setLocation(point);
+    }
+    
+    /**
+     * Get if a player must be dragging the mouse in order to move the 
+     * component.
+     * @return Returns the mustDrag field.
+     */
+    public boolean mustDrag()
+    {
+        return mustDrag;
+    }
+    
+    /**
+     * Sets if a player must drag the mouse to move the component.
+     * @param mustDrag New state to set whether the player must drag the
+     * component.
+     */
+    public void setDrag(boolean mustDrag)
+    {
+        this.mustDrag = mustDrag;
     }
 }

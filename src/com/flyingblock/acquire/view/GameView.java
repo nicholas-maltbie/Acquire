@@ -369,4 +369,24 @@ public class GameView extends JFrame implements ComponentListener
     {
         follower.setFollowSize(size);
     }
+    
+    /**
+     * Get if a player must be dragging the mouse in order to move the 
+     * following component.
+     * @return Returns if the player must drag to move the following component.
+     */
+    public boolean mustDrag()
+    {
+        return follower.mustDrag();
+    }
+    
+    /**
+     * Sets if a player must drag the mouse to move the following component.
+     * @param mustDrag New state to set whether the player must drag the
+     * following component in order to move it.
+     */
+    public void setDrag(boolean mustDrag)
+    {
+        follower.setDrag(mustDrag);
+    }
 }
