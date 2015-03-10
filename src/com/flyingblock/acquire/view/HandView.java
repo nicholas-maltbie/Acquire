@@ -137,7 +137,6 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
             }            
         }
         //this.validate();
-        this.paintComponent(this.getGraphics());
     }
     
     @Override

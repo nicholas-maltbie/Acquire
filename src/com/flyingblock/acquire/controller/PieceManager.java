@@ -22,6 +22,8 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class that allows a player to manage the pieces in his/her hand.
@@ -54,6 +56,10 @@ public class PieceManager implements HandListener, MouseListener,
      * Board that the pieces are held on.
      */
     private AcquireBoard board;
+    /**
+     * Things listening to the actions of this instance.
+     */
+    private final List<PlayerListener> listeners;
     
     /**
      * Constructs a hand manager that allows a player to move pieces in his hand 
@@ -65,10 +71,30 @@ public class PieceManager implements HandListener, MouseListener,
      */
     public PieceManager(GameView view, Investor investor, AcquireBoard board)
     {
+        this.listeners = new ArrayList<>();
         this.view = view;
         this.investor = investor;
         this.board = board;
         current = -1;
+    }
+    
+    /**
+     * Adds a player listener to the list of instances listening to the actions
+     * of this class.
+     * @param listener Player Listener to add to the listeners.
+     */
+    public void addPlayerListener(PlayerListener listener)
+    {
+        listeners.add(listener);
+    }
+    
+    /**
+     * Removes a player listener from the current list of listeners.
+     * @param listener Player Listener to remove from the listeners.
+     */
+    public void removePlayerListener(PlayerListener listener)
+    {
+        listeners.remove(listener);
     }
     
     /**
@@ -112,6 +138,13 @@ public class PieceManager implements HandListener, MouseListener,
         view.removeFollowingComponent();
         view.update();
         view.repaint();
+        synchronized(listeners)
+        {
+            listeners.stream().forEach((listener) -> {
+                listener.piecesSwapped(investor.getFromHand(current), current,
+                        investor.getFromHand(newLocation), newLocation);
+            });
+        }
     }
     
     /**
@@ -245,11 +278,17 @@ public class PieceManager implements HandListener, MouseListener,
         if(piece != null && piece.getLocation().equals(button))
         {
             board.set(button.getRow(), button.getCol(), piece);
-            piece = null;
             view.stopFollowing();
             view.removeFollowingComponent();
             view.update();
             view.repaint();
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) ->{
+                    listener.piecePlaced(piece, button);
+                });
+            }
+            piece = null;
         }
         else if(returnToHand)
             returnPiece();

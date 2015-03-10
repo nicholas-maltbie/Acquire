@@ -85,8 +85,7 @@ public class GameView extends JFrame implements ComponentListener
                 companies, Color.BLACK, font, Font.BOLD, displayStocks);
         
         companiesView = new CompaniesScrollView(companies,
-                font, font, Font.ITALIC,
-                Color.BLACK);
+                font, font, Font.ITALIC, Color.BLACK);
         
         game = new JPanel();
 
@@ -141,7 +140,7 @@ public class GameView extends JFrame implements ComponentListener
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         addComponentListener(this);
-        update();
+        this.update();
         componentResized(new ComponentEvent(this, 0));
     }
     

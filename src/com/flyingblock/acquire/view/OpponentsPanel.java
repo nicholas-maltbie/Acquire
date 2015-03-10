@@ -40,7 +40,10 @@ public class OpponentsPanel extends JPanel
      * Other player icons to show communication between the players.
      */
     private PlayerStatusIcon[] opponentIcons;
-    
+    /**
+     * Number of companies in the game. Used to size the player's panels.
+     */
+    private int numCompanies;
     /**
      * Constructs a panel to view opponents in a compact graphical interface.
      * @param opponents Opponents of the current view.
@@ -57,6 +60,7 @@ public class OpponentsPanel extends JPanel
         int investors = opponents.length;
         this.opponentIcons = new PlayerStatusIcon[investors];
         this.opponents = new OtherPlayerView[investors];
+        this.numCompanies = companies.size();
         
         JPanel holdViews = new JPanel();
         holdViews.setBackground(background);
@@ -67,6 +71,10 @@ public class OpponentsPanel extends JPanel
         GridBagConstraints c = new GridBagConstraints();
         this.setLayout(layout);
         
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.weighty = 1;
+        c.gridy = 0;
         for(int i = 0; i < investors; i++)
         {
             opponentIcons[i] = new PlayerStatusIcon(PlayerStatus.NOTHING, 
@@ -76,11 +84,7 @@ public class OpponentsPanel extends JPanel
             holdViews.add(this.opponents[i]);
             this.opponents[i].setBorder(BorderFactory.createLineBorder(
                     opponents[i].getColor(), 5, true));
-            c.fill = GridBagConstraints.BOTH;
-            c.weightx = 1;
-            c.weighty = 1;
             c.gridx = i;
-            c.gridy = 0;
             this.add(opponentIcons[i], c);
         }
         
@@ -92,7 +96,7 @@ public class OpponentsPanel extends JPanel
         c.gridy = 1;
         Component box = Box.createVerticalStrut(1);
         box.setBackground(Color.BLACK);
-        this.add(box, c);
+        add(box, c);
         
         JScrollPane otherViews = new JScrollPane(holdViews, 
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
@@ -145,6 +149,8 @@ public class OpponentsPanel extends JPanel
     public void update()
     {
         for(OtherPlayerView view : opponents)
+        {
             view.update();
+        }
     }
 }

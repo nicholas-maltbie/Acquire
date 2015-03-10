@@ -54,6 +54,10 @@ public class AcquireMachine extends AbstractFSM<GameState>
      * View for the acquire game.
      */
     private GameView view;
+    /**
+     * Player turn that operates a player's actions.
+     */
+    private HumanPlayerFSM turn;
     
     /**
      * Constructs a single player acquire game that will take a human player
@@ -92,11 +96,12 @@ public class AcquireMachine extends AbstractFSM<GameState>
                 player.drawFromDeck(market);
                 view.setupAndDisplayGUI();
                 view.update();
-                this.setState(GameState.PLAYER_TURN);
+                this.setState(GameState.HUMAN_TURN);
                 break;
-            case PLAYER_TURN:
-                HumanPlayerFSM turn = new HumanPlayerFSM(board, market, 
+            case HUMAN_TURN:
+                turn = new HumanPlayerFSM(board, market, 
                     player, companies, view);
+                turn.start();
                 break;
         }
     }
@@ -110,7 +115,7 @@ public class AcquireMachine extends AbstractFSM<GameState>
     /**
      * All the different states the game can be in.
      */
-    public static enum GameState {SETUP, PLAYER_TURN, END};
+    public static enum GameState {SETUP, AI_TURN, HUMAN_TURN, END};
     /**
      * The map that decides which states can go to which.
      */
@@ -121,9 +126,31 @@ public class AcquireMachine extends AbstractFSM<GameState>
      */
     static{
         stateMap = new HashMap<>();
-        stateMap.put(GameState.SETUP, EnumSet.of(GameState.PLAYER_TURN));
-        stateMap.put(GameState.PLAYER_TURN, EnumSet.of(GameState.PLAYER_TURN,
+        stateMap.put(GameState.SETUP, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
+        stateMap.put(GameState.HUMAN_TURN, EnumSet.of(GameState.HUMAN_TURN,
                 GameState.END));
-        stateMap.put(GameState.END, EnumSet.of(GameState.PLAYER_TURN));
+        stateMap.put(GameState.AI_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
+        stateMap.put(GameState.END, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
+    }
+    
+    public void turnEnded(Investor player)
+    {
+        currentPlayer++;
+        currentPlayer %= opponents.size()+1;
+        //Make a choice who's going next, human or AI
+        final GameState nextTurn;
+        if(currentPlayer == 0)
+            nextTurn = GameState.HUMAN_TURN;
+        else
+            nextTurn = GameState.AI_TURN;
+        //use delay to avoid filling the stack.
+        new java.util.Timer().schedule( 
+            new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    //go to next turn
+                    setState(nextTurn);
+                }
+            }, 0);
     }
 }

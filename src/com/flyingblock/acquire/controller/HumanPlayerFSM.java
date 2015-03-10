@@ -12,8 +12,10 @@ package com.flyingblock.acquire.controller;
 import com.flyingblock.acquire.controller.HumanPlayerFSM.TurnState;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
+import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
+import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.view.GameView;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -24,7 +26,7 @@ import java.util.List;
  * to edit the board according to the rules of the game.
  * @author Nicholas Maltbie
  */
-public class HumanPlayerFSM extends AbstractFSM<TurnState>
+public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerListener
 {
     /**
      * Game board.
@@ -46,6 +48,10 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState>
      * View with all the buttons and fun stuff :D.
      */
     private GameView view;
+    /**
+     * Piece manager that allows players to move pieces around the board.
+     */
+    private PieceManager manager;
     
     /**
      * Constructs a human player's turn. Can be started and will take over the
@@ -65,8 +71,14 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState>
         this.player = player;
         this.companies = companies;
         this.view = view;
-        PieceManager manager = new PieceManager(view, player, board);
+        manager = new PieceManager(view, player, board);
+    }
+    
+    @Override
+    public void start()
+    {
         manager.start();
+        manager.addPlayerListener(this);
         manager.setReturnToHand(false);
         view.setDrag(true);
     }
@@ -74,13 +86,30 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState>
     @Override
     protected void stateStarted(TurnState state) 
     {
-        
+        switch(state)
+        {
+            case PLACE_PIECE:
+                
+                break;
+        }
     }
 
     @Override
     protected void stateEnded(TurnState state) 
     {
         
+    }
+
+    @Override
+    public void piecesSwapped(Hotel move1, int index1, Hotel move2, int index2)
+    {
+        
+    }
+
+    @Override
+    public void piecePlaced(Hotel placed, Location loc)
+    {
+        //Chose if a merger happens.
     }
     
     /**
