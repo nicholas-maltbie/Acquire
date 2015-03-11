@@ -91,6 +91,14 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
         {
             case PLACE_PIECE:
                 break;
+            case CREATE_COMPANY:
+                String[] names = new String[companies.size()];
+                for(int i = 0; i < companies.size(); i++)
+                {
+                    
+                }
+                String corporation
+                break;
             default:
                 System.out.println(state);
                 break;

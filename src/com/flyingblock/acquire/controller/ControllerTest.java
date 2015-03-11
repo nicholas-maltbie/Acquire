@@ -11,6 +11,7 @@ package com.flyingblock.acquire.controller;
 
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Game;
+import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Investor;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -37,6 +38,15 @@ public class ControllerTest
         AcquireMachine machine = new AcquireMachine(game.getGameBoard(),
             companies, game.getMarket(), players, investor, (int)(Math.random()*
             (players.size()+1)));
+        
+        game.getMarket().shuffle();
+        for(int i = 0; i < 20; i++)
+        {
+            Hotel h = game.getMarket().draw();
+            game.getGameBoard().set(h.getLocation().getRow(), 
+                    h.getLocation().getCol(), h);
+        }
+        
         machine.start();
     }
 }
