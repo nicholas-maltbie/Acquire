@@ -121,6 +121,25 @@ public class Investor
     }
     
     /**
+     * Gives a piece to the player's hand if the player has room in his or her
+     * hand.
+     * @param piece Piece to give the player.
+     * @return Returns if the piece was successfully added to the player's hand;
+     */
+    public boolean addPieceToHand(Hotel piece)
+    {
+        for(int i = 0; i < getHandSize(); i++)
+        {
+            if(getFromHand(i) == null)
+            {
+                setInHand(i, piece); 
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Will fill the investor's hand from the deck. If the deck runs out of cards,
      * the hand will push its hotels to the left.
      * @param deck Deck that hotels are drawn from.

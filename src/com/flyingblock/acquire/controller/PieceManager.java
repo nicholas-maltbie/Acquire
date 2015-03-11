@@ -133,18 +133,18 @@ public class PieceManager implements HandListener, MouseListener,
             investor.setInHand(current, move);
             investor.setInHand(newLocation, piece);
             piece = null;
+            synchronized(listeners)
+            {
+                listeners.stream().forEach((listener) -> {
+                    listener.piecesSwapped(investor.getFromHand(current), current,
+                            investor.getFromHand(newLocation), newLocation);
+                });
+            }
         }
         view.stopFollowing();
         view.removeFollowingComponent();
         view.update();
         view.repaint();
-        synchronized(listeners)
-        {
-            listeners.stream().forEach((listener) -> {
-                listener.piecesSwapped(investor.getFromHand(current), current,
-                        investor.getFromHand(newLocation), newLocation);
-            });
-        }
     }
     
     /**
@@ -275,7 +275,7 @@ public class PieceManager implements HandListener, MouseListener,
     @Override
     public void buttonRelease(Location button, MouseEvent event)
     {
-        if(piece != null && piece.getLocation().equals(button))
+        if(piece != null)
         {
             board.set(button.getRow(), button.getCol(), piece);
             view.stopFollowing();

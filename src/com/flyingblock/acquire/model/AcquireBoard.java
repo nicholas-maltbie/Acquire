@@ -115,4 +115,46 @@ public class AcquireBoard extends Board<Hotel>
         set(row, col, hotel);
         return locs;
     }
+    
+    /**
+     * Will return all the companies that have incorporated hotels in a 
+     * blob of the interconnected hotels starting with a defined location.
+     * @param row Row of the defined location.
+     * @param col Col of the defined location.
+     * @return Returns the companies that own at least one company in 
+     * the blob.
+     */
+    public List<Corporation> getCorporationsInBlob(int row, int col)
+    {
+        List<Corporation> companies = new ArrayList<>();
+        for(Location loc: getBlob(row, col))
+        {
+            Corporation owner = get(loc.getRow(), loc.getCol()).getOwner();
+            if(owner != null && !companies.contains(owner))
+                companies.add(owner);
+        }
+        return companies;
+    }
+    
+    /**
+     * Gets all the companies that own at least one hotel within the board.
+     * @return Returns the companies that have a presence within the board.
+     */
+    public List<Corporation> getCompaniesOnBoard()
+    {
+        List<Corporation> companies = new ArrayList<>();
+        for(int row = 0; row < getNumRows(); row++)
+        {
+            for(int col = 0; col < getNumCols(); col++)
+            {
+                if(!isEmpty(row,col))
+                {
+                    Corporation owner = get(row, col).getOwner();
+                    if(owner != null && !companies.contains(owner))
+                        companies.add(owner);
+                }
+            }
+        }
+        return companies;
+    }
 }

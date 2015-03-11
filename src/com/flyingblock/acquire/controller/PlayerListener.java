@@ -27,8 +27,7 @@ public interface PlayerListener
      */
     public void piecesSwapped(Hotel move1, int index1, Hotel move2, int index2);
     /**
-     * Called when a player places a piece within the board. This Location should
-     * match up with the placed hotel's location unless specified otherwise.
+     * Called when a player places a piece within the board.
      * @param placed Hotel placed.
      * @param loc Location in the board that it was played.
      */

@@ -17,6 +17,7 @@ import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.view.GameView;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -89,7 +90,9 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
         switch(state)
         {
             case PLACE_PIECE:
-                
+                break;
+            default:
+                System.out.println(state);
                 break;
         }
     }
@@ -97,7 +100,12 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
     @Override
     protected void stateEnded(TurnState state) 
     {
-        
+        switch(state)
+        {
+            case PLACE_PIECE:
+                manager.stop();
+                break;
+        }
     }
 
     @Override
@@ -109,13 +117,62 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
     @Override
     public void piecePlaced(Hotel placed, Location loc)
     {
-        //Chose if a merger happens.
+        //Decide if the move is valid
+        //check if the piece connects 2+ safe corporations
+        int numSave = 0;
+        List<Corporation> accessories = board.getCorporationsInBlob(
+                loc.getRow(), loc.getCol());
+        for(Corporation company : accessories)
+        {
+            //a company is save if it has 11+ hotels in its hold
+            if(company.getNumberOfHotels() >= 11)
+                numSave++;
+        }
+        //check if the played location lines up with the hotel's location
+        boolean isValid = placed.getLocation().equals(loc) && numSave < 2;
+        
+        if(!isValid) {
+            player.addPieceToHand(board.remove(loc.getRow(), loc.getCol()));
+            return;
+        }
+        
+        final TurnState nextState;
+        
+        //Choose if a merger happens.
+        boolean merger = numSave == 1 && accessories.size() > 1;
+        List<Corporation> taken = board.getCompaniesOnBoard();
+        List<Corporation> available = new ArrayList<>();
+        for(Corporation c : companies)
+            if(!taken.contains(c))
+                available.add(c);
+        //Chose if a new company is formed.
+        boolean formCompany = available.size() > 0 && board.getBlob(loc.getRow()
+                , loc.getCol()).size() >= 2;
+        if(merger)
+            nextState = TurnState.MERGER;
+        else if(formCompany)
+            nextState = TurnState.CREATE_COMPANY;
+        else
+            nextState = TurnState.BUY_STOCKS;
+        
+        if(nextState.equals(TurnState.BUY_STOCKS))
+            for(Corporation c : board.getCompaniesOnBoard())
+                c.incorporateRegoin();
+        
+        new java.util.Timer().schedule( 
+            new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    setState(nextState);
+                }
+            }, 0);
     }
     
     /**
      * Turn states.
      */
-    public static enum TurnState {PLACE_PIECE, MERGER, BUY_STOCKS, END_TURN};
+    public static enum TurnState {PLACE_PIECE, MERGER, CREATE_COMPANY, 
+            BUY_STOCKS, END_TURN};
     /**
      * State map for the turn states.
      */
@@ -125,9 +182,10 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
      */
     static {
         stateMap = new HashMap<>();
-        stateMap.put(TurnState.PLACE_PIECE,
-                EnumSet.of(TurnState.MERGER, TurnState.BUY_STOCKS));
+        stateMap.put(TurnState.PLACE_PIECE, EnumSet.of(TurnState.MERGER, 
+                TurnState.BUY_STOCKS, TurnState.CREATE_COMPANY));
         stateMap.put(TurnState.MERGER, EnumSet.of(TurnState.BUY_STOCKS));
+        stateMap.put(TurnState.CREATE_COMPANY, EnumSet.of(TurnState.BUY_STOCKS));
         stateMap.put(TurnState.BUY_STOCKS, EnumSet.of(TurnState.END_TURN));
         stateMap.put(TurnState.END_TURN, EnumSet.noneOf(TurnState.class));
     }
