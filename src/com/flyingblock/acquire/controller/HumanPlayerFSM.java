@@ -87,6 +87,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
     @Override
     protected void stateStarted(TurnState state) 
     {
+        System.out.println(state);
         switch(state)
         {
             case PLACE_PIECE:
@@ -97,10 +98,15 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 {
                     
                 }
-                String corporation
+                String corporation = "";
                 break;
-            default:
-                System.out.println(state);
+            case BUY_STOCKS:
+                for(Corporation c : board.getCompaniesOnBoard())
+                {
+                    c.incorporateRegoin();
+                }
+                view.update();
+                view.repaint();
                 break;
         }
     }
@@ -154,18 +160,17 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
             if(!taken.contains(c))
                 available.add(c);
         //Chose if a new company is formed.
-        boolean formCompany = available.size() > 0 && board.getBlob(loc.getRow()
-                , loc.getCol()).size() >= 2;
+        List<Location> blob = board.getBlob(loc.getRow(), loc.getCol());
+        boolean formCompany = available.size() > 0 && blob.size() >= 2;
+        for(Location l : blob)
+            if(board.getCorporation(l.getRow(), l.getCol()) != null)
+                formCompany = false;
         if(merger)
             nextState = TurnState.MERGER;
         else if(formCompany)
             nextState = TurnState.CREATE_COMPANY;
         else
             nextState = TurnState.BUY_STOCKS;
-        
-        if(nextState.equals(TurnState.BUY_STOCKS))
-            for(Corporation c : board.getCompaniesOnBoard())
-                c.incorporateRegoin();
         
         new java.util.Timer().schedule( 
             new java.util.TimerTask() {

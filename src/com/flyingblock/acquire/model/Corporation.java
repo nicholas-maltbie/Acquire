@@ -135,7 +135,6 @@ public class Corporation
      */
     public void incorporateRegoin()
     {
-        System.out.println(hq.getLocation());
         if(isEstablished())
             for(Location l : gameBoard.getBlob(hq.getLocation().getRow(), hq.getLocation().getCol()))
             {
