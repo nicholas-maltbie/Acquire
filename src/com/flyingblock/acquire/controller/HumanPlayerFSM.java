@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  * This is a State Machine that will run a human player's turn allowing him/her 
@@ -53,6 +55,10 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
      * Piece manager that allows players to move pieces around the board.
      */
     private PieceManager manager;
+    /**
+     * Location of interest for the player.
+     */
+    private Location locationOfInterest;
     
     /**
      * Constructs a human player's turn. Can be started and will take over the
@@ -87,18 +93,47 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
     @Override
     protected void stateStarted(TurnState state) 
     {
-        System.out.println(state);
         switch(state)
         {
             case PLACE_PIECE:
                 break;
             case CREATE_COMPANY:
-                String[] names = new String[companies.size()];
-                for(int i = 0; i < companies.size(); i++)
-                {
-                    
-                }
-                String corporation = "";
+                List<Corporation> taken = board.getCompaniesOnBoard();
+                List<Corporation> available = new ArrayList<>();
+                for(Corporation c : companies)
+                    if(!taken.contains(c))
+                        available.add(c);
+                String[] names = new String[available.size()];
+                for(int i = 0; i < available.size(); i++)
+                    names[i] = available.get(i).getCorporateName();
+                JFrame compnayChoicePane = new JFrame();
+                String chosen = null;
+                do {
+                    chosen = (String)JOptionPane.showInputDialog(
+                                        compnayChoicePane,
+                                        "Chose a company to create",
+                                        "new company",
+                                        JOptionPane.QUESTION_MESSAGE,
+                                        null,
+                                        names,
+                                        names[0]);
+                } while(chosen == null);
+                Corporation chosenCompany = null;
+                for(int i = 0; i < available.size(); i++)
+                    if(chosen.equals(available.get(i).getCorporateName()))
+                        chosenCompany = available.get(i);
+                if(chosenCompany != null)
+                    chosenCompany.setHeadquarters(locationOfInterest);
+                else
+                    throw new IllegalStateException("Cannot extablish a null corporation");
+                chosenCompany.incorporateRegoin();
+                player.addStock(chosenCompany.getStock());
+                player.addStock(chosenCompany.getStock());
+                
+                view.update();
+                view.repaint();
+                
+                setState(TurnState.BUY_STOCKS);
                 break;
             case BUY_STOCKS:
                 for(Corporation c : board.getCompaniesOnBoard())
@@ -171,6 +206,8 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
             nextState = TurnState.CREATE_COMPANY;
         else
             nextState = TurnState.BUY_STOCKS;
+        
+        locationOfInterest = loc;
         
         new java.util.Timer().schedule( 
             new java.util.TimerTask() {

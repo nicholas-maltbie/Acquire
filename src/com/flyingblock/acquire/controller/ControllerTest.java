@@ -38,7 +38,7 @@ public class ControllerTest
             players.add(game.getInvestor(i));
         
         game.getMarket().shuffle();
-        for(int i = 0; i < 60; i++)
+        for(int i = 0; i < 20; i++)
         {
             Hotel h = game.getMarket().draw();
             game.getGameBoard().set(h.getLocation().getRow(), 
