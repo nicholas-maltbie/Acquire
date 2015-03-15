@@ -22,6 +22,8 @@ public enum MarketValue {
      */
     public static int getMajorityBonus(int level)
     {
+        if(level == 0)
+            return 0;
         return (level+2)*1000;
     }
     
@@ -34,6 +36,8 @@ public enum MarketValue {
      */
     public static int getMinorityBonus(int level)
     {
+        if(level == 0)
+            return 0;
         return (level+2)*500;
     }
     

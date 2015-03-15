@@ -295,7 +295,7 @@ public class PieceManager implements HandListener, MouseListener,
     @Override
     public void buttonRelease(Location button, MouseEvent event)
     {
-        if(piece != null && allowBoard)
+        if(piece != null && allowBoard && board.isEmpty(button.getRow(), button.getCol()))
         {
             board.set(button.getRow(), button.getCol(), piece);
             view.stopFollowing();

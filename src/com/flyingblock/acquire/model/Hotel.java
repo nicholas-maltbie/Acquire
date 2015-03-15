@@ -100,7 +100,7 @@ public class Hotel extends Product
      */
     public boolean removeOwner()
     {
-        return exchangeOwner(null);
+        return super.exchangeOwner(null);
     }
     
     /**

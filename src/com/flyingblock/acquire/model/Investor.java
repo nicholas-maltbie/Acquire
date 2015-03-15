@@ -249,4 +249,10 @@ public class Investor
                 num++;
         return num;
     }
+    
+    @Override
+    public String toString()
+    {
+        return getName();
+    }
 }

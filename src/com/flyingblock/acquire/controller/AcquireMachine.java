@@ -15,10 +15,14 @@ import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.view.GameView;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Machine that runs an acquire game.
@@ -156,5 +160,109 @@ public class AcquireMachine extends AbstractFSM<GameState>
                     setState(nextTurn);
                 }
             }, 0);
+    }
+    
+    public void handelMerger(Corporation parent, List<Corporation> food)
+    {
+        int newSize = parent.getNumberOfHotels() + 1;
+        for(Corporation c : food)
+            newSize += c.getNumberOfHotels();
+        parent.incorporateRegoin();
+        //Hand out majority and minory bonus for all food eaten.
+        for(Corporation c : food)
+        {
+            List<Investor> majority = new ArrayList<>();
+            if(player.getStocks(c) > 0)
+                majority.add(player);
+            for(Investor opponent : opponents)
+            {
+                if(opponent.getStocks(c) > 0)
+                {
+                    if(majority.isEmpty())
+                        majority.add(opponent);
+                    else if(opponent.getStocks(c) > majority.get(0).getStocks(c))
+                    {
+                        majority.clear();
+                        majority.add(opponent);
+                    }
+                    else if(opponent.getStocks(c) == majority.get(0).getStocks(c))
+                        majority.add(opponent);
+                }
+            }
+            
+            List<Investor> minority = new ArrayList<>();
+            if(!majority.contains(player))
+                minority.add(player);
+            for(Investor opponent : opponents)
+            {
+                if(opponent.getStocks(c) > 0 && !majority.contains(opponent))
+                {
+                    if(minority.isEmpty())
+                        minority.add(opponent);
+                    else if(opponent.getStocks(c) > minority.get(0).getStocks(c))
+                    {
+                        minority.clear();
+                        minority.add(opponent);
+                    }
+                    else if(opponent.getStocks(c) == minority.get(0).getStocks(c))
+                        minority.add(opponent);
+                }
+            }
+            int majorityBonus = c.getMajorityBonus();
+            int minorityBonus = c.getMinorityBonus();
+            if(majority.size() > 1) {
+                majorityBonus = (c.getMajorityBonus() + c.getMinorityBonus())/(100*majority.size())*100;
+                minorityBonus = 0;
+            }
+            else if(minority.size() > 1)
+                minorityBonus = c.getMinorityBonus()/(100*minority.size())*100;
+            else if(minority.isEmpty())
+                majorityBonus = c.getMajorityBonus() + c.getMinorityBonus();
+            for(Investor p : majority)
+                p.addMoney(majorityBonus);
+            for(Investor p : minority)
+                p.addMoney(minorityBonus);
+            System.out.println("Majority: " + majority + ", minority: " + minority);
+        }
+        //Take merger actions to finalize the trade.
+        while(!food.isEmpty())
+        {
+            //chose the corporation to get consumed (order matters).
+            List<Corporation> largest = new ArrayList<>();
+            for(Corporation bite : food)
+            {
+                if(largest.isEmpty())
+                    largest.add(bite);
+                else if(bite.getNumberOfHotels() > largest.get(0).getNumberOfHotels())
+                {
+                    largest.clear();
+                    largest.add(bite);
+                }
+                else if(bite.getNumberOfHotels() == largest.get(0).getNumberOfHotels())
+                    largest.add(bite);
+            }
+            Corporation next = largest.get(0);
+            if(largest.size() > 1)
+                next = turn.choseCorporationFromList(largest, "Choose corporation to be eaten first", "Merger Choice");
+            food.remove(next);
+            
+            //Players chose what to do with their stocks from the food.
+            
+            //finalize the action
+            next.dissolve();
+            view.update();
+            view.repaint();
+            parent.incorporateRegoin();
+            try {
+                Thread.sleep(100l);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        parent.incorporateRegoin();
+        view.update();
+        view.repaint();
+        //tell the turn that the player's have completed their actions.
+        turn.mergerComplete();
     }
 }
