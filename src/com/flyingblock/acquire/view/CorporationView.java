@@ -69,7 +69,7 @@ public class CorporationView extends JPanel implements ActionListener
         listeners = new ArrayList<>();
         
         buyButton = new JButton("Buy");
-        buyButton.setFont(new Font("TIMES NEW ROMAN", Font.BOLD, 10));
+        buyButton.setFont(new Font("TIMES NEW ROMAN", Font.PLAIN, 10));
         buyButton.setForeground(background);
         buyButton.setHorizontalAlignment(SwingConstants.CENTER);
         //buyButton.addActionListener(this);
@@ -145,20 +145,24 @@ public class CorporationView extends JPanel implements ActionListener
     public void update()
     {
         Graphics g = this.getGraphics();
-        buyButton.setFont(new Font(buyButton.getFont().getName(), buyButton.getFont().getStyle(), 
-                GUIOperations.findFontSize(buyButton.getText(), buyButton.getFont().getName(),
-                    buyButton.getFont().getStyle(),new Rectangle2D.Float(
-                            0, 0,this.getWidth()*2f/3f*.6f,this.getHeight()/2*.6f), g)));
+        String text = company.getCorporateName();
         int style = 0;
         if(company.isEstablished())
-            style = Font.BOLD;
+        {
+            text += "(" + company.getNumberOfHotels() + ")";
+            if(company.getNumberOfHotels() >= 11)
+                style = Font.BOLD;
+            else
+                style = Font.PLAIN;
+        }
         else
             style = Font.ITALIC;
+        name.setText(text);
         name.setFont(new Font(name.getFont().getName(), style, 
-                GUIOperations.findFontSize(name.getText(), name.getFont().getName(),
+                GUIOperations.findFontSize(text, name.getFont().getName(),
                     name.getFont().getStyle(),new Rectangle2D.Float(
                             0, 0,this.getWidth()*.8f,this.getHeight()/2), g)));
-        stockCount.setText(Integer.toString(company.getAvailableStocks()));
+        stockCount.setText("Stocks: " +Integer.toString(company.getAvailableStocks()));
         stockCount.setFont(new Font(stockCount.getFont().getName(), stockCount.getFont().getStyle(), 
                 GUIOperations.findFontSize(stockCount.getText(), stockCount.getFont().getName(),
                     stockCount.getFont().getStyle(),new Rectangle2D.Float(

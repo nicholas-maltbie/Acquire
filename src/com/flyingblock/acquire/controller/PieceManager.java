@@ -60,6 +60,10 @@ public class PieceManager implements HandListener, MouseListener,
      * Things listening to the actions of this instance.
      */
     private final List<PlayerListener> listeners;
+    /**
+     * Whether or not to allow the player to place pieces on the board.
+     */
+    public boolean allowBoard = true;
     
     /**
      * Constructs a hand manager that allows a player to move pieces in his hand 
@@ -185,6 +189,22 @@ public class PieceManager implements HandListener, MouseListener,
         return piece != null;
     }
     
+    /**
+     * Allow the player to place pieces on the board.
+     */
+    public void allowBoardPlacement()
+    {
+        allowBoard = true;
+    }
+    
+    /**
+     * Prohibits the player from placing pieces on the board.
+     */
+    public void disallowBoardPlacement()
+    {
+        allowBoard = false;
+    }
+    
     @Override
     public void handClicked(int index, MouseEvent event) 
     {
@@ -275,7 +295,7 @@ public class PieceManager implements HandListener, MouseListener,
     @Override
     public void buttonRelease(Location button, MouseEvent event)
     {
-        if(piece != null)
+        if(piece != null && allowBoard)
         {
             board.set(button.getRow(), button.getCol(), piece);
             view.stopFollowing();

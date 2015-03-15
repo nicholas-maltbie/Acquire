@@ -17,6 +17,5 @@ import com.flyingblock.acquire.model.Corporation;
  */
 public interface BuyStockPanelListener 
 {
-    public void buyingComplete(int[] stocksBought, Corporation[] companies,
-            int moneySpent);   
+    public void buyingComplete(int[] stocksBought, Corporation[] companies);   
 }

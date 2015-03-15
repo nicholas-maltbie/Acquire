@@ -226,6 +226,14 @@ public class Investor
         return stocks.remove(index);
     }
     
+    public Stock removeStock(Corporation corporation)
+    {
+        for(int s = 0; s < getNumStocks(); s++)
+            if(getStock(s).getOwner().equals(corporation))
+                return removeStock(s);
+        return null;
+    }
+    
     /**
      * Gets the number of stocks that the investor has for the specified
      * corporation.

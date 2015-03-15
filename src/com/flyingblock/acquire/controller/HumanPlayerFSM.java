@@ -16,7 +16,10 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
+import com.flyingblock.acquire.view.BuyStockPanel;
+import com.flyingblock.acquire.view.BuyStockPanelListener;
 import com.flyingblock.acquire.view.GameView;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -29,7 +32,8 @@ import javax.swing.JOptionPane;
  * to edit the board according to the rules of the game.
  * @author Nicholas Maltbie
  */
-public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerListener
+public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerListener,
+        BuyStockPanelListener
 {
     /**
      * Game board.
@@ -59,20 +63,26 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
      * Location of interest for the player.
      */
     private Location locationOfInterest;
+    /**
+     * machine Machine that is running the game.
+     */
+    private AcquireMachine machine;
     
     /**
      * Constructs a human player's turn. Can be started and will take over the
      * GUI and operate the turn.
+     * @param machine Machine that is running the game.
      * @param board Game board.
      * @param deck Game deck.
      * @param player Player who is taking his/her turn.
      * @param companies Companies.
      * @param view The GUI display that has all the panels.
      */
-    public HumanPlayerFSM(AcquireBoard board, HotelMarket deck, Investor player,
-            List<Corporation> companies, GameView view)
+    public HumanPlayerFSM(AcquireMachine machine, AcquireBoard board, HotelMarket deck, 
+            Investor player, List<Corporation> companies, GameView view)
     {
         super(stateMap, TurnState.PLACE_PIECE);
+        this.machine = machine;
         this.board = board;
         this.deck = deck;
         this.player = player;
@@ -136,12 +146,26 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 setState(TurnState.BUY_STOCKS);
                 break;
             case BUY_STOCKS:
+                manager.start();
+                manager.disallowBoardPlacement();
+                view.setDrag(true);
                 for(Corporation c : board.getCompaniesOnBoard())
                 {
                     c.incorporateRegoin();
                 }
                 view.update();
                 view.repaint();
+                BuyStockPanel panel = new BuyStockPanel(companies.toArray(new Corporation[companies.size()]),
+                    player, 3, "TIMES NEW ROMAN", "TIMES NEW ROMAN", Color.BLACK);
+                panel.addListener(this);
+                panel.setupAndDisplayGUI();
+                break;
+            case END_TURN:
+                manager.stop();
+                player.drawFromDeck(deck);
+                view.update();
+                view.repaint();
+                machine.turnEnded(player);
                 break;
         }
     }
@@ -216,6 +240,14 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                     setState(nextState);
                 }
             }, 0);
+    }
+
+    @Override
+    public void buyingComplete(int[] stocksBought, Corporation[] companies) 
+    {
+        view.update();
+        view.repaint();
+        setState(TurnState.END_TURN);
     }
     
     /**

@@ -99,9 +99,13 @@ public class AcquireMachine extends AbstractFSM<GameState>
                 this.setState(GameState.HUMAN_TURN);
                 break;
             case HUMAN_TURN:
-                turn = new HumanPlayerFSM(board, market, 
+                turn = new HumanPlayerFSM(this, board, market, 
                     player, companies, view);
                 turn.start();
+                break;
+            case AI_TURN:
+                //nothing yet
+                this.setState(GameState.HUMAN_TURN);
                 break;
         }
     }
@@ -127,7 +131,7 @@ public class AcquireMachine extends AbstractFSM<GameState>
     static{
         stateMap = new HashMap<>();
         stateMap.put(GameState.SETUP, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
-        stateMap.put(GameState.HUMAN_TURN, EnumSet.of(GameState.HUMAN_TURN,
+        stateMap.put(GameState.HUMAN_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN,
                 GameState.END));
         stateMap.put(GameState.AI_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
         stateMap.put(GameState.END, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));

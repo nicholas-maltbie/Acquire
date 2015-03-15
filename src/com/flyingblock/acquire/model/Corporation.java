@@ -230,6 +230,15 @@ public class Corporation
             numStocks++;
     }
     
+    /**
+     * Adds a stock back into the company's store. This will happen during
+     * mergers where stocks can be sold or traded.
+     */
+    public void returnStock()
+    {
+        numStocks++;
+    }
+    
     @Override
     public boolean equals(Object other)
     {
