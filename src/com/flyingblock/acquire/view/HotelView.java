@@ -162,4 +162,13 @@ public class HotelView extends JPanel
         g2.drawString(hotel.getLocationText(), this.getWidth()/2 - (int)fontBounds.getWidth()/2,
                 this.getHeight()/2 + (int)fontBounds.getHeight()/4);
     }
+    
+    /**
+     * Gets the hotel this view represents.
+     * @return Returns the hotel this view represents.
+     */
+    public Hotel getHotel()
+    {
+        return hotel;
+    }
 }

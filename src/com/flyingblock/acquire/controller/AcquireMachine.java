@@ -143,6 +143,7 @@ public class AcquireMachine extends AbstractFSM<GameState>
     
     public void turnEnded(Investor player)
     {
+        turn.stop();
         currentPlayer++;
         currentPlayer %= opponents.size()+1;
         //Make a choice who's going next, human or AI

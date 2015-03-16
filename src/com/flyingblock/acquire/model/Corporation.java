@@ -124,8 +124,12 @@ public class Corporation
             return 0;
         for(int row = 0; row < gameBoard.getNumRows(); row++)
             for(int col = 0; col < gameBoard.getNumCols(); col++)
-                if(!gameBoard.isEmpty(row, col) && gameBoard.get(row, col).isIncorporated() && gameBoard.get(row, col).getOwner().equals(this))
+            {
+                if(!gameBoard.isEmpty(row, col) &&
+                        gameBoard.isIncorporated(row, col) && 
+                        gameBoard.getCorporation(row, col) == this)
                     hotels++;
+            }
         return hotels;
     }
     

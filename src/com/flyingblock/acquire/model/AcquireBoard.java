@@ -70,15 +70,13 @@ public class AcquireBoard extends Board<Hotel>
     
     /**
      * Gets if the hotel at location row, col is incorporated or not.
-     * Will throw a NullPointerException if there is no hotel at the specified
-     * location.
      * @param row Row of the specified hotel.
      * @param col Column of the specified hotel.
      * @return Returns if specified hotel is incorporated.
      */
     public boolean isIncorporated(int row, int col)
     {
-        return get(row,col).isIncorporated();
+        return get(row,col) != null && get(row,col).isIncorporated();
     }
     /**
      * Gets the Corporation that controls the hotel at the specified location.

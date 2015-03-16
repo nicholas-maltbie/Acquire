@@ -63,7 +63,7 @@ public class PieceManager implements HandListener, MouseListener,
     /**
      * Whether or not to allow the player to place pieces on the board.
      */
-    public boolean allowBoard = true;
+    private boolean allowBoard = true;
     
     /**
      * Constructs a hand manager that allows a player to move pieces in his hand 

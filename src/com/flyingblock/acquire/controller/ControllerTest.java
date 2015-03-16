@@ -38,7 +38,7 @@ public class ControllerTest
             players.add(game.getInvestor(i));
         
         game.getMarket().shuffle();
-        for(int i = 0; i < 20; i++)
+        for(int i = 0; i < 60; i++)
         {
             Hotel h = game.getMarket().draw();
             game.getGameBoard().set(h.getLocation().getRow(), 
@@ -70,8 +70,6 @@ public class ControllerTest
         AcquireMachine machine = new AcquireMachine(game.getGameBoard(),
             companies, game.getMarket(), players, investor, (int)(Math.random()*
             (players.size()+1)));
-        
-
         
         machine.start();
     }

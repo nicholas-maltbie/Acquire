@@ -17,7 +17,10 @@ import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.view.GameView;
+import com.flyingblock.acquire.view.HotelView;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -34,7 +37,7 @@ import javax.swing.JOptionPane;
  * @author Nicholas Maltbie
  */
 public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerListener,
-        BuyStockPanelListener
+        BuyStockPanelListener, SelectGroupListener
 {
     /**
      * The size that a corporation needs to be in order to be safe.
@@ -126,7 +129,8 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 else
                     throw new IllegalStateException("Cannot extablish a null corporation");
                 chosenCompany.incorporateRegoin();
-                player.addStock(chosenCompany.getStock());
+                if(chosenCompany.getNumberOfHotels() > 0)
+                    player.addStock(chosenCompany.getStock());
                 
                 view.update();
                 view.repaint();
@@ -147,28 +151,27 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 panel.setupAndDisplayGUI();
                 break;
             case END_TURN:
-                manager.stop();
-                //remove un-playable tiles NEEDS TO BE FIXED
+                //remove un-playable tiles
+                List<HotelView> hotels = new ArrayList<>();
                 for(int i = 0; i < player.getHandSize(); i++)
                 {
                     if(player.getFromHand(i) == null)
                         continue;
                     if(canPieceBePlayed(player.getFromHand(i)))
-                        player.removeFromHand(i);
+                        hotels.add(new HotelView(player.getFromHand(i), Color.BLACK, "TIMES NEW ROMAN"));
                 }
+                if(hotels.size() > 1)
+                {
+                    SelectGroupPanel selectPanel = new SelectGroupPanel(hotels.toArray(
+                            new HotelView[hotels.size()]), "<html>You cannot play these tiles,<br>"
+                            + " do you want to keep any?</html>", "KEEP", "REPLACE");
+                    selectPanel.setupAndDisplayGUI(new Rectangle(100,100,100+150*hotels.size(),700));
+                }
+                else
+                    finished(new Component[0], new boolean[0]);
                 view.update();
                 view.repaint();
-                //give the player a moment to reaize he/she has lost a tile or some tiles
-                try {
-                    Thread.sleep(100l);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(HumanPlayerFSM.class.getName()).log(Level.SEVERE, null, ex);
-                }
                 //draw new tiles
-                player.drawFromDeck(deck);
-                view.update();
-                view.repaint();
-                machine.turnEnded(player);
                 break;
             case MERGER:
                 List<Corporation> suspects = new ArrayList<>();
@@ -215,38 +218,13 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
     public boolean canPieceBePlayed(Hotel hotel)
     {
         Location loc = hotel.getLocation();
-        List<List<Location>> groups = new ArrayList<>();
-        if(loc.getRow() -1 >= 0 && ! board.isEmpty(loc.getRow() - 1, loc.getCol()) &&
-                board.isIncorporated(loc.getRow() - 1, loc.getCol()))
-            groups.add(board.getBlob(loc.getRow() - 1, loc.getCol()));
-        if(loc.getRow() +1 < board.getNumRows() && ! board.isEmpty(loc.getRow() + 1, loc.getCol()) &&
-                board.isIncorporated(loc.getRow() + 1, loc.getCol()))
-            groups.add(board.getBlob(loc.getRow() + 1, loc.getCol()));
-        if(loc.getCol() -1 >= 0 && ! board.isEmpty(loc.getRow(), loc.getCol() - 1) &&
-                board.isIncorporated(loc.getRow(), loc.getCol() - 1))
-            groups.add(board.getBlob(loc.getRow(), loc.getCol() - 1));
-        if(loc.getCol() +1 < board.getNumCols() && ! board.isEmpty(loc.getRow(), loc.getCol() + 1) &&
-                board.isIncorporated(loc.getRow(), loc.getCol() + 1))
-            groups.add(board.getBlob(loc.getRow(), loc.getCol() + 1));
-        int group = 0;
-        while(group < groups.size())
-        {
-            List<List<Location>> otherGroups = new ArrayList<>(groups);
-            otherGroups.remove(group);
-            boolean remove = groups.get(group).isEmpty();
-            if(!groups.get(group).isEmpty())
-                for(List<Location> otherGroup : otherGroups)
-                    if(otherGroup.contains(groups.get(group).get(0)))
-                        remove = true;
-            if(remove)
-                groups.remove(group);
-            else
-                group++;
-        }
+        board.set(loc.getRow(), loc.getCol(), hotel);
         int numSafe = 0;
-        for(List<Location> blob : groups)
-            if(blob.size() >= SAFE_CORPORATION_SIZE)
+        for(Corporation c : board.getCorporationsInBlob(loc.getRow(), loc.getCol()))
+            if(c.getNumberOfHotels() >= SAFE_CORPORATION_SIZE)
                numSafe++;
+        
+        board.remove(loc.getRow(), loc.getCol());
         return numSafe >= 2;
     }
 
@@ -370,6 +348,16 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                     setState(TurnState.BUY_STOCKS);
                 }
             }, 0);
+    }
+
+    @Override
+    public void finished(Component[] options, boolean[] states) 
+    {
+        player.drawFromDeck(deck);
+        view.update();
+        view.repaint();
+        manager.stop();
+        machine.turnEnded(player);
     }
     
     /**
