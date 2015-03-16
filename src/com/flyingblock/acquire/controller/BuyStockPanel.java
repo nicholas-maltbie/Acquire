@@ -7,10 +7,12 @@
  *
  *
  */
-package com.flyingblock.acquire.view;
+package com.flyingblock.acquire.controller;
 
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Investor;
+import com.flyingblock.acquire.view.CorporationView;
+import com.flyingblock.acquire.view.GUIOperations;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -142,7 +144,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             c.gridy = 1+i*3;
             c.gridwidth = 1;
             c.gridheight = 3;
-            c.weightx = 3;
+            c.weightx = 2;
             views[i] = new CorporationView(companies[i], nameFont,
                     stockFont, Font.BOLD,background);
             this.add(views[i], c);
@@ -154,7 +156,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             companyData[i][1] = new JLabel("MIN $" + Integer.toString(companies[i].getMinorityBonus()));
             companyData[i][2] = new JLabel("MAJ $" + Integer.toString(companies[i].getMajorityBonus()));
             
-            c.weightx = 3;
+            c.weightx = 1;
             
             c.gridheight = 1;
             c.gridx = 1;
@@ -177,15 +179,13 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             buttons[i][0].setActionCommand("ADD"+","+companies[i].getCorporateName());
             buttons[i][1].setActionCommand("REMOVE"+","+companies[i].getCorporateName());
             
-            c.fill = GridBagConstraints.NONE;
             c.gridy = 1+i*3;
             c.gridheight = 3;
             c.gridx = 2;
-            this.add(buttons[i][0], c);
+            add(buttons[i][0], c);
             c.gridx = 3;
-            this.add(buttons[i][1], c);
+            add(buttons[i][1], c);
             
-            c.fill = GridBagConstraints.BOTH;
             companyData[i][3] = new JLabel(Integer.toString(currentStatus[i]));
             companyData[i][3].setForeground(border);
             companyData[i][3].setAlignmentX(.5f);
@@ -193,7 +193,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             this.add(companyData[i][3], c);
         }
         
-        closeButton = new JButton("close");
+        closeButton = new JButton("Finish");
         c.fill = GridBagConstraints.BOTH;
         c.gridy = companies.length*3 + 1;
         c.gridx = 2;
@@ -241,7 +241,8 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
     {
         frame = new JFrame();
         frame.setVisible(true);
-        frame.setBounds(100,100,600,800);
+        frame.setBounds(100,100,800,800);
+        frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.lastBounds = frame.getBounds();
         frame.setContentPane(this);
@@ -266,13 +267,19 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
         money.setText("Money $" + investor.getMoney());
         
         left.setFont(new Font(left.getFont().getName(),
-                left.getFont().getStyle(), GUIOperations.findFontSize(left.getText(),
+                left.getFont().getStyle(), GUIOperations.findFontSize("left: 999",
                         left.getFont().getName(),left.getFont().getStyle(),new Rectangle2D.Float(
                             0, 0,left.getWidth()*.8f, left.getHeight()*.8f), this.getGraphics())));
         money.setFont(new Font(money.getFont().getName(),
-                money.getFont().getStyle(), GUIOperations.findFontSize(money.getText(),
+                money.getFont().getStyle(), GUIOperations.findFontSize("99999",
                         money.getFont().getName(),money.getFont().getStyle(),new Rectangle2D.Float(
                             0, 0,money.getWidth()*.8f, money.getHeight()*.8f), this.getGraphics())));
+        for(JButton[] row : buttons)
+            for(JButton button : row)
+                button.setFont(new Font(button.getFont().getName(),
+                        button.getFont().getStyle(), GUIOperations.findFontSize("+",
+                            button.getFont().getName(),button.getFont().getStyle(),new Rectangle2D.Float(
+                                0, 0,button.getWidth()*.8f, button.getHeight()*.8f), this.getGraphics())));
         
         for(int i = 0; i < companies.length; i++)
         {

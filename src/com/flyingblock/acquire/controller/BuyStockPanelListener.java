@@ -7,7 +7,7 @@
  *
  *
  */
-package com.flyingblock.acquire.view;
+package com.flyingblock.acquire.controller;
 
 import com.flyingblock.acquire.model.Corporation;
 

@@ -16,8 +16,6 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
-import com.flyingblock.acquire.view.BuyStockPanel;
-import com.flyingblock.acquire.view.BuyStockPanelListener;
 import com.flyingblock.acquire.view.GameView;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -38,6 +36,11 @@ import javax.swing.JOptionPane;
 public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerListener,
         BuyStockPanelListener
 {
+    /**
+     * The size that a corporation needs to be in order to be safe.
+     */
+    public static final int SAFE_CORPORATION_SIZE = 11;
+    
     /**
      * Game board.
      */
@@ -124,7 +127,6 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                     throw new IllegalStateException("Cannot extablish a null corporation");
                 chosenCompany.incorporateRegoin();
                 player.addStock(chosenCompany.getStock());
-                player.addStock(chosenCompany.getStock());
                 
                 view.update();
                 view.repaint();
@@ -151,42 +153,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 {
                     if(player.getFromHand(i) == null)
                         continue;
-                    Location loc = player.getFromHand(i).getLocation();
-                    List<List<Location>> groups = new ArrayList<>();
-                    if(loc.getRow() -1 >= 0 && ! board.isEmpty(loc.getRow() - 1, loc.getCol()) &&
-                            board.isIncorporated(loc.getRow() - 1, loc.getCol()))
-                        groups.add(board.getBlob(loc.getRow() - 1, loc.getCol()));
-                    if(loc.getRow() +1 < board.getNumRows() && ! board.isEmpty(loc.getRow() + 1, loc.getCol()) &&
-                            board.isIncorporated(loc.getRow() + 1, loc.getCol()))
-                        groups.add(board.getBlob(loc.getRow() + 1, loc.getCol()));
-                    if(loc.getCol() -1 >= 0 && ! board.isEmpty(loc.getRow(), loc.getCol() - 1) &&
-                            board.isIncorporated(loc.getRow(), loc.getCol() - 1))
-                        groups.add(board.getBlob(loc.getRow(), loc.getCol() - 1));
-                    if(loc.getCol() +1 < board.getNumCols() && ! board.isEmpty(loc.getRow(), loc.getCol() + 1) &&
-                            board.isIncorporated(loc.getRow(), loc.getCol() + 1))
-                        groups.add(board.getBlob(loc.getRow(), loc.getCol() + 1));
-                    int group = 0;
-                    while(group < groups.size())
-                    {
-                        List<List<Location>> otherGroups = new ArrayList<>(groups);
-                        otherGroups.remove(group);
-                        boolean remove = groups.get(group).isEmpty();
-                        if(!groups.get(group).isEmpty())
-                            for(List<Location> otherGroup : otherGroups)
-                                if(otherGroup.contains(groups.get(group).get(0)))
-                                    remove = true;
-                        if(remove)
-                            groups.remove(group);
-                        else
-                            group++;
-                    }
-                    int numSafe = 0;
-                    for(List<Location> blob : groups)
-                    {
-                        if(blob.size() >= 11)
-                           numSafe++;
-                    }
-                    if(numSafe >= 2)
+                    if(canPieceBePlayed(player.getFromHand(i)))
                         player.removeFromHand(i);
                 }
                 view.update();
@@ -230,7 +197,6 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 Corporation parent = largest.get(0);
                 if(largest.size() > 1)
                 {
-                    JFrame mergerResolutionPane = new JFrame();
                     parent =  this.choseCorporationFromList(
                             largest, "chose a corporation to win the merger", "Merger Resolution");
                 }
@@ -239,7 +205,58 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 break;
         }
     }
+    
+    /**
+     * Checks if a piece can be played. A piece would not be able to be played
+     * it connected two or more safe corporations.
+     * @param hotel Hotel to check.
+     * @return Returns if the piece can be played.
+     */
+    public boolean canPieceBePlayed(Hotel hotel)
+    {
+        Location loc = hotel.getLocation();
+        List<List<Location>> groups = new ArrayList<>();
+        if(loc.getRow() -1 >= 0 && ! board.isEmpty(loc.getRow() - 1, loc.getCol()) &&
+                board.isIncorporated(loc.getRow() - 1, loc.getCol()))
+            groups.add(board.getBlob(loc.getRow() - 1, loc.getCol()));
+        if(loc.getRow() +1 < board.getNumRows() && ! board.isEmpty(loc.getRow() + 1, loc.getCol()) &&
+                board.isIncorporated(loc.getRow() + 1, loc.getCol()))
+            groups.add(board.getBlob(loc.getRow() + 1, loc.getCol()));
+        if(loc.getCol() -1 >= 0 && ! board.isEmpty(loc.getRow(), loc.getCol() - 1) &&
+                board.isIncorporated(loc.getRow(), loc.getCol() - 1))
+            groups.add(board.getBlob(loc.getRow(), loc.getCol() - 1));
+        if(loc.getCol() +1 < board.getNumCols() && ! board.isEmpty(loc.getRow(), loc.getCol() + 1) &&
+                board.isIncorporated(loc.getRow(), loc.getCol() + 1))
+            groups.add(board.getBlob(loc.getRow(), loc.getCol() + 1));
+        int group = 0;
+        while(group < groups.size())
+        {
+            List<List<Location>> otherGroups = new ArrayList<>(groups);
+            otherGroups.remove(group);
+            boolean remove = groups.get(group).isEmpty();
+            if(!groups.get(group).isEmpty())
+                for(List<Location> otherGroup : otherGroups)
+                    if(otherGroup.contains(groups.get(group).get(0)))
+                        remove = true;
+            if(remove)
+                groups.remove(group);
+            else
+                group++;
+        }
+        int numSafe = 0;
+        for(List<Location> blob : groups)
+            if(blob.size() >= SAFE_CORPORATION_SIZE)
+               numSafe++;
+        return numSafe >= 2;
+    }
 
+    /**
+     * Prompts the player to chose a company from a list of corporations.
+     * @param options Corporation to choose from.
+     * @param text Text to put in window.
+     * @param title Title text for the window.
+     * @return Returns the corporation that the player chose.
+     */
     public Corporation choseCorporationFromList(List<Corporation> options,
             String text, String title)
     {
@@ -292,8 +309,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 loc.getRow(), loc.getCol());
         for(Corporation company : accessories)
         {
-            //a company is save if it has 11+ hotels in its hold
-            if(company.getNumberOfHotels() >= 11)
+            if(company.getNumberOfHotels() >= SAFE_CORPORATION_SIZE)
                 numSave++;
         }
         //check if the played location lines up with the hotel's location
