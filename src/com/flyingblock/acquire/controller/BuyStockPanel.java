@@ -21,6 +21,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -136,6 +137,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
         this.add(left, c);
         left.setForeground(textColor);
         
+        
         for(int i = 0; i < copmanies.length; i++)
         {
             c.weighty = 1;
@@ -176,6 +178,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             
             buttons[i][0] = new JButton("+");
             buttons[i][1] = new JButton("-");
+            c.insets = new Insets(10,10,10,10);
             buttons[i][0].setActionCommand("ADD"+","+companies[i].getCorporateName());
             buttons[i][1].setActionCommand("REMOVE"+","+companies[i].getCorporateName());
             
@@ -185,6 +188,8 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             add(buttons[i][0], c);
             c.gridx = 3;
             add(buttons[i][1], c);
+            
+            c.insets = new Insets(0,0,0,0);
             
             companyData[i][3] = new JLabel(Integer.toString(currentStatus[i]));
             companyData[i][3].setForeground(border);
@@ -286,14 +291,20 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             views[i].update();
             companyData[i][3].setText(Integer.toString(currentStatus[i]));
             
-            for(int j = 0; j < companyData[i].length; j++)
+            for(int j = 0; j < companyData[i].length - 1; j++)
             {
                 companyData[i][j].setFont(new Font(companyData[i][j].getFont().getName(),
                         companyData[i][j].getFont().getStyle(), 
-                        GUIOperations.findFontSize(companyData[i][j].getText(),
+                        GUIOperations.findFontSize("MAJ $99999",
                                 companyData[i][j].getFont().getName(),companyData[i][j].getFont().getStyle(),new Rectangle2D.Float(
                                     0, 0,companyData[i][j].getWidth()*.8f, companyData[i][j].getHeight()*.8f), this.getGraphics())));
             }
+            int j = companyData[i].length-1;
+            companyData[i][j].setFont(new Font(companyData[i][j].getFont().getName(),
+                    companyData[i][j].getFont().getStyle(), 
+                    GUIOperations.findFontSize("9",
+                            companyData[i][j].getFont().getName(),companyData[i][j].getFont().getStyle(),new Rectangle2D.Float(
+                                0, 0,companyData[i][j].getWidth()*.8f, companyData[i][j].getHeight()*.8f), this.getGraphics())));
         }
     }
     

@@ -12,6 +12,7 @@ package com.flyingblock.acquire.controller;
 import com.flyingblock.acquire.controller.AcquireMachine.GameState;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
+import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.view.GameView;
@@ -95,9 +96,15 @@ public class AcquireMachine extends AbstractFSM<GameState>
         {
             case SETUP:
                 market.shuffle();
-                for(Investor player : opponents)
+                List<Investor> players = new ArrayList<>(opponents);
+                players.add(player);
+                for(Investor player : players)
+                {
+                    Hotel h = market.draw();
+                    board.set(h.getLocation().getRow(), h.getLocation().getCol(), h);
                     player.drawFromDeck(market);
-                player.drawFromDeck(market);
+                }
+                currentPlayer = (int)(Math.random()*players.size());
                 view.setupAndDisplayGUI();
                 view.update();
                 this.setState(GameState.HUMAN_TURN);
@@ -143,7 +150,6 @@ public class AcquireMachine extends AbstractFSM<GameState>
     
     public void turnEnded(Investor player)
     {
-        turn.stop();
         currentPlayer++;
         currentPlayer %= opponents.size()+1;
         //Make a choice who's going next, human or AI
@@ -192,7 +198,7 @@ public class AcquireMachine extends AbstractFSM<GameState>
             }
             
             List<Investor> minority = new ArrayList<>();
-            if(!majority.contains(player))
+            if(!majority.contains(player) && player.getStocks(c) > 0)
                 minority.add(player);
             for(Investor opponent : opponents)
             {

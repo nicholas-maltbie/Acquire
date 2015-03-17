@@ -160,12 +160,13 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                     if(canPieceBePlayed(player.getFromHand(i)))
                         hotels.add(new HotelView(player.getFromHand(i), Color.BLACK, "TIMES NEW ROMAN"));
                 }
-                if(hotels.size() > 1)
+                if(!hotels.isEmpty())
                 {
                     SelectGroupPanel selectPanel = new SelectGroupPanel(hotels.toArray(
                             new HotelView[hotels.size()]), "<html>You cannot play these tiles,<br>"
                             + " do you want to keep any?</html>", "KEEP", "REPLACE");
-                    selectPanel.setupAndDisplayGUI(new Rectangle(100,100,100+150*hotels.size(),700));
+                    selectPanel.setupAndDisplayGUI(new Rectangle(100,100,400+150*(hotels.size()-1),700));
+                    selectPanel.addListener(this);
                 }
                 else
                     finished(new Component[0], new boolean[0]);
@@ -194,9 +195,6 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                         largest.add(suspect);
                 }
                 
-                String[] companyNames = new String[largest.size()];
-                for(int c = 0; c < largest.size(); c++)
-                    companyNames[c] = largest.get(c).getCorporateName();
                 Corporation parent = largest.get(0);
                 if(largest.size() > 1)
                 {
@@ -353,6 +351,15 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
     @Override
     public void finished(Component[] options, boolean[] states) 
     {
+        for(int i = 0; i < options.length; i++)
+        {
+            if(!states[i])
+            {
+                for(int h = 0; h < player.getHandSize(); h++)
+                    if(player.getFromHand(h) != null && player.getFromHand(h).equals(((HotelView)options[i]).getHotel()))
+                        player.removeFromHand(h);
+            }
+        }
         player.drawFromDeck(deck);
         view.update();
         view.repaint();
