@@ -63,6 +63,10 @@ public class AcquireMachine extends AbstractFSM<GameState>
      * Player turn that operates a player's actions.
      */
     private HumanPlayerFSM turn;
+    /**
+     * saves if the program is waiting.
+     */
+    private boolean waiting;
     
     /**
      * Constructs a single player acquire game that will take a human player
@@ -169,6 +173,13 @@ public class AcquireMachine extends AbstractFSM<GameState>
             }, 0);
     }
     
+    /**
+     * Does a merger including, handing out majority and minority bonuses, 
+     * prompts human and AI players to make decisions about their stocks, and 
+     * dissolves the consumed corporations.
+     * @param parent Company that comes out on top.
+     * @param food Company(ies) that are consumed by the parent.
+     */
     public void handelMerger(Corporation parent, List<Corporation> food)
     {
         int newSize = parent.getNumberOfHotels() + 1;
@@ -248,13 +259,49 @@ public class AcquireMachine extends AbstractFSM<GameState>
                 else if(bite.getNumberOfHotels() == largest.get(0).getNumberOfHotels())
                     largest.add(bite);
             }
-            Corporation next = largest.get(0);
+            final Corporation next;
             if(largest.size() > 1)
                 next = turn.choseCorporationFromList(largest, "Choose corporation to be eaten first", "Merger Choice");
+            else
+                next = largest.get(0);
             food.remove(next);
             
             //Players chose what to do with their stocks from the food.
-            
+            List<Investor> shareHolders = new ArrayList<>();
+            int checked = 0;
+            int index = currentPlayer;
+            //get relevant investors.
+            while(checked < getNumPlayers())
+            {
+                if(getPlayer(index).getStocks(next) > 0)
+                    shareHolders.add(getPlayer(index));
+                index = (index+1) % getNumPlayers();
+                checked++;
+            }
+            //have relevant investors take actions.
+            for(Investor shareHolder :shareHolders)
+            {
+                //start waiting
+                waiting = true;
+                //start a new thread to allow the player to make his/her choices.
+                new java.util.Timer().schedule( 
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            getPlayerMerger(parent, next, shareHolder);
+                        }
+                    }, 0);
+                //wait until the player has finished his or her action.
+                long time = System.currentTimeMillis();
+                //System.out.println("started Waiting");
+                while(waiting)
+                    try {
+                        Thread.sleep(10l);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                //System.out.println("finished Waiting " + (System.currentTimeMillis() - time) + "ms elapsed");
+            }
             //finalize the action
             next.dissolve();
             view.update();
@@ -271,5 +318,45 @@ public class AcquireMachine extends AbstractFSM<GameState>
         view.repaint();
         //tell the turn that the player's have completed their actions.
         turn.mergerComplete();
+    }
+    
+    /**
+     * Gets a player from the current in game players.
+     * @param index Index of player to get. Index 0 is the human player
+     * and greater numbers will yield AI players. 
+     * @return Returns the player at index index.
+     */
+    public Investor getPlayer(int index)
+    {
+        if(index == 0)
+            return player;
+        else
+            return opponents.get(index-1);
+    }
+    
+    /**
+     * Gets a player merger action where he or she will have to hold, trade in,
+     * or sell all of his or her stocks in the child company.
+     * @param parent Company that eats the child.
+     * @param child Company being merged.
+     * @param shareholder Investor taking a merger action.
+     */
+    public void getPlayerMerger(Corporation parent, Corporation child, Investor shareholder)
+    {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        waiting = true;
+    }
+    
+    /**
+     * Gets the number of AI and human players in the game.
+     * @return Returns the number of players in the game.
+     */
+    public int getNumPlayers()
+    {
+        return opponents.size() + 1;
     }
 }

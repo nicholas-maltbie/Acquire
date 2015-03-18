@@ -337,6 +337,10 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
         setState(TurnState.END_TURN);
     }
     
+    /**
+     * Call this once all players have finished their merger actions and then
+     * the player will finish his/her turn.
+     */
     public void mergerComplete()
     {
         new java.util.Timer().schedule( 
