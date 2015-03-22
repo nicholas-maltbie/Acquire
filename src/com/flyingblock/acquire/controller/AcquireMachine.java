@@ -16,6 +16,10 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.view.GameView;
+import com.sun.glass.events.WindowEvent;
+import java.awt.AWTEvent;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -24,13 +28,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  * Machine that runs an acquire game.
  * @author Nicholas Maltbie
  */
-public class AcquireMachine extends AbstractFSM<GameState>
+public class AcquireMachine extends AbstractFSM<GameState> implements MergerPanelListener
 {
+    public static final int END_CORPORATION_SIZE = 41;
     /**
      * Game board.
      */
@@ -122,46 +129,105 @@ public class AcquireMachine extends AbstractFSM<GameState>
                 //nothing yet
                 this.setState(GameState.HUMAN_TURN);
                 break;
+            case END:
+                //Hand out majority and minority bonuses
+                for(Corporation c : companies)
+                    handOutMajorityAndMinorityBonuses(c);
+                //cash in player stocks
+                cashInStocks(player);
+                for(Investor p : opponents)
+                    cashInStocks(p);
+                //organize players by money.
+                List<Investor> allPlayers = new ArrayList<>(Arrays.asList(player));
+                allPlayers.addAll(opponents);
+                allPlayers.sort(new InvestorComparator());
+                
+                String endMessage = "";
+                for(int i = 0; i < allPlayers.size(); i++)
+                    endMessage += (i+1) + ". " + allPlayers.get(i).toString()+"\n";
+                endMessage += "\nPlay again?";
+                JFrame frame = new JFrame();
+                boolean again = JOptionPane.showConfirmDialog(
+                        frame,
+                        endMessage,
+                        allPlayers.get(0) + " wins",
+                        JOptionPane.YES_NO_OPTION) == 0;
+                
+                view.dispose();
+                if(again)
+                {
+                    board.fill(null);
+                    for(Corporation c : companies)
+                        if(c.isEstablished())
+                            c.dissolve();
+                    market = new HotelMarket(board);
+                    
+                    for(int h = 0; h < player.getHandSize(); h++)
+                        player.removeFromHand(h);
+                    player.addMoney(6000 - player.getMoney());
+                    for(Investor i : opponents)
+                    {
+                        for(int h = 0; h < i.getHandSize(); h++)
+                            i.removeFromHand(h);
+                        i.addMoney(6000 - i.getMoney());
+                    }
+                    currentPlayer = (int)(Math.random()*(opponents.size()+1));
+                    setState(GameState.SETUP);
+                }
+                else
+                {
+                    System.exit(0);
+                }
+                break;
         }
     }
 
     @Override
     protected void stateEnded(GameState state)
     {
-            
+        
     }
-    
-    /**
-     * All the different states the game can be in.
-     */
-    public static enum GameState {SETUP, AI_TURN, HUMAN_TURN, END};
-    /**
-     * The map that decides which states can go to which.
-     */
-    public static final Map<GameState, EnumSet<GameState>> stateMap;
-    
-    /**
-     * Setup for the stateMap.
-     */
-    static{
-        stateMap = new HashMap<>();
-        stateMap.put(GameState.SETUP, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
-        stateMap.put(GameState.HUMAN_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN,
-                GameState.END));
-        stateMap.put(GameState.AI_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
-        stateMap.put(GameState.END, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
+
+    @Override
+    public void finished(Corporation parent, Corporation child, int kept, int sold, int traded)
+    {
+        waiting = false;
     }
     
     public void turnEnded(Investor player)
     {
-        currentPlayer++;
-        currentPlayer %= opponents.size()+1;
-        //Make a choice who's going next, human or AI
         final GameState nextTurn;
-        if(currentPlayer == 0)
-            nextTurn = GameState.HUMAN_TURN;
+        //Decide if game is over
+        List<Corporation> established = board.getCompaniesOnBoard();
+        boolean over = false;
+        if(!established.isEmpty())
+        {
+            boolean full = false;
+            boolean allSafe = true;
+            for(Corporation c : established)
+            {
+                if(c.getNumberOfHotels() >= END_CORPORATION_SIZE)
+                    full = true;
+                if(c.getNumberOfHotels() < HumanPlayerFSM.SAFE_CORPORATION_SIZE)
+                    allSafe = false;
+            }
+            over = full || allSafe;
+        }
+        
+        if(!over)
+        {
+            //if not, go to next turn
+            currentPlayer++;
+            currentPlayer %= opponents.size()+1;
+            //Make a choice who's going next, human or AI
+            if(currentPlayer == 0)
+                nextTurn = GameState.HUMAN_TURN;
+            else
+                nextTurn = GameState.AI_TURN;
+        }
         else
-            nextTurn = GameState.AI_TURN;
+            nextTurn = GameState.END;
+        
         //use delay to avoid filling the stack.
         new java.util.Timer().schedule( 
             new java.util.TimerTask() {
@@ -171,6 +237,75 @@ public class AcquireMachine extends AbstractFSM<GameState>
                     setState(nextTurn);
                 }
             }, 0);
+    }
+    
+    /**
+     * Gives out the majority and minority bonuses to players in the game.
+     * @param c Company to hand out majority and minority bonuses.
+     */
+    public void handOutMajorityAndMinorityBonuses(Corporation c)
+    {
+        List<Investor> majority = new ArrayList<>();
+        if(player.getStocks(c) > 0)
+            majority.add(player);
+        for(Investor opponent : opponents)
+        {
+            if(opponent.getStocks(c) > 0)
+            {
+                if(majority.isEmpty())
+                    majority.add(opponent);
+                else if(opponent.getStocks(c) > majority.get(0).getStocks(c))
+                {
+                    majority.clear();
+                    majority.add(opponent);
+                }
+                else if(opponent.getStocks(c) == majority.get(0).getStocks(c))
+                    majority.add(opponent);
+            }
+        }
+
+        List<Investor> minority = new ArrayList<>();
+        if(!majority.contains(player) && player.getStocks(c) > 0)
+            minority.add(player);
+        for(Investor opponent : opponents)
+        {
+            if(opponent.getStocks(c) > 0 && !majority.contains(opponent))
+            {
+                if(minority.isEmpty())
+                    minority.add(opponent);
+                else if(opponent.getStocks(c) > minority.get(0).getStocks(c))
+                {
+                    minority.clear();
+                    minority.add(opponent);
+                }
+                else if(opponent.getStocks(c) == minority.get(0).getStocks(c))
+                    minority.add(opponent);
+            }
+        }
+        int majorityBonus = c.getMajorityBonus();
+        int minorityBonus = c.getMinorityBonus();
+        if(majority.size() > 1) {
+            majorityBonus = (c.getMajorityBonus() + c.getMinorityBonus())/(100*majority.size())*100;
+            minorityBonus = 0;
+        }
+        else if(minority.size() > 1)
+            minorityBonus = c.getMinorityBonus()/(100*minority.size())*100;
+        else if(minority.isEmpty())
+            majorityBonus = c.getMajorityBonus() + c.getMinorityBonus();
+        for(Investor p : majority)
+            p.addMoney(majorityBonus);
+        for(Investor p : minority)
+            p.addMoney(minorityBonus);
+    }
+    
+    /**
+     * Cashes in all the player's stocks and gives him or her the money.
+     * @param p Player to cash in stocks of.
+     */
+    public void cashInStocks(Investor p)
+    {
+        while(p.getNumStocks() > 0)
+            p.addMoney(p.removeStock(0).getTradeInValue());
     }
     
     /**
@@ -189,58 +324,7 @@ public class AcquireMachine extends AbstractFSM<GameState>
         //Hand out majority and minory bonus for all food eaten.
         for(Corporation c : food)
         {
-            List<Investor> majority = new ArrayList<>();
-            if(player.getStocks(c) > 0)
-                majority.add(player);
-            for(Investor opponent : opponents)
-            {
-                if(opponent.getStocks(c) > 0)
-                {
-                    if(majority.isEmpty())
-                        majority.add(opponent);
-                    else if(opponent.getStocks(c) > majority.get(0).getStocks(c))
-                    {
-                        majority.clear();
-                        majority.add(opponent);
-                    }
-                    else if(opponent.getStocks(c) == majority.get(0).getStocks(c))
-                        majority.add(opponent);
-                }
-            }
-            
-            List<Investor> minority = new ArrayList<>();
-            if(!majority.contains(player) && player.getStocks(c) > 0)
-                minority.add(player);
-            for(Investor opponent : opponents)
-            {
-                if(opponent.getStocks(c) > 0 && !majority.contains(opponent))
-                {
-                    if(minority.isEmpty())
-                        minority.add(opponent);
-                    else if(opponent.getStocks(c) > minority.get(0).getStocks(c))
-                    {
-                        minority.clear();
-                        minority.add(opponent);
-                    }
-                    else if(opponent.getStocks(c) == minority.get(0).getStocks(c))
-                        minority.add(opponent);
-                }
-            }
-            int majorityBonus = c.getMajorityBonus();
-            int minorityBonus = c.getMinorityBonus();
-            if(majority.size() > 1) {
-                majorityBonus = (c.getMajorityBonus() + c.getMinorityBonus())/(100*majority.size())*100;
-                minorityBonus = 0;
-            }
-            else if(minority.size() > 1)
-                minorityBonus = c.getMinorityBonus()/(100*minority.size())*100;
-            else if(minority.isEmpty())
-                majorityBonus = c.getMajorityBonus() + c.getMinorityBonus();
-            for(Investor p : majority)
-                p.addMoney(majorityBonus);
-            for(Investor p : minority)
-                p.addMoney(minorityBonus);
-            System.out.println("Majority: " + majority + ", minority: " + minority);
+            handOutMajorityAndMinorityBonuses(c);
         }
         //Take merger actions to finalize the trade.
         while(!food.isEmpty())
@@ -343,12 +427,19 @@ public class AcquireMachine extends AbstractFSM<GameState>
      */
     public void getPlayerMerger(Corporation parent, Corporation child, Investor shareholder)
     {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
+        //human player
+        if(shareholder.equals(player))
+        {
+            MergerPanel panel = new MergerPanel(parent, child, shareholder, Color.BLACK,
+            Color.WHITE);
+            panel.setupAndDisplayGUI(new Rectangle(100,100,700,700));
+            panel.addListener(this);
         }
-        waiting = true;
+        //AI player
+        else
+        {
+            
+        }
     }
     
     /**
@@ -358,5 +449,26 @@ public class AcquireMachine extends AbstractFSM<GameState>
     public int getNumPlayers()
     {
         return opponents.size() + 1;
+    }    
+    
+    /**
+     * All the different states the game can be in.
+     */
+    public static enum GameState {SETUP, AI_TURN, HUMAN_TURN, END};
+    /**
+     * The map that decides which states can go to which.
+     */
+    public static final Map<GameState, EnumSet<GameState>> stateMap;
+    
+    /**
+     * Setup for the stateMap.
+     */
+    static{
+        stateMap = new HashMap<>();
+        stateMap.put(GameState.SETUP, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
+        stateMap.put(GameState.HUMAN_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN,
+                GameState.END));
+        stateMap.put(GameState.AI_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
+        stateMap.put(GameState.END, EnumSet.of(GameState.SETUP));
     }
 }

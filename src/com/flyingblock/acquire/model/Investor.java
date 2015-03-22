@@ -253,6 +253,6 @@ public class Investor
     @Override
     public String toString()
     {
-        return getName();
+        return getName() + " $" + getMoney();
     }
 }
