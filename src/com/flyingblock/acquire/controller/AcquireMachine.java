@@ -51,7 +51,7 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
      */
     private HotelMarket market;
     /**
-     * Opponent players (just the model, assuming they are computers).
+     * Opponent players (just the model, they are computers).
      */
     private List<Investor> opponents;
     /**
@@ -208,7 +208,7 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
             {
                 if(c.getNumberOfHotels() >= END_CORPORATION_SIZE)
                     full = true;
-                if(c.getNumberOfHotels() < HumanPlayerFSM.SAFE_CORPORATION_SIZE)
+                if(c.getNumberOfHotels() < AcquireRules.SAFE_CORPORATION_SIZE)
                     allSafe = false;
             }
             over = full || allSafe;

@@ -22,12 +22,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -39,10 +36,6 @@ import javax.swing.JOptionPane;
 public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerListener,
         BuyStockPanelListener, SelectGroupListener
 {
-    /**
-     * The size that a corporation needs to be in order to be safe.
-     */
-    public static final int SAFE_CORPORATION_SIZE = 11;
     
     /**
      * Game board.
@@ -157,7 +150,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 {
                     if(player.getFromHand(i) == null)
                         continue;
-                    if(canPieceBePlayed(player.getFromHand(i)))
+                    if(AcquireRules.canPieceBePlayed(player.getFromHand(i), board))
                         hotels.add(new HotelView(player.getFromHand(i), Color.BLACK, "TIMES NEW ROMAN"));
                 }
                 if(!hotels.isEmpty())
@@ -205,25 +198,6 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 machine.handelMerger(parent, suspects);
                 break;
         }
-    }
-    
-    /**
-     * Checks if a piece can be played. A piece would not be able to be played
-     * it connected two or more safe corporations.
-     * @param hotel Hotel to check.
-     * @return Returns if the piece can be played.
-     */
-    public boolean canPieceBePlayed(Hotel hotel)
-    {
-        Location loc = hotel.getLocation();
-        board.set(loc.getRow(), loc.getCol(), hotel);
-        int numSafe = 0;
-        for(Corporation c : board.getCorporationsInBlob(loc.getRow(), loc.getCol()))
-            if(c.getNumberOfHotels() >= SAFE_CORPORATION_SIZE)
-               numSafe++;
-        
-        board.remove(loc.getRow(), loc.getCol());
-        return numSafe >= 2;
     }
 
     /**
@@ -285,7 +259,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 loc.getRow(), loc.getCol());
         for(Corporation company : accessories)
         {
-            if(company.getNumberOfHotels() >= SAFE_CORPORATION_SIZE)
+            if(company.getNumberOfHotels() >= AcquireRules.SAFE_CORPORATION_SIZE)
                 numSave++;
         }
         //check if the played location lines up with the hotel's location

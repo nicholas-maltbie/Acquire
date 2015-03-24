@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.view;
 
+import com.flyingblock.acquire.controller.AcquireRules;
 import com.flyingblock.acquire.controller.HumanPlayerFSM;
 import com.flyingblock.acquire.model.Corporation;
 import java.awt.Color;
@@ -151,7 +152,7 @@ public class CorporationView extends JPanel implements ActionListener
         if(company.isEstablished())
         {
             text += "(" + company.getNumberOfHotels() + ")";
-            if(company.getNumberOfHotels() >= HumanPlayerFSM.SAFE_CORPORATION_SIZE)
+            if(company.getNumberOfHotels() >= AcquireRules.SAFE_CORPORATION_SIZE)
                 style = Font.BOLD;
             else
                 style = Font.PLAIN;
