@@ -191,7 +191,10 @@ public class Investor
      */
     public void addStock(Stock stock)
     {
-        stocks.add(stock);
+        if(stock != null)
+        {
+            stocks.add(stock);
+        }
     }
     
     /**

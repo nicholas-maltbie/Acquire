@@ -77,7 +77,9 @@ public class ComputerPlayerFSM extends AbstractFSM<ComputerState>
             case BUY_STOCKS:
                 for(Corporation c : decider.getBoard().getCompaniesOnBoard())
                     c.incorporateRegoin();
-                
+                for(int i = 0; i < decider.getPlayer().getHandSize(); i++)
+                    if(!AcquireRules.canPieceBePlayed(decider.getPlayer().getFromHand(i), decider.getBoard()))
+                        decider.getPlayer().removeFromHand(i);
                 decider.buyStocks(decider.getBoard().getCompaniesOnBoard());
                 decider.getPlayer().drawFromDeck(deck);
                 machine.turnEnded(decider.getPlayer());
@@ -112,19 +114,7 @@ public class ComputerPlayerFSM extends AbstractFSM<ComputerState>
                 break;
             case PLAY_PIECE:
                 Investor investor = decider.getPlayer();
-                Hotel play = decider.getPlayOption();
-                List<Hotel> nonValid = new ArrayList<>();
-                while(play != null && !AcquireRules.canPieceBePlayed(play, decider.getBoard()))
-                {
-                    for(int i = 0; i < investor.getHandSize(); i++)
-                        if(investor.getFromHand(i) != null && investor.getFromHand(i).equals(play))
-                            nonValid.add(investor.removeFromHand(i));
-                    play = decider.getPlayOption();
-                }
-                for(int i = 0; i < investor.getHandSize(); i ++)
-                    if(investor.getFromHand(i) == null && !nonValid.isEmpty())
-                        investor.addPieceToHand(nonValid.remove(0));
-                
+                Hotel play = decider.getPlayOption();                
                 for(int i = 0; i < investor.getHandSize(); i++)
                     if(investor.getFromHand(i).equals(play))
                         investor.removeFromHand(i);

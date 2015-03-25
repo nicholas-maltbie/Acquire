@@ -438,6 +438,8 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
         //human player
         if(decider.equals(player))
         {
+            view.update();
+            view.repaint();
             return turn.choseCorporationFromList(options, "Choose corporation to be eaten first", "Merger Choice");
         }
         //AI player
@@ -462,6 +464,16 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
     }
     
     /**
+     * Will look through a player's hand and, if all the player's tiles are un-playable,
+     * will re-draw the player's hand.
+     * @param player Player who is taking his/her turn.
+     */
+    public void preParePlayerTurn(Investor player)
+    {
+        
+    }
+    
+    /**
      * Gets a player merger action where he or she will have to hold, trade in,
      * or sell all of his or her stocks in the child company.
      * @param parent Company that eats the child.
@@ -473,6 +485,8 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
         //human player
         if(shareholder.equals(player))
         {
+            view.update();
+            view.repaint();
             MergerPanel panel = new MergerPanel(parent, child, shareholder, Color.BLACK,
             Color.WHITE);
             panel.setupAndDisplayGUI(new Rectangle(100,100,700,700));

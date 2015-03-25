@@ -43,6 +43,6 @@ public class AcquireRules
                numSafe++;
         
         board.remove(loc.getRow(), loc.getCol());
-        return numSafe <= 2;
+        return numSafe <= 1;
     }
 }

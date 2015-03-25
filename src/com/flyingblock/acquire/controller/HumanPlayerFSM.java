@@ -115,7 +115,9 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 for(Corporation c : companies)
                     if(!taken.contains(c))
                         available.add(c);
-                Corporation chosenCompany =  this.choseCorporationFromList(
+                Corporation chosenCompany = available.get(0);
+                if(available.size() > 1)
+                    chosenCompany = this.choseCorporationFromList(
                         available, "chose a corporation to create", "New Company");
                 if(chosenCompany != null)
                     chosenCompany.setHeadquarters(locationOfInterest);
@@ -138,10 +140,26 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                     c.incorporateRegoin();
                 view.update();
                 view.repaint();
-                BuyStockPanel panel = new BuyStockPanel(companies.toArray(new Corporation[companies.size()]),
-                    player, 3, "TIMES NEW ROMAN", "TIMES NEW ROMAN", Color.BLACK);
-                panel.addListener(this);
-                panel.setupAndDisplayGUI();
+                
+                List<Corporation> established = board.getCompaniesOnBoard();
+                int lowestPrice = 100000000;
+                if(!established.isEmpty())
+                    lowestPrice = established.get(0).getStockPrice();
+                for(Corporation e : established)
+                    if(e.getStockPrice() < lowestPrice)
+                        lowestPrice = e.getStockPrice();
+                boolean canBuy = player.getMoney() >= lowestPrice && !established.isEmpty();
+                if(canBuy)
+                {
+                    BuyStockPanel panel = new BuyStockPanel(companies.toArray(new Corporation[companies.size()]),
+                        player, 3, "TIMES NEW ROMAN", "TIMES NEW ROMAN", Color.BLACK);
+                    panel.addListener(this);
+                    panel.setupAndDisplayGUI();
+                }
+                else
+                {
+                    this.buyingComplete(new int[0], new Corporation[0]);
+                }
                 break;
             case END_TURN:
                 //remove un-playable tiles
