@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.controller;
 
+import com.flyingblock.acquire.computer.Decider;
 import com.flyingblock.acquire.controller.AcquireMachine.GameState;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
@@ -55,6 +56,10 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
      */
     private List<Investor> opponents;
     /**
+     * Opponent deciding agents.
+     */
+    private List<Decider> opponentAI;
+    /**
      * Human player playing the game.
      */
     private Investor player;
@@ -71,6 +76,10 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
      */
     private HumanPlayerFSM turn;
     /**
+     * Computer turn to operate a computer's actions.
+     */
+    private ComputerPlayerFSM computer;
+    /**
      * saves if the program is waiting.
      */
     private boolean waiting;
@@ -85,12 +94,14 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
      * @param player Human player.
      * @param start Starting player (0 is current player while 1 through
      * investors.size() will be an investor).
+     * @param opponentAI Deciders for the opponents.
      */
     public AcquireMachine(AcquireBoard board, List<Corporation> corporations, 
             HotelMarket market, List<Investor> investors, Investor player, int
-            start)
+            start, List<Decider> opponentAI)
     {
         super(stateMap, GameState.SETUP);
+        this.opponentAI = opponentAI;
         this.currentPlayer = start;
         this.board = board;
         this.companies = corporations;
@@ -118,7 +129,7 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
                 currentPlayer = (int)(Math.random()*players.size());
                 view.setupAndDisplayGUI();
                 view.update();
-                this.setState(GameState.HUMAN_TURN);
+                this.turnEnded(player);
                 break;
             case HUMAN_TURN:
                 turn = new HumanPlayerFSM(this, board, market, 
@@ -126,8 +137,9 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
                 turn.start();
                 break;
             case AI_TURN:
-                //nothing yet
-                this.setState(GameState.HUMAN_TURN);
+                computer = new ComputerPlayerFSM(getDecider(getPlayer(currentPlayer)),
+                        view, this, market);
+                computer.start();
                 break;
             case END:
                 //Hand out majority and minority bonuses
@@ -196,6 +208,12 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
     
     public void turnEnded(Investor player)
     {
+        try {
+            Thread.sleep(100l);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         final GameState nextTurn;
         //Decide if game is over
         List<Corporation> established = board.getCompaniesOnBoard();
@@ -345,7 +363,7 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
             }
             final Corporation next;
             if(largest.size() > 1)
-                next = turn.choseCorporationFromList(largest, "Choose corporation to be eaten first", "Merger Choice");
+                next = getFirstMerged(largest, parent, getPlayer(currentPlayer));
             else
                 next = largest.get(0);
             food.remove(next);
@@ -401,7 +419,32 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
         view.update();
         view.repaint();
         //tell the turn that the player's have completed their actions.
-        turn.mergerComplete();
+        if(getPlayer(currentPlayer).equals(player))
+            turn.mergerComplete();
+        else
+            computer.mergerComplete();
+    }
+    
+    /**
+     * Chooses the next company to be merged when they are of equal size.
+     * @param options Companies of equal size to choose from.
+     * @param winner Company that will win the merger.
+     * @param decider player who chooses the winner.
+     * @return Returns the chosen corporation.
+     */
+    public Corporation getFirstMerged(List<Corporation> options, Corporation 
+            winner, Investor decider)
+    {
+        //human player
+        if(decider.equals(player))
+        {
+            return turn.choseCorporationFromList(options, "Choose corporation to be eaten first", "Merger Choice");
+        }
+        //AI player
+        else
+        {
+            return computer.getFirstDissolved(options, winner);
+        }
     }
     
     /**
@@ -438,8 +481,18 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
         //AI player
         else
         {
-            
+            if(getDecider(shareholder) != null)
+                getDecider(shareholder).reactToMerger(parent, child);
+            waiting = false;
         }
+    }
+    
+    public Decider getDecider(Investor player)
+    {
+        for(Decider i : opponentAI)
+            if(i.getPlayer().equals(player))
+                return i;
+        return null;
     }
     
     /**
@@ -468,7 +521,8 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
         stateMap.put(GameState.SETUP, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
         stateMap.put(GameState.HUMAN_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN,
                 GameState.END));
-        stateMap.put(GameState.AI_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN));
+        stateMap.put(GameState.AI_TURN, EnumSet.of(GameState.HUMAN_TURN, GameState.AI_TURN,
+                GameState.END));
         stateMap.put(GameState.END, EnumSet.of(GameState.SETUP));
     }
 }

@@ -9,6 +9,8 @@
  */
 package com.flyingblock.acquire.controller;
 
+import com.flyingblock.acquire.computer.Decider;
+import com.flyingblock.acquire.computer.RandomDecider;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Game;
 import com.flyingblock.acquire.model.Hotel;
@@ -27,8 +29,8 @@ public class ControllerTest
     public static void main(String[] args)
     {
         Investor investor = new Investor("Nick", 6000, 6, Color.RED);
-        String[] names = {"CUP1", "CPU2"};
-        Color[] colors = {Color.BLUE, Color.GREEN};
+        String[] names = {"CUP1", "CPU2", "CUP3", "Bush"};
+        Color[] colors = {Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE};
         Game game = new Game(names, colors);
         List<Corporation> companies = new ArrayList<>();
         for(int i = 0; i < game.getNumCorporations(); i++)
@@ -67,9 +69,15 @@ public class ControllerTest
                 }
             }
         
+        List<Decider> deciders = new ArrayList<>();
+        for(Investor i : players)
+        {
+            deciders.add(new RandomDecider(i, game.getGameBoard(), companies, players));
+        }
+        
         AcquireMachine machine = new AcquireMachine(game.getGameBoard(),
             companies, game.getMarket(), players, investor, (int)(Math.random()*
-            (players.size()+1)));
+            (players.size()+1)), deciders);
         
         machine.start();
     }

@@ -62,8 +62,10 @@ public class RandomDecider extends Decider
     {
         List<Hotel> playablePieces = new ArrayList<>();
         for(int i = 0; i < getPlayer().getHandSize(); i++)
-            if(AcquireRules.canPieceBePlayed(getPlayer().getFromHand(i), getBoard()))
+        {
+            if(getPlayer().getFromHand(i) != null && AcquireRules.canPieceBePlayed(getPlayer().getFromHand(i), getBoard()))
                 playablePieces.add(getPlayer().getFromHand(i));
+        }
         return playablePieces.get(rng.nextInt(playablePieces.size()));
     }
 
@@ -89,7 +91,9 @@ public class RandomDecider extends Decider
     public void reactToMerger(Corporation parent, Corporation child) 
     {
         int stocks = getPlayer().getStocks(child);
-        int traded = rng.nextInt(stocks/3)*2;
+        int traded = 0;
+        if(stocks > 4)
+            traded = rng.nextInt(stocks/3)*2;
         stocks -= traded;
         for(int i = 0; i < traded/2; i++)
         {
@@ -97,7 +101,7 @@ public class RandomDecider extends Decider
             child.returnStock(getPlayer().removeStock(child));
             getPlayer().addStock(parent.getStock());
         }
-        int sold = rng.nextInt(stocks);
+        int sold = stocks;
         for(int i = 0; i < sold; i++)
         {
             child.returnStock(getPlayer().removeStock(child));

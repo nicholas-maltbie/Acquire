@@ -122,7 +122,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 else
                     throw new IllegalStateException("Cannot extablish a null corporation");
                 chosenCompany.incorporateRegoin();
-                if(chosenCompany.getNumberOfHotels() > 0)
+                if(chosenCompany.getAvailableStocks() > 0)
                     player.addStock(chosenCompany.getStock());
                 
                 view.update();
@@ -150,7 +150,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 {
                     if(player.getFromHand(i) == null)
                         continue;
-                    if(AcquireRules.canPieceBePlayed(player.getFromHand(i), board))
+                    if(!AcquireRules.canPieceBePlayed(player.getFromHand(i), board))
                         hotels.add(new HotelView(player.getFromHand(i), Color.BLACK, "TIMES NEW ROMAN"));
                 }
                 if(!hotels.isEmpty())
