@@ -109,7 +109,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
         listeners = new ArrayList<>();
         
         buttons = new JButton[companies.length][2];
-        companyData = new JLabel[companies.length][4];
+        companyData = new JLabel[companies.length][5];
         
         this.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -133,7 +133,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
         money.setForeground(textColor);
         
         c.gridx = 2;
-        c.gridwidth = 2;
+        c.gridwidth = 3;
         this.add(left, c);
         left.setForeground(textColor);
         
@@ -196,6 +196,12 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
             companyData[i][3].setAlignmentX(.5f);
             c.gridx = 4;
             this.add(companyData[i][3], c);
+            
+            companyData[i][4] = new JLabel(Integer.toString(investor.getStocks(companies[i])));
+            companyData[i][4].setForeground(companies[i].getColor());
+            companyData[i][4].setAlignmentX(.5f);
+            c.gridx = 5;
+            this.add(companyData[i][4], c);
         }
         
         closeButton = new JButton("Finish");
@@ -290,6 +296,7 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
         {
             views[i].update();
             companyData[i][3].setText(Integer.toString(currentStatus[i]));
+            companyData[i][4].setText(Integer.toString(investor.getStocks(companies[i])));
             
             for(int j = 0; j < companyData[i].length - 1; j++)
             {
@@ -299,12 +306,16 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
                                 companyData[i][j].getFont().getName(),companyData[i][j].getFont().getStyle(),new Rectangle2D.Float(
                                     0, 0,companyData[i][j].getWidth()*.8f, companyData[i][j].getHeight()*.8f), this.getGraphics())));
             }
-            int j = companyData[i].length-1;
-            companyData[i][j].setFont(new Font(companyData[i][j].getFont().getName(),
+            int j = companyData[i].length-2;
+            while(j < companyData.length - 2)
+            {
+                companyData[i][j].setFont(new Font(companyData[i][j].getFont().getName(),
                     companyData[i][j].getFont().getStyle(), 
                     GUIOperations.findFontSize("9",
                             companyData[i][j].getFont().getName(),companyData[i][j].getFont().getStyle(),new Rectangle2D.Float(
                                 0, 0,companyData[i][j].getWidth()*.8f, companyData[i][j].getHeight()*.8f), this.getGraphics())));
+                j++;
+            }
         }
     }
     

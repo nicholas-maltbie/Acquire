@@ -29,8 +29,8 @@ public class ControllerTest
     public static void main(String[] args)
     {
         Investor investor = new Investor("Nick", 6000, 6, Color.RED);
-        String[] names = {"CUP1", "CPU2", "CUP3", "Bush"};
-        Color[] colors = {Color.BLUE, Color.GREEN, Color.YELLOW, Color.WHITE};
+        String[] names = {"Smith", "Marx", "Keynes", "Q"};
+        Color[] colors = {Color.BLUE, Color.GREEN, Color.YELLOW, Color.MAGENTA};
         Game game = new Game(names, colors);
         List<Corporation> companies = new ArrayList<>();
         for(int i = 0; i < game.getNumCorporations(); i++)
