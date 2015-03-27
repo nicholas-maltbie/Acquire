@@ -106,7 +106,7 @@ public class RandomDecider extends Decider
         {
             child.returnStock(getPlayer().removeStock(child));
             getPlayer().addMoney(child.getStockPrice());
-        }        
+        }
     }
 
     @Override
