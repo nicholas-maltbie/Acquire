@@ -39,8 +39,8 @@ public class ClientThread extends Thread
         this.client = client;
         this.server = server;
         try {
-            inputStream = new ObjectInputStream(client.getInputStream());
             outputStream = new ObjectOutputStream(client.getOutputStream());
+            inputStream = new ObjectInputStream(client.getInputStream());
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -79,8 +79,11 @@ public class ClientThread extends Thread
                 {
                     server.objectRecieved(client, input);
                 }
-            } catch (IOException | ClassNotFoundException ex) {
-                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                //client has connected. tell server and bail.
+                return;
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

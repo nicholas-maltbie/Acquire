@@ -56,8 +56,10 @@ public abstract class Server
             server = new ServerSocket(port);
             while(true)
             {
+                
                 ClientThread client = new ClientThread(server.accept(), this);
                 clients.add(client);
+                joinedNetwork(client.getSocket());
                 client.start();
             }
         } catch (IOException ex) {
@@ -85,14 +87,14 @@ public abstract class Server
     
     /**
      * Returns a client based on the channel that the client is connected to.
-     * @param channel Channel that is being checked.
+     * @param socket Socket that is being checked.
      * @return Returns the client connected through that channel.
      */
-    public ClientThread getClient(SocketChannel channel)
+    public ClientThread getClient(Socket socket)
     {
         for(ClientThread thread : clients)
         {
-            if(thread.getSocket().getChannel().equals(channel))
+            if(thread.getSocket().equals(socket))
                 return thread;
         }
         return null;
@@ -105,7 +107,8 @@ public abstract class Server
      */
     abstract public void objectRecieved(Socket client, Object message);
     /**
-     * Method called whenever a client joins the network.
+     * Method called whenever a client joins the network. This happens before
+     * the client is added to the list of clients.
      * @param client Client that joined.
      */
     abstract public void joinedNetwork(Socket client);
