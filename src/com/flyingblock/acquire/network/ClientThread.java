@@ -68,11 +68,29 @@ public class ClientThread extends Thread
         }
     }
 
+    /**
+     * Stops listening and sending messages to the client and then closes the 
+     * socket.
+     */
+    public void disconnect()
+    {
+        run = false;
+        try {
+            client.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    /**
+     * Are we listening to the client?
+     */
+    private boolean run = true;
+    
     @Override
     public void run()
     {
-        Object input = null;
-        while(true)
+        Object input;
+        while(run)
         {
             try {
                 if((input = inputStream.readObject()) != null)
@@ -80,8 +98,8 @@ public class ClientThread extends Thread
                     server.objectRecieved(client, input);
                 }
             } catch (IOException ex) {
-                //client has connected. tell server and bail.
-                return;
+                //client has disconnected. tell server and bail.
+                server.leaveNetwork(this);
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
             }

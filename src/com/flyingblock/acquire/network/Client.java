@@ -45,26 +45,52 @@ public abstract class Client
             input = new ObjectInputStream(server.getInputStream());
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            disconnect();
         }
     }
+    
+    private boolean running = true;
     
     /**
      * Starts listening to the server.
      */
     public void start()
     {
-        try {
-            while(true)
-            {
-                Object message = null;
-                if((message = input.readObject()) != null)
-                    objectRecieved(message);
+        while(running)
+        {
+            try {
+                    Object message = null;
+                    if((message = input.readObject()) != null)
+                        objectRecieved(message);
+            } catch (IOException | ClassNotFoundException ex) {
+                if(running)
+                {
+                    //Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                    disconnect();
+                    disconnectedFromServer();
+                }
             }
-        } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
+    /**
+     * Disconnects from the server. Will not call the disconnected from server
+     * method.
+     */
+    public void disconnect()
+    {
+        running = false;
+        try {
+            server.close();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    /**
+     * Sends an object to the server.
+     * @param message Object to send. Must be Serializable.
+     */
     public void sendObject(Object message)
     {
         try {
@@ -74,5 +100,13 @@ public abstract class Client
         }
     }
     
+    /**
+     * Method called whenever the server sends an object to the client.
+     * @param object Object received.
+     */
     abstract public void objectRecieved(Object object);
+    /**
+     * Called after the client unexpectedly disconnects from the server.
+     */
+    abstract public void disconnectedFromServer();
 }

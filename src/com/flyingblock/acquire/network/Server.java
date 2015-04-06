@@ -56,7 +56,6 @@ public abstract class Server
             server = new ServerSocket(port);
             while(true)
             {
-                
                 ClientThread client = new ClientThread(server.accept(), this);
                 clients.add(client);
                 joinedNetwork(client.getSocket());
@@ -65,6 +64,33 @@ public abstract class Server
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    /**
+     * Stops the server.
+     */
+    public void stop()
+    {
+        for(ClientThread client : clients)
+        {
+            client.disconnect();
+        }
+    }
+    
+    /**
+     * Method called whenever a client leaves the network.
+     * @param client Client that leaves.
+     */
+    public void leaveNetwork(ClientThread client)
+    {
+        try {
+            client.getSocket().close();
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        clients.remove(client);
+        client.disconnect();
+        disconnectedFromNetwork(client.getSocket());
     }
     
     /**
@@ -112,4 +138,10 @@ public abstract class Server
      * @param client Client that joined.
      */
     abstract public void joinedNetwork(Socket client);
+    /**
+     * Method called whenever a client leaves the network. This happens after
+     * the client leaves the network.
+     * @param client Client that leaves.
+     */
+    abstract public void disconnectedFromNetwork(Socket client);
 }

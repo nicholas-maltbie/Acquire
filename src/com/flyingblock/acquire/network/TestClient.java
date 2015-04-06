@@ -10,6 +10,8 @@
 package com.flyingblock.acquire.network;
 
 import java.awt.Point;
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +36,13 @@ public class TestClient extends Client
     
     public static void main(String[] args)
     {
-        TestClient client = new TestClient("192.168.1.20", 44);
+        String address = "localhost";
+        try {
+            address = Inet4Address.getLocalHost().getHostAddress();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(TestClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        TestClient client = new TestClient(address, 44);
         new java.util.Timer().schedule( 
             new java.util.TimerTask() {
                 @Override
@@ -51,8 +59,22 @@ public class TestClient extends Client
         while(true)
         {
             String next = scan.nextLine();
-            client.sendObject(next);
+            if(next.equalsIgnoreCase("DIE"))
+            {
+                System.out.println("Leaving the server");
+                client.disconnect();
+                scan.close();
+                System.exit(0);
+            }
+            else
+                client.sendObject(next);
         }
+    }
+
+    @Override
+    public void disconnectedFromServer() {
+        System.out.println("We're not in Kansas anymore, or connected to the server for that matter.");
+        System.exit(0);
     }
     
 }

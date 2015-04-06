@@ -27,7 +27,8 @@ public class TestServer extends Server
     public void objectRecieved(Socket client, Object message)
     {
         System.out.println(client + " sent " + message);
-        this.getClient(client).sendData(message);
+        for(ClientThread c : this.getClients().toArray(new ClientThread[this.getConnected()]))
+            c.sendData(message);
     }
 
     @Override
@@ -39,8 +40,12 @@ public class TestServer extends Server
     static public void main(String[] args)
     {
         TestServer server = new TestServer(44);
-        System.out.println("Server starting...");
         server.start();
+    }
+
+    @Override
+    public void disconnectedFromNetwork(Socket client) {
+        System.out.println(client + " left the network");
     }
     
 }
