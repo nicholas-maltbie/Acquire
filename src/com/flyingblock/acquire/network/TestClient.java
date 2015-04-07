@@ -43,18 +43,7 @@ public class TestClient extends Client
             Logger.getLogger(TestClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         TestClient client = new TestClient(address, 44);
-        new java.util.Timer().schedule( 
-            new java.util.TimerTask() {
-                @Override
-                public void run() {
-                    client.start();
-                }
-            }, 0);
-        try {
-            Thread.sleep(1000l);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(TestClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        client.start();
         Scanner scan = new Scanner(System.in);
         while(true)
         {
@@ -64,7 +53,7 @@ public class TestClient extends Client
                 System.out.println("Leaving the server");
                 client.disconnect();
                 scan.close();
-                System.exit(0);
+                return;
             }
             else
                 client.sendObject(next);
@@ -74,7 +63,6 @@ public class TestClient extends Client
     @Override
     public void disconnectedFromServer() {
         System.out.println("We're not in Kansas anymore, or connected to the server for that matter.");
-        System.exit(0);
     }
     
 }

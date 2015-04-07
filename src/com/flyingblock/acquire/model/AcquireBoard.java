@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * the game bounds.
  * @author Nicholas Maltbie
  */
-public class AcquireBoard extends Board<Hotel>
+public class AcquireBoard extends Board<Hotel> implements Serializable
 {
     /**
      * Constructs a game board of the specified dimensions.

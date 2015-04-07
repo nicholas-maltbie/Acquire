@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,7 +18,7 @@ import java.util.HashSet;
  * A location is a position on a grid measure in rows and columns.
  * @author Nicholas Maltbie
  */
-public class Location 
+public class Location implements Serializable
 {
     /**The immutable coordinates of a location within the grid.*/
     private int row, col;

@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Objects;
  * within the game's board. Hotels can be incorporated or unincorporated.
  * @author Nicholas Maltbie
  */
-public class Hotel extends Product
+public class Hotel extends Product implements Serializable
 {
     /**Start of the capital letters in the ASCII character table**/
     public static final int CAPITAL_LETTER_START = 65;

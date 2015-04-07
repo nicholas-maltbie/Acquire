@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.Random;
  * This represents the bag of hotels that players draw and put on the board.
  * @author Nicholas Maltbie
  */
-public class HotelMarket 
+public class HotelMarket implements Serializable
 {
     /**
      * Seed for shuffling the market.

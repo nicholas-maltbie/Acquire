@@ -6,12 +6,14 @@
 
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
+
 /**
  * Board that will hold a 2d array of E
  * @author Nicholas Maltbie
  * @param <E> Object that will fill the board of the board
  */
-public class Board<E>
+public class Board<E> implements Serializable
 {
     /**
      * Saved board of E

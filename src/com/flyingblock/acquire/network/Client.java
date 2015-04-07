@@ -22,7 +22,7 @@ import java.util.logging.Logger;
  * Class that can connect to a Server
  * @author Nicholas Maltbie
  */
-public abstract class Client 
+public abstract class Client extends Thread
 {
     /**
      * Server that the client is connected to.
@@ -52,9 +52,10 @@ public abstract class Client
     private boolean running = true;
     
     /**
-     * Starts listening to the server.
+     * listen to the server.
      */
-    public void start()
+    @Override
+    public void run()
     {
         while(running)
         {

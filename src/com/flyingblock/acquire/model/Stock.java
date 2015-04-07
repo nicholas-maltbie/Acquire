@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Objects;
  * stocks. Each stock has a market trade in value determined by MarketValue
  * @author Nicholas Maltbie
  */
-public class Stock extends Product
+public class Stock extends Product implements Serializable
 {
     /**
      * The Market value for a stock. This is from a game element to give certain

@@ -3,12 +3,15 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
+
 /**
  * Every Corporation/Stock has a market value which will determine the value of their
  * Stocks based on the number of hotels that the Corporation contains.
  * @author Nicholas Maltbie
  */
-public enum MarketValue {
+public enum MarketValue implements Serializable
+{
     LOW,
     MEDIUM,
     HIGH;

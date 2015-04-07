@@ -11,6 +11,7 @@ package com.flyingblock.acquire.model;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
  * anything, just stores the data for the game.
  * @author Nicholas Maltbie
  */
-public class Game 
+public class Game implements Serializable
 {
     /**
      * The region for the game.

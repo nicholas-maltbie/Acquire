@@ -10,12 +10,14 @@
 package com.flyingblock.acquire.model;
 
 import java.awt.Color;
+import java.io.Serializable;
 
 /**
  *
  * @author Nicholas Maltbie
  */
-public class ModelTest {
+public class ModelTest implements Serializable
+{
     public static void main(String[] args)
     {
         AcquireBoard board = new AcquireBoard();

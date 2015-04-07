@@ -9,11 +9,13 @@
  */
 package com.flyingblock.acquire.model;
 
+import java.io.Serializable;
+
 /**
  * Something made or exchanged by a Corporation(s).
  * @author Nicholas Maltbie
  */
-public class Product 
+public class Product implements Serializable
 {
     /**Corporation that currently owns rights to the product.*/
     private Corporation supplier; 

@@ -1,6 +1,7 @@
 package com.flyingblock.acquire.model;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Objects;
  * in the game by controlling hotel chains and stocks.
  * @author Nicholas Maltbie
  */
-public class Corporation 
+public class Corporation implements Serializable
 {
     /**
      * Name of the corporation.

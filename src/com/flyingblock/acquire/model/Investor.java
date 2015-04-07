@@ -10,6 +10,7 @@
 package com.flyingblock.acquire.model;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
  * Influences the market. This represents a player in the game.
  * @author Nicholas Maltbie
  */
-public class Investor 
+public class Investor implements Serializable
 {
     /**
      * Name of the investor.
