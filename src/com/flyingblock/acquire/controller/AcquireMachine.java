@@ -38,7 +38,6 @@ import javax.swing.JOptionPane;
  */
 public class AcquireMachine extends AbstractFSM<GameState> implements MergerPanelListener
 {
-    public static final int END_CORPORATION_SIZE = 41;
     /**
      * Game board.
      */
@@ -224,7 +223,7 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
             boolean allSafe = true;
             for(Corporation c : established)
             {
-                if(c.getNumberOfHotels() >= END_CORPORATION_SIZE)
+                if(c.getNumberOfHotels() >= AcquireRules.END_CORPORATION_SIZE)
                     full = true;
                 if(c.getNumberOfHotels() < AcquireRules.SAFE_CORPORATION_SIZE)
                     allSafe = false;

@@ -35,6 +35,10 @@ public abstract class Server
      * Port for the server.
      */
     private int port;
+    /**
+     * Whether or not to reject new arrivals.
+     */
+    private boolean acceptUsers;
     
     /**
      * Constructs a server that can read and write to its clients.
@@ -56,9 +60,17 @@ public abstract class Server
             while(true)
             {
                 ClientThread client = new ClientThread(server.accept(), this);
-                clients.add(client);
-                joinedNetwork(client.getSocket());
-                client.start();
+                if(acceptUsers)
+                {
+                    clients.add(client);
+                    joinedNetwork(client.getSocket());
+                    client.start();
+                }
+                else
+                {
+                    client.disconnect();
+                    connectionRejected(client.getSocket());
+                }
             }
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
@@ -111,6 +123,32 @@ public abstract class Server
     }
     
     /**
+     * Gets if the server is allowing new users to connect.
+     * @return Returns true if accepting new users and false if not accepting
+     * new users.
+     */
+    public boolean isAccpeting()
+    {
+        return acceptUsers;
+    }
+    
+    /**
+     * Allows users to join the network.
+     */
+    public void acceptUsers()
+    {
+        acceptUsers = true;
+    }
+    
+    /**
+     * Stops accepting new users to the network.
+     */
+    public void stopAccepting()
+    {
+        acceptUsers = false;
+    }
+    
+    /**
      * Returns a client based on the channel that the client is connected to.
      * @param socket Socket that is being checked.
      * @return Returns the client connected through that channel.
@@ -143,4 +181,9 @@ public abstract class Server
      * @param client Client that leaves.
      */
     abstract public void disconnectedFromNetwork(Socket client);
+    /**
+     * Method called whenever a client is rejected from the network.
+     * @param client Client rejected connection
+     */
+    abstract public void connectionRejected(Socket client);
 }

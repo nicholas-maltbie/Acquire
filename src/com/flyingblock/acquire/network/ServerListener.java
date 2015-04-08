@@ -35,4 +35,9 @@ public interface ServerListener
      * @param client Client that leaves.
      */
     abstract public void disconnectedFromNetwork(Socket client);
+    /**
+     * Method called whenever a client is rejected from the network.
+     * @param client Client rejected connection
+     */
+    abstract public void connectionRejected(Socket client);
 }

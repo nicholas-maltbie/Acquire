@@ -79,5 +79,15 @@ public class ConcreteServer extends Server
                 listener.disconnectedFromNetwork(client);
         }
     }
+
+    @Override
+    public void connectionRejected(Socket client) 
+    {
+        synchronized(listeners)
+        {
+            for(ServerListener listener : listeners)
+                listener.connectionRejected(client);
+        }
+    }
     
 }

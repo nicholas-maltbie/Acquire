@@ -25,7 +25,10 @@ public class AcquireRules
      * The size that a corporation needs to be in order to be safe.
      */
     public static final int SAFE_CORPORATION_SIZE = 11;
-    
+    /**
+     * End game size of a corporation
+     */
+    public static final int END_CORPORATION_SIZE = 41;
     /**
      * Checks if a piece can be played. A piece would not be able to be played
      * it connected two or more safe corporations.

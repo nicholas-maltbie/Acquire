@@ -26,6 +26,7 @@ public class TestServer extends Server
     @Override
     public void objectRecieved(Socket client, Object message)
     {
+        this.stopAccepting();
         System.out.println(client + " sent " + message);
         for(ClientThread c : this.getClients().toArray(new ClientThread[this.getConnected()]))
             c.sendData(message);
@@ -46,6 +47,11 @@ public class TestServer extends Server
     @Override
     public void disconnectedFromNetwork(Socket client) {
         System.out.println(client + " left the network");
+    }
+
+    @Override
+    public void connectionRejected(Socket client) {
+        System.out.println(client + " was rejected");
     }
     
 }

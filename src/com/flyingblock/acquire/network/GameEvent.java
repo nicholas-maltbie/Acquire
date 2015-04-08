@@ -28,7 +28,7 @@ public class GameEvent implements Serializable
      * @param code String that describes the message and can be parsed.
      * @param message Message to send.
      */
-    public void GameEvent(String code, Object message)
+    public GameEvent(String code, Object message)
     {
         this.code = code;
         this.message = message;

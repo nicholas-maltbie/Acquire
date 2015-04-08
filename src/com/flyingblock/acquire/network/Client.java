@@ -57,12 +57,12 @@ public abstract class Client extends Thread
     @Override
     public void run()
     {
-        while(running)
+        while(running && isConnected())
         {
             try {
-                    Object message = null;
-                    if((message = input.readObject()) != null)
-                        objectRecieved(message);
+                Object message = null;
+                if((message = input.readObject()) != null)
+                    objectRecieved(message);
             } catch (IOException | ClassNotFoundException ex) {
                 if(running)
                 {
@@ -83,6 +83,8 @@ public abstract class Client extends Thread
         running = false;
         try {
             server.close();
+            input.close();
+            output.close();
         } catch (IOException ex) {
             Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -99,6 +101,15 @@ public abstract class Client extends Thread
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    /**
+     * Gets if the client is connected to the server.
+     * @return Returns true if connected, false if not.
+     */
+    public boolean isConnected()
+    {
+        return server.isConnected();
     }
     
     /**

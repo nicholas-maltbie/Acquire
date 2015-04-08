@@ -45,7 +45,7 @@ public class TestClient extends Client
         TestClient client = new TestClient(address, 44);
         client.start();
         Scanner scan = new Scanner(System.in);
-        while(true)
+        while(client.isConnected())
         {
             String next = scan.nextLine();
             if(next.equalsIgnoreCase("DIE"))
