@@ -15,20 +15,21 @@ import java.io.Serializable;
  * A message that can be used to code and parse messages sent between servers
  * and clients.
  * @author Nicholas Maltbie
+ * @param <E> Type of message
  */
-public class GameEvent implements Serializable
+public class GameEvent<E> implements Serializable
 {
     /**Code that describes the message*/
     private String code;
     /**Message that is being sent*/
-    private Object message;
+    private E message;
     
     /**
      * Constructs a game event with a code and message.
      * @param code String that describes the message and can be parsed.
      * @param message Message to send.
      */
-    public GameEvent(String code, Object message)
+    public GameEvent(String code, E message)
     {
         this.code = code;
         this.message = message;
@@ -47,7 +48,7 @@ public class GameEvent implements Serializable
      * Gets the message included in this event.
      * @return An Object that was sent with the message
      */
-    public Object getMessage()
+    public E getMessage()
     {
         return message;
     }
