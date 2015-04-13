@@ -14,6 +14,7 @@ import com.flyingblock.acquire.controller.AbstractFSM;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.HotelMarket;
+import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.network.AcquireServer.ServerState;
 import java.net.Socket;
 import java.util.EnumSet;
@@ -35,6 +36,10 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     private List<Decider> computerPlayers;
     /**Human players connected to the network*/
     private List<NetInvestor> humanPlayers;
+    /**Players that are controlled by a NetInvestor or Decider*/
+    private List<Investor> gamePlayers;
+    /**Current player that is taking his/her/its turn*/
+    private int currentPlayer;
     /**Game board*/
     private AcquireBoard board;
     /**Companies*/
@@ -87,11 +92,73 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     }
     
     /**
-     * Updates the game for every human player.
+     * Gets the current Player.
+     * @return Returns the current player's investor.
      */
-    private void sendGameUpdate()
+    public Investor getCurrentPlayer()
     {
-        
+        return gamePlayers.get(currentPlayer);
+    }
+    
+    /**
+     * Checks if there is a Decider for a given investor.
+     * @param investor Investor to check.
+     * @return Returns true if there is a decider and false if there isn't a
+     *  decider.
+     */
+    public boolean isPlayerComputer(Investor investor)
+    {
+        boolean computer = false;
+        for(Decider d : computerPlayers)
+        {
+            if(d.getPlayer().equals(investor))
+                computer = true;
+        }
+        return computer;
+    }
+    
+    /**
+     * Gets the decider for a given investor if the investor is a computer player.
+     * @param investor Computer player to get the decider for.
+     * @return Returns the decider for the computer investor if there is a decider
+     * for the computer investor. If there is no decider or this is not a computer player,
+     * it will return null because there is no decider to get.
+     */
+    public Decider getDeciderFor(Investor investor)
+    {
+        if(isPlayerComputer(investor))
+            for(Decider d : computerPlayers)
+                if(d.getPlayer().equals(investor))
+                    return d;
+        return null;
+    }
+    /**
+     * Gets the NetInvestor for a given investor if the investor is a human player.
+     * @param investor Human player to get the client for.
+     * @return Returns the NetInvestor for the human investor if there is a NetInvestor
+     * for the human investor. If there is no NetInvestor or this is not a human player,
+     * it will return null because there is no NetInvestor to get.
+     */
+    public NetInvestor getClientFor(Investor investor)
+    {
+        if(!isPlayerComputer(investor))
+            for(NetInvestor client : humanPlayers)
+                if(client.getPlayer().equals(investor))
+                    return client;
+        return null;
+    }
+    
+    /**
+     * Sends game updates to a client
+     * @param client Client to send Update to.
+     */
+    public void sendGameUpdate(NetInvestor client)
+    {
+        client.sendMessage(EventType.createEvent(EventType.BOARD_UPDATE, board));
+        client.sendMessage(EventType.createEvent(EventType.PLAYERS_UPDATE, 
+                gamePlayers.toArray(new Investor[gamePlayers.size()])));
+        client.sendMessage(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
+                companies.toArray(new Corporation[companies.size()])));
     }
 
     @Override

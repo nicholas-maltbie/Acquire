@@ -23,15 +23,36 @@ import com.flyingblock.acquire.model.Stock;
 public enum EventType
 {
     /**Identifiers to identify game events sent over a network*/
-    CHAT_SEND(String.class),
+    
+    //updates sent to clients
     BOARD_UPDATE(Board.class),
     PLAYERS_UPDATE(Investor[].class), 
     CORPORATIONS_UPDATE(Corporation[].class),
+    
+    //information sent to the server
+    CHAT_SEND(String.class),
     PIECE_PLAYED(Hotel.class),
     STOCKS_BOUGHT(Stock[].class),
-    STOCKS_SOLD(Stock[].class);
+    STOCKS_SOLD(Stock[].class),
+    MERGER_ACTION(int[].class), //in format {sold, traded}
+    CORPORATION_CREATED(Corporation.class),
+    MERGER_WINNER(Corporation.class),
+    MERGED_FIRST(Corporation.class),
     
-    private Class messageType;
+    //prompts sent to clients to get information
+    PLAY_PIECE(Hotel[].class),
+    BUY_STOCK(Corporation[].class),
+    SELL_STOCKS(Stock[].class),
+    TAKE_MERGER(Corporation[].class), //in format {parent, child}
+    CREATE_CORPORATION(Corporation[].class),
+    CHOOSE_WINNER(Corporation[].class),
+    CHOOSE_FIRST(Corporation[].class),
+    
+    //necessary events
+    INVALID_RESPONSE(GameEvent.class)
+    ;
+    
+    private final Class messageType;
     
     private EventType(Class messageType)
     {

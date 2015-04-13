@@ -33,6 +33,14 @@ public class NetInvestor
         this.client = client;
     }
     /**
+     * Gets the investor for this client.
+     * @return Returns the investor that this client plays.
+     */
+    public Investor getPlayer()
+    {
+        return investor;
+    }
+    /**
      * Sends an event to the client.
      * @param event Event to send.
      */
