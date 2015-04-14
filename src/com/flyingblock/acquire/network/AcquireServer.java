@@ -31,7 +31,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     implements ServerListener
 {
     /**Server to communicate with clients*/
-    private ConcreteServer server;
+    private Server server;
     /**List of computer players in the game*/
     private List<Decider> computerPlayers;
     /**Human players connected to the network*/
@@ -61,7 +61,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * @param delay Delay between player and AI turns, it allows humans to see
      * the changes and keep up with the game.
      */
-    public AcquireServer(ConcreteServer server, List<Decider> computerPlayers, 
+    public AcquireServer(Server server, List<Decider> computerPlayers, 
             List<NetInvestor> humanPlayers, AcquireBoard board,
             List<Corporation> companies, HotelMarket market, int delay) {
         super(stateMap, ServerState.GAME_START);
@@ -162,7 +162,8 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     }
 
     @Override
-    public void objectRecieved(Socket client, Object message) {
+    public void objectRecieved(Socket client, Object message)
+    {
         
     }
 

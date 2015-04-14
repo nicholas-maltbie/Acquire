@@ -26,23 +26,23 @@ public class ClientThread extends Thread
      */
     private ObjectOutputStream outputStream;
     /**
-     * Server to communicate data to.
+     * AbstractServer to communicate data to.
      */
-    private Server server;
+    private AbstractServer server;
 
     /**
      * Constructs a client thread.
      * @param client Socket for the client.
-     * @param server Server the client is connected to.
+     * @param server AbstractServer the client is connected to.
      */
-    public ClientThread(Socket client, Server server) {
+    public ClientThread(Socket client, AbstractServer server) {
         this.client = client;
         this.server = server;
         try {
             outputStream = new ObjectOutputStream(client.getOutputStream());
             inputStream = new ObjectInputStream(client.getInputStream());
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AbstractServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -64,7 +64,7 @@ public class ClientThread extends Thread
         try {
             outputStream.writeObject(message);
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AbstractServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

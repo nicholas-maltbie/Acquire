@@ -254,6 +254,36 @@ public class Investor implements Serializable
         return num;
     }
     
+    /**
+     * Gets a copy of the player's current stocks.
+     * @return Returns a copy of the player's stocks using the ArrayList copy
+     * constructor.
+     */
+    public List<Stock> getStocks()
+    {
+        return new ArrayList<>(stocks);
+    }
+    
+    /**
+     * Adds stocks to an investor's hand.
+     * @param stocks Stocks to add to the player's hand.
+     */
+    public void addStocks(List<Stock> stocks)
+    {
+        stocks.addAll(stocks);
+    }
+    
+    /**
+     * Clears the player's stocks.
+     * @return Returns the stocks that the player cleared from his/her/its hand.
+     */
+    public List<Stock> clearStocks()
+    {
+        List<Stock> current = new ArrayList<>(stocks);
+        stocks.clear();
+        return current;
+    }
+    
     @Override
     public String toString()
     {

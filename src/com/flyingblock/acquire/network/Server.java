@@ -9,181 +9,85 @@
  */
 package com.flyingblock.acquire.network;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * A class that will launch a server and communicate with multiple clients to
- * run an acquire game.
+ * A server that will receive events from a client then tell its listeners about
+ * the events that occur.
  * @author Nicholas Maltbie
  */
-public abstract class Server 
+public class Server extends AbstractServer
 {
+    /**listeners to this class*/
+    private final List<ServerListener> listeners;
+
     /**
-     * Server socket to connect with the minions, I mean users.
+     * Constructs a concrete server on a given port.
+     * @param port Port that the clients need to connect to.
      */
-    private ServerSocket server;
-    /**
-     * List of clients.
-     */
-    private HashSet<ClientThread> clients;
-    /**
-     * Port for the server.
-     */
-    private int port;
-    /**
-     * Whether or not to reject new arrivals.
-     */
-    private boolean acceptUsers;
-    
-    /**
-     * Constructs a server that can read and write to its clients.
-     * @param port port number for the server.
-     */
-    public Server(int port)
-    {
-        clients = new HashSet<>();
-        this.port = port;
+    public Server(int port) {
+        super(port);
+        listeners = new ArrayList<>();
     }
     
     /**
-     * Starts the server.
+     * Allows a listener to listen to events of the server.
+     * @param listener Listener to add.
      */
-    public void start()
+    public void addListener(ServerListener listener)
     {
-        try {
-            server = new ServerSocket(port);
-            while(true)
-            {
-                ClientThread client = new ClientThread(server.accept(), this);
-                if(acceptUsers)
-                {
-                    clients.add(client);
-                    joinedNetwork(client.getSocket());
-                    client.start();
-                }
-                else
-                {
-                    client.disconnect();
-                    connectionRejected(client.getSocket());
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        listeners.add(listener);
     }
     
     /**
-     * Stops the server.
+     * Removes a listener from the listeners listening to events.
+     * @param listener Listener to remove
      */
-    public void stop()
+    public void removeListener(ServerListener listener)
     {
-        for(ClientThread client : clients)
+        listeners.remove(listener);
+    }
+
+    @Override
+    public void objectRecieved(Socket client, Object message)
+    {
+        synchronized(listeners)
         {
-            client.disconnect();
+            for(ServerListener listener : listeners)
+                listener.objectRecieved(client, message);
         }
     }
-    
-    /**
-     * Method called whenever a client leaves the network.
-     * @param client Client that leaves.
-     */
-    public void leaveNetwork(ClientThread client)
+
+    @Override
+    public void joinedNetwork(Socket client) 
     {
-        try {
-            client.getSocket().close();
-        } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        clients.remove(client);
-        client.disconnect();
-        disconnectedFromNetwork(client.getSocket());
-    }
-    
-    /**
-     * Gets the number of clients connected to the server.
-     * @return Returns the number of clients connected.
-     */
-    public int getConnected()
-    {
-        return clients.size();
-    }
-    
-    /**
-     * Gets the clients connected to the server.
-     * @return Returns the HashSet of sockets connected to this server.
-     */
-    public HashSet<ClientThread> getClients()
-    {
-        return clients;
-    }
-    
-    /**
-     * Gets if the server is allowing new users to connect.
-     * @return Returns true if accepting new users and false if not accepting
-     * new users.
-     */
-    public boolean isAccpeting()
-    {
-        return acceptUsers;
-    }
-    
-    /**
-     * Allows users to join the network.
-     */
-    public void acceptUsers()
-    {
-        acceptUsers = true;
-    }
-    
-    /**
-     * Stops accepting new users to the network.
-     */
-    public void stopAccepting()
-    {
-        acceptUsers = false;
-    }
-    
-    /**
-     * Returns a client based on the channel that the client is connected to.
-     * @param socket Socket that is being checked.
-     * @return Returns the client connected through that channel.
-     */
-    public ClientThread getClient(Socket socket)
-    {
-        for(ClientThread thread : clients)
+        synchronized(listeners)
         {
-            if(thread.getSocket().equals(socket))
-                return thread;
+            for(ServerListener listener : listeners)
+                listener.joinedNetwork(client);
         }
-        return null;
+    }
+
+    @Override
+    public void disconnectedFromNetwork(Socket client) 
+    {
+        synchronized(listeners)
+        {
+            for(ServerListener listener : listeners)
+                listener.disconnectedFromNetwork(client);
+        }
+    }
+
+    @Override
+    public void connectionRejected(Socket client) 
+    {
+        synchronized(listeners)
+        {
+            for(ServerListener listener : listeners)
+                listener.connectionRejected(client);
+        }
     }
     
-    /**
-     * Method called whenever a client sends a object to this server.
-     * @param client Client that send the message.
-     * @param message Message sent.
-     */
-    abstract public void objectRecieved(Socket client, Object message);
-    /**
-     * Method called whenever a client joins the network. This happens before
-     * the client is added to the list of clients.
-     * @param client Client that joined.
-     */
-    abstract public void joinedNetwork(Socket client);
-    /**
-     * Method called whenever a client leaves the network. This happens after
-     * the client leaves the network.
-     * @param client Client that leaves.
-     */
-    abstract public void disconnectedFromNetwork(Socket client);
-    /**
-     * Method called whenever a client is rejected from the network.
-     * @param client Client rejected connection
-     */
-    abstract public void connectionRejected(Socket client);
 }

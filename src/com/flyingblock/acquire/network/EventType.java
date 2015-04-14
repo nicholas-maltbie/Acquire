@@ -25,7 +25,7 @@ public enum EventType
     /**Identifiers to identify game events sent over a network*/
     
     //updates sent to clients
-    BOARD_UPDATE(Board.class),
+    BOARD_UPDATE(Board<Hotel>.class),
     PLAYERS_UPDATE(Investor[].class), 
     CORPORATIONS_UPDATE(Corporation[].class),
     
@@ -41,12 +41,17 @@ public enum EventType
     
     //prompts sent to clients to get information
     PLAY_PIECE(Hotel[].class),
-    BUY_STOCK(Corporation[].class),
+    BUY_STOCKS(Corporation[].class),
     SELL_STOCKS(Stock[].class),
     TAKE_MERGER(Corporation[].class), //in format {parent, child}
     CREATE_CORPORATION(Corporation[].class),
     CHOOSE_WINNER(Corporation[].class),
     CHOOSE_FIRST(Corporation[].class),
+    
+    //prmpts sent to server to get information
+    GET_BOARD(Object.class),            //
+    GET_PLAYERS(Object.class),          //No useful data is passed here
+    GET_CORPORATIONS(Object.class),     //
     
     //necessary events
     INVALID_RESPONSE(GameEvent.class)

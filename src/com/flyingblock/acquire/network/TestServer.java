@@ -15,7 +15,7 @@ import java.net.Socket;
  *
  * @author Nicholas Maltbie
  */
-public class TestServer extends Server
+public class TestServer extends AbstractServer
 {
 
     public TestServer(int port) 

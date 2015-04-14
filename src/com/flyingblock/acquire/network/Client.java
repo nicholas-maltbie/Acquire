@@ -9,116 +9,61 @@
  */
 package com.flyingblock.acquire.network;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Class that can connect to a Server
- * @author Nicholas Maltbie
+ *
+ * @author Maltbie_N
  */
-public abstract class Client extends Thread
-{
+public class Client extends AbstractClient {
+    /**listeners to this class*/
+    private final List<ClientListener> listeners;
+
     /**
-     * Server that the client is connected to.
-     */
-    private Socket server;
-    
-    private ObjectInputStream input;
-    private ObjectOutputStream output;
-    
-    /**
-     * Constructs a client and connects to a server.
+     * Constructs a concrete server on a given port.
+     * @param port Port that the clients need to connect to.
      * @param address Address to connect to.
-     * @param port port that the server is running on.
      */
-    public Client(String address, int port)
-    {
-        try {
-            server = new Socket(address, port);
-            output = new ObjectOutputStream(server.getOutputStream());
-            input = new ObjectInputStream(server.getInputStream());
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            disconnect();
-        }
+    public Client(String address, int port) {
+        super(address, port);
+        listeners = new ArrayList<>();
     }
     
-    private boolean running = true;
+    /**
+     * Allows a listener to listen to events of the client.
+     * @param listener Listener to add.
+     */
+    public void addListener(ClientListener listener)
+    {
+        listeners.add(listener);
+    }
     
     /**
-     * listen to the server.
+     * Removes a listener from the listeners listening to events.
+     * @param listener Listener to remove
      */
+    public void removeListener(ServerListener listener)
+    {
+        listeners.remove(listener);
+    }
+
     @Override
-    public void run()
-    {
-        while(running && isConnected())
+    public void objectRecieved(Object object) {
+        synchronized(listeners)
         {
-            try {
-                Object message = null;
-                if((message = input.readObject()) != null)
-                    objectRecieved(message);
-            } catch (IOException | ClassNotFoundException ex) {
-                if(running)
-                {
-                    //Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-                    disconnect();
-                    disconnectedFromServer();
-                }
-            }
+            for(ClientListener listener : listeners)
+                listener.objectRecieved(object);
         }
     }
-    
-    /**
-     * Disconnects from the server. Will not call the disconnected from server
-     * method.
-     */
-    public void disconnect()
-    {
-        running = false;
-        try {
-            server.close();
-            input.close();
-            output.close();
-        } catch (IOException ex) {
-            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+
+    @Override
+    public void disconnectedFromServer() {
+        synchronized(listeners)
+        {
+            for(ClientListener listener : listeners)
+                listener.disconnectedFromServer();
         }
     }
-    
-    /**
-     * Sends an object to the server.
-     * @param message Object to send. Must be Serializable.
-     */
-    public void sendObject(Object message)
-    {
-        try {
-            output.writeObject(message);
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    /**
-     * Gets if the client is connected to the server.
-     * @return Returns true if connected, false if not.
-     */
-    public boolean isConnected()
-    {
-        return server.isConnected();
-    }
-    
-    /**
-     * Method called whenever the server sends an object to the client.
-     * @param object Object received.
-     */
-    abstract public void objectRecieved(Object object);
-    /**
-     * Called after the client unexpectedly disconnects from the server.
-     */
-    abstract public void disconnectedFromServer();
 }

@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  *
  * @author Maltbie_N
  */
-public class TestClient extends Client
+public class TestClient extends AbstractClient
 {
 
     public TestClient(String address, int port)
