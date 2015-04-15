@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.network;
 
+import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Board;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
@@ -25,7 +26,7 @@ public enum EventType
     /**Identifiers to identify game events sent over a network*/
     
     //updates sent to clients
-    BOARD_UPDATE(Board<Hotel>.class),
+    BOARD_UPDATE(AcquireBoard.class),
     PLAYERS_UPDATE(Investor[].class), 
     CORPORATIONS_UPDATE(Corporation[].class),
     

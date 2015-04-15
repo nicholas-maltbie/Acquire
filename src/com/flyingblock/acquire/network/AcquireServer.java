@@ -13,6 +13,7 @@ import com.flyingblock.acquire.computer.Decider;
 import com.flyingblock.acquire.controller.AbstractFSM;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
+import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.network.AcquireServer.ServerState;
@@ -62,13 +63,14 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * the changes and keep up with the game.
      */
     public AcquireServer(Server server, List<Decider> computerPlayers, 
-            List<NetInvestor> humanPlayers, AcquireBoard board,
+            List<NetInvestor> humanPlayers, List<Investor> players, AcquireBoard board,
             List<Corporation> companies, HotelMarket market, int delay) {
         super(stateMap, ServerState.GAME_START);
         this.server = server;
         this.computerPlayers = computerPlayers;
         this.humanPlayers = humanPlayers;
         this.board = board;
+        this.gamePlayers = players;
         this.companies = companies;
         this.market = market;
         this.delay = delay;
@@ -80,7 +82,17 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         switch(state)
         {
             case GAME_START:
+                for(Investor i : gamePlayers)
+                {
+                    i.drawFromDeck(market);
+                    Hotel h = market.draw();
+                    board.set(h.getLocation().getRow(), h.getLocation().getCol(), h);
+                }
                 server.stopAccepting();
+                for(NetInvestor netPlayer : humanPlayers)
+                {
+                    sendGameUpdate(netPlayer);
+                }
                 break;
         }
     }

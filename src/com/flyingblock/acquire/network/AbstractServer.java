@@ -38,7 +38,7 @@ public abstract class AbstractServer
     /**
      * Whether or not to reject new arrivals.
      */
-    private boolean acceptUsers;
+    private boolean acceptUsers = true;
     
     /**
      * Constructs a server that can read and write to its clients.

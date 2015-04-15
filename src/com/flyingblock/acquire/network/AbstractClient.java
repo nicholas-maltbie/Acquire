@@ -113,6 +113,15 @@ public abstract class AbstractClient extends Thread
     }
     
     /**
+     * Gets the socket this client is connected to.
+     * @return Returns this client's connection to the server.
+     */
+    public Socket getSocket()
+    {
+        return server;
+    }
+    
+    /**
      * Method called whenever the server sends an object to the client.
      * @param object Object received.
      */

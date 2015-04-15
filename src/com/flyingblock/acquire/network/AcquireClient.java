@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.network;
 
+import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Board;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
@@ -32,14 +33,44 @@ public class AcquireClient implements ClientListener
     private List<Corporation> companies;
     /**GameView to help the player*/
     private GameView view;
+    /**Current player*/
+    private Investor player;
     
     /**
      * Creates an acquire client from a client that is already connected to a server
      * @param client Client that is connected to the server.
+     * @param board Game Board, provided by the server.
+     * @param investors All the game players
+     * @param companies Companies participating in the game.
+     * @param player Investor that is the player.
      */
-    public AcquireClient(Client client)
+    public AcquireClient(Client client, AcquireBoard board, List<Investor> investors, 
+            List<Corporation> companies, Investor player)
     {
         client.addListener(this);
+        this.client = client;
+        this.board = board;
+        this.investors = investors;
+        this.companies = companies;
+        this.view = new GameView(board, companies, player, investors,
+                "TIMES NEW ROMAN", true);
+    }
+    
+    /**
+     * Gets the game view that this game is playing on.
+     * @return GameView of the player's game.
+     */
+    public GameView getGameView()
+    {
+        return view;
+    }
+    
+    /**
+     * Initializes the game view for the player.
+     */
+    public void initView()
+    {
+        view.setupAndDisplayGUI();
     }
 
     @Override
@@ -61,6 +92,7 @@ public class AcquireClient implements ClientListener
     
     public void parseEvent(GameEvent event, EventType type)
     {
+        System.out.println(type);
         switch(type)
         {
             case BOARD_UPDATE:
@@ -70,24 +102,37 @@ public class AcquireClient implements ClientListener
                         board.set(r, c, update.get(r, c));
                 break;
             case PLAYERS_UPDATE:
-                Investor[] update = (Investor[]) event.getMessage();
-                for(Investor player : update)
+                Investor[] playerUpdate = (Investor[]) event.getMessage();
+                for(Investor player : playerUpdate)
                 {
                     for(int i = 0; i < investors.size(); i++)
                     {
                         if(player.getName().equals(investors.get(i).getName()))
                         {
                             Investor edit = investors.get(i);
-                            edit.setMoney(player.getMoney());
+                            edit.addMoney(player.getMoney() - edit.getMoney());
                             edit.clearStocks();
                             edit.addStocks(edit.getStocks());
-                            //finish this
                         }
                     }
                 }
                 break;
             case CORPORATIONS_UPDATE:
-                
+                Corporation[] corps = (Corporation[]) event.getMessage();
+                for(Corporation c : corps)
+                {
+                    for(int i = 0; i < corps.length; i++)
+                    {
+                        if(c.getCorporateName().equals(corps[i].getCorporateName()))
+                        {
+                            c.setAvailableStocks(corps[i].getAvailableStocks());
+                            if(corps[i].isEstablished())
+                                c.setHeadquarters(corps[i].getHeadquarters());
+                            else if(c.isEstablished())
+                                c.dissolve();
+                        }
+                    }
+                }
                 break;
             case BUY_STOCKS:
                 
@@ -114,5 +159,6 @@ public class AcquireClient implements ClientListener
                 
                 break;
         }
+        view.update();
     }
 }

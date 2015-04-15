@@ -266,6 +266,16 @@ public class Corporation implements Serializable
         return hash;
     }
     
+    /**
+     * Sets the stocks that this corporation has available to sell.
+     * @param stocks The desired number of stocks that the corporation will have
+     * available.
+     */
+    public void setAvailableStocks(int stocks)
+    {
+        this.numStocks = stocks;
+    }
+    
     @Override
     public String toString()
     {
