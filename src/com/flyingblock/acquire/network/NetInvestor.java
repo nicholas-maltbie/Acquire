@@ -10,6 +10,7 @@
 package com.flyingblock.acquire.network;
 
 import com.flyingblock.acquire.model.Investor;
+import java.net.Socket;
 
 /**
  * Investor that plays in an inter-net game.
@@ -47,5 +48,14 @@ public class NetInvestor
     public void sendMessage(GameEvent event)
     {
         client.sendData(event);
+    }
+    
+    /**
+     * Gets the socket of the player connected to the server.
+     * @return Returns the client thread's socket.
+     */
+    public Socket getSocket()
+    {
+        return client.getSocket();
     }
 }

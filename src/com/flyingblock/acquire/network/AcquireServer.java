@@ -49,6 +49,10 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     private HotelMarket market;
     /**Delay in milliseconds between turns*/
     private int delay;
+    /**Current human player turn if the player is a human*/
+    private NetPlayerTurn humanTurn;
+    /**Current computer player turn if the player is a computer*/
+    //private ComputerPlayerTurn computerTurn;
 
     /**
      * Constructs an acquire server.
@@ -56,6 +60,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * must already have been connected to the server.
      * @param computerPlayers Computer players that make AI decisions.
      * @param humanPlayers Human players that are playing the game.
+     * @param players Game Players in turn order.
      * @param board Game board.
      * @param companies Companies in the game.
      * @param market Deck to draw cards from.
@@ -94,13 +99,41 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                     sendGameUpdate(netPlayer);
                 }
                 break;
+            case PLAYER_TURN:
+                if(isPlayerComputer(getCurrentPlayer()))
+                {
+                    //do computer turn
+                }
+                else
+                {
+                    //do Human turn, ughhhhh so slow!
+                    humanTurn = new NetPlayerTurn(this, getClientFor(getCurrentPlayer()), 
+                        board, companies, market);
+                    humanTurn.start();
+                }
+                
+                break;
         }
     }
 
     @Override
     protected void stateEnded(ServerState state)
     {
-        
+        switch(state)
+        {
+            case PLAYER_TURN:
+                updateAllClients();
+                break;
+        }
+    }
+    
+    /**
+     * Updates all the clients' data of the game.
+     */
+    public void updateAllClients()
+    {
+        for(NetInvestor netPlayer : humanPlayers)
+            sendGameUpdate(netPlayer);
     }
     
     /**
@@ -197,18 +230,14 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     
     }
     
-    public static enum ServerState {GAME_START, HUMAN_TURN, COMPUTER_TURN,
-            END_TURN, GAME_END};
+    public static enum ServerState {GAME_START, PLAYER_TURN,
+            GAME_END};
     public final static Map<ServerState, EnumSet<ServerState>> stateMap;
     
     static {
         stateMap = new HashMap<>();
-        stateMap.put(ServerState.GAME_START, EnumSet.of(ServerState.HUMAN_TURN,
-                ServerState.COMPUTER_TURN));
-        stateMap.put(ServerState.HUMAN_TURN, EnumSet.of(ServerState.END_TURN));
-        stateMap.put(ServerState.COMPUTER_TURN, EnumSet.of(ServerState.END_TURN));
-        stateMap.put(ServerState.END_TURN, EnumSet.of(ServerState.HUMAN_TURN,
-                ServerState.COMPUTER_TURN, ServerState.GAME_END));
+        stateMap.put(ServerState.GAME_START, EnumSet.of(ServerState.PLAYER_TURN));
+        stateMap.put(ServerState.PLAYER_TURN, EnumSet.of(ServerState.GAME_END));
         stateMap.put(ServerState.GAME_END, EnumSet.of(ServerState.GAME_START));
     }
 }
