@@ -96,11 +96,6 @@ public class TestAcquire
             netPlayers.add(new NetInvestor(players.get(player), thread));
             player++;
         }
-        try {
-            Thread.sleep(2500l);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(TestAcquire.class.getName()).log(Level.SEVERE, null, ex);
-        }
         AcquireServer acquireServer = new AcquireServer(server, deciders, 
                 netPlayers, players, game.getGameBoard(), 
                 companies, game.getMarket(), 100);

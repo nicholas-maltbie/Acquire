@@ -61,6 +61,7 @@ public class AcquireClient implements ClientListener, PlayerListener
         this.board = board;
         this.investors = investors;
         this.companies = companies;
+        this.player = player;
         this.view = new GameView(board, companies, player, investors,
                 "TIMES NEW ROMAN", true);
     }
@@ -81,6 +82,7 @@ public class AcquireClient implements ClientListener, PlayerListener
     {
         view.setupAndDisplayGUI();
         manager = new PieceManager(view, player, board);
+        manager.start();
         manager.disallowBoardPlacement();
     }
 
@@ -168,6 +170,7 @@ public class AcquireClient implements ClientListener, PlayerListener
                 break;
             case PLAY_PIECE:
                 manager.allowBoardPlacement();
+                System.out.println(player.getName());
                 break;
             default:
                 

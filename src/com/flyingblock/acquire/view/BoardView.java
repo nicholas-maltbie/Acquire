@@ -128,7 +128,7 @@ public class BoardView extends JPanel implements MouseListener, MouseMotionListe
     {
         for(int row = 0; row < board.getNumRows(); row++)
             for(int col = 0; col < board.getNumCols(); col++)
-                if(!board.isEmpty(row, col))
+                if(!board.isEmpty(row, col) && board.get(row, col) != null)
                     hotelButtons.get(row, col).setHotel(board.get(row, col));
                 else
                     hotelButtons.get(row, col).setHotel(new Location(row, col));

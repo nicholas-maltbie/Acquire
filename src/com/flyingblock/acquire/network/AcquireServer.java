@@ -11,6 +11,7 @@ package com.flyingblock.acquire.network;
 
 import com.flyingblock.acquire.computer.Decider;
 import com.flyingblock.acquire.controller.AbstractFSM;
+import com.flyingblock.acquire.controller.AcquireRules;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
@@ -18,10 +19,13 @@ import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.network.AcquireServer.ServerState;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A server that will host an Acquire game and will run a game with given clients
@@ -52,7 +56,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     /**Current human player turn if the player is a human*/
     private NetPlayerTurn humanTurn;
     /**Current computer player turn if the player is a computer*/
-    //private ComputerPlayerTurn computerTurn;
+    private ComputerNetTurn computerTurn;
 
     /**
      * Constructs an acquire server.
@@ -79,6 +83,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         this.companies = companies;
         this.market = market;
         this.delay = delay;
+        currentPlayer = (int)(Math.random() * players.size());
     }
 
     @Override
@@ -98,15 +103,19 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 {
                     sendGameUpdate(netPlayer);
                 }
+                setState(ServerState.PLAYER_TURN);
                 break;
             case PLAYER_TURN:
                 if(isPlayerComputer(getCurrentPlayer()))
                 {
                     //do computer turn
+                     computerTurn = new ComputerNetTurn(
+                             getDeciderFor(getCurrentPlayer()), this, market);
+                     computerTurn.start();
                 }
                 else
                 {
-                    //do Human turn, ughhhhh so slow!
+                    //do Human turn, ughhhhh humans are so slow!
                     humanTurn = new NetPlayerTurn(this, getClientFor(getCurrentPlayer()), 
                         board, companies, market);
                     humanTurn.start();
@@ -143,6 +152,16 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     public Investor getCurrentPlayer()
     {
         return gamePlayers.get(currentPlayer);
+    }
+    
+    /**
+     * Gets a player from the list of investors.
+     * @param index Index of player to check.
+     * @return Returns the player at that index.
+     */
+    public Investor getPlayer(int index)
+    {
+        return gamePlayers.get(index);
     }
     
     /**
@@ -230,6 +249,232 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     
     }
     
+    /**Saves a corporation for multi-thread communication. */
+    private Corporation mergerWinner;
+    
+    /**
+     * Chooses the next company to be merged when they are of equal size.
+     * @param options Companies of equal size to choose from.
+     * @param winner Company that will win the merger.
+     * @param decider player who chooses the winner.
+     * @return Returns the chosen corporation.
+     */
+    public Corporation getFirstMerged(List<Corporation> options, Corporation 
+            winner, Investor decider)
+    {
+        //computer player
+        if(isPlayerComputer(decider))
+        {
+            return getDeciderFor(decider).choseFirstDissolved(options, winner);
+        }
+        //human player
+        else
+        {
+            mergerWinner = null;
+            getClientFor(decider).sendMessage(EventType.createEvent(EventType.CHOOSE_FIRST,
+                    options.toArray(new Corporation[options.size()])));
+            while(mergerWinner == null)
+                try {
+                    Thread.sleep(10l);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(AcquireServer.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            return mergerWinner;
+        }
+    }
+    
+    /**
+     * Does a merger including, handing out majority and minority bonuses, 
+     * prompts human and AI players to make decisions about their stocks, and 
+     * dissolves the consumed corporations.
+     * @param parent Company that comes out on top.
+     * @param food Company(ies) that are consumed by the parent.
+     */
+    public void handelMerger(Corporation parent, List<Corporation> food)
+    {
+        //FINISH THIS
+        
+        int newSize = parent.getNumberOfHotels() + 1;
+        for(Corporation c : food)
+            newSize += c.getNumberOfHotels();
+        parent.incorporateRegoin();
+        //Hand out majority and minory bonus for all food eaten.
+        for(Corporation c : food)
+        {
+            handOutMajorityAndMinorityBonuses(c);
+        }
+        //Take merger actions to finalize the trade.
+        /*while(!food.isEmpty())
+        {
+            //chose the corporation to get consumed (order matters).
+            List<Corporation> largest = new ArrayList<>();
+            for(Corporation bite : food)
+            {
+                if(largest.isEmpty())
+                    largest.add(bite);
+                else if(bite.getNumberOfHotels() > largest.get(0).getNumberOfHotels())
+                {
+                    largest.clear();
+                    largest.add(bite);
+                }
+                else if(bite.getNumberOfHotels() == largest.get(0).getNumberOfHotels())
+                    largest.add(bite);
+            }
+            final Corporation next;
+            if(largest.size() > 1)
+                next = getFirstMerged(largest, parent, getCurrentPlayer());
+            else
+                next = largest.get(0);
+            food.remove(next);
+            
+            //Players chose what to do with their stocks from the food.
+            List<Investor> shareHolders = new ArrayList<>();
+            int checked = 0;
+            int index = currentPlayer;
+            //get relevant investors.
+            while(checked < gamePlayers.size())
+            {
+                if(getPlayer(index).getStocks(next) > 0)
+                    shareHolders.add(getPlayer(index));
+                index = (index+1) % getNumPlayers();
+                checked++;
+            }
+            //have relevant investors take actions.
+            for(Investor shareHolder :shareHolders)
+            {
+                //start waiting
+                waiting = true;
+                //start a new thread to allow the player to make his/her choices.
+                new java.util.Timer().schedule( 
+                    new java.util.TimerTask() {
+                        @Override
+                        public void run() {
+                            getPlayerMerger(parent, next, shareHolder);
+                        }
+                    }, 0);
+                //wait until the player has finished his or her action.
+                long time = System.currentTimeMillis();
+                //System.out.println("started Waiting");
+                while(waiting)
+                    try {
+                        Thread.sleep(10l);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                //System.out.println("finished Waiting " + (System.currentTimeMillis() - time) + "ms elapsed");
+            }
+            //finalize the action
+            next.dissolve();
+            view.update();
+            view.repaint();
+            parent.incorporateRegoin();
+            try {
+                Thread.sleep(100l);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        parent.incorporateRegoin();
+        view.update();
+        view.repaint();
+        //tell the turn that the player's have completed their actions.
+        if(getPlayer(currentPlayer).equals(player))
+            turn.mergerComplete();
+        else
+            computer.mergerComplete();*/
+    }
+    
+    /**
+     * Gives out the majority and minority bonuses to players in the game.
+     * @param c Company to hand out majority and minority bonuses.
+     */
+    public void handOutMajorityAndMinorityBonuses(Corporation c)
+    {
+        List<Investor> majority = new ArrayList<>();
+        for(Investor investor : gamePlayers)
+        {
+            if(investor.getStocks(c) > 0)
+            {
+                if(majority.isEmpty())
+                    majority.add(investor);
+                else if(investor.getStocks(c) > majority.get(0).getStocks(c))
+                {
+                    majority.clear();
+                    majority.add(investor);
+                }
+                else if(investor.getStocks(c) == majority.get(0).getStocks(c))
+                    majority.add(investor);
+            }
+        }
+
+        List<Investor> minority = new ArrayList<>();
+        for(Investor investor : gamePlayers)
+        {
+            if(investor.getStocks(c) > 0 && !majority.contains(investor))
+            {
+                if(minority.isEmpty())
+                    minority.add(investor);
+                else if(investor.getStocks(c) > minority.get(0).getStocks(c))
+                {
+                    minority.clear();
+                    minority.add(investor);
+                }
+                else if(investor.getStocks(c) == minority.get(0).getStocks(c))
+                    minority.add(investor);
+            }
+        }
+        int majorityBonus = c.getMajorityBonus();
+        int minorityBonus = c.getMinorityBonus();
+        if(majority.size() > 1) {
+            majorityBonus = (c.getMajorityBonus() + c.getMinorityBonus())/(100*majority.size())*100;
+            minorityBonus = 0;
+        }
+        else if(minority.size() > 1)
+            minorityBonus = c.getMinorityBonus()/(100*minority.size())*100;
+        else if(minority.isEmpty())
+            majorityBonus = c.getMajorityBonus() + c.getMinorityBonus();
+        for(Investor p : majority)
+            p.addMoney(majorityBonus);
+        for(Investor p : minority)
+            p.addMoney(minorityBonus);
+    }
+    
+    /**
+     * Method called when a player finished his/her/its turn.
+     * @param player Player that finished his/her/its turn.
+     */
+    public void turnEnded(Investor player)
+    {
+        //Decide if game is over
+        List<Corporation> established = board.getCompaniesOnBoard();
+        boolean over = false;
+        if(!established.isEmpty())
+        {
+            boolean full = false;
+            boolean allSafe = true;
+            for(Corporation c : established)
+            {
+                if(c.getNumberOfHotels() >= AcquireRules.END_CORPORATION_SIZE)
+                    full = true;
+                if(c.getNumberOfHotels() < AcquireRules.SAFE_CORPORATION_SIZE)
+                    allSafe = false;
+            }
+            over = full || allSafe;
+        }
+        
+        if(!over)
+        {
+            //if not, go to next turn
+            currentPlayer++;
+            currentPlayer %= gamePlayers.size();
+            setState(ServerState.PLAYER_TURN);
+        }
+        else
+        {
+            setState(ServerState.GAME_END);
+        }
+    }
+    
     public static enum ServerState {GAME_START, PLAYER_TURN,
             GAME_END};
     public final static Map<ServerState, EnumSet<ServerState>> stateMap;
@@ -237,7 +482,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     static {
         stateMap = new HashMap<>();
         stateMap.put(ServerState.GAME_START, EnumSet.of(ServerState.PLAYER_TURN));
-        stateMap.put(ServerState.PLAYER_TURN, EnumSet.of(ServerState.GAME_END));
+        stateMap.put(ServerState.PLAYER_TURN, EnumSet.of(ServerState.GAME_END, ServerState.PLAYER_TURN));
         stateMap.put(ServerState.GAME_END, EnumSet.of(ServerState.GAME_START));
     }
 }
