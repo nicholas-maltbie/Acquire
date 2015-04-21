@@ -91,6 +91,32 @@ public abstract class Decider
         return opponents;
     }
     
+    
+    /**
+     * Prompts the decider to sell, trade in or hold all of his or her stocks in
+     * the child for those in the parent based on the actions of getMergerActions.
+     * @param parent Parent Corporation that is consuming the child corporation.
+     * @param child Corporation that is being consumed by the parent in the merger.
+     */
+    public void reactToMerger(Corporation parent, Corporation child)
+    {
+        int[] opts = getMergerActions(parent, child);
+        
+        int traded = opts[1];
+        for(int i = 0; i < traded/2; i++)
+        {
+            child.returnStock(getPlayer().removeStock(child));
+            child.returnStock(getPlayer().removeStock(child));
+            getPlayer().addStock(parent.getStock());
+        }
+        int sold = opts[0];
+        for(int i = 0; i < sold; i++)
+        {
+            child.returnStock(getPlayer().removeStock(child));
+            getPlayer().addMoney(child.getStockPrice());
+        }
+    }
+    
     /**
      * Gets which piece the decider wishes to play from his or her hand. It must 
      * be a valid play, if not, it will be removed from the player's hand and
@@ -123,14 +149,16 @@ public abstract class Decider
      * @return Returns the Corporation that the decider wants to win the corporation first.
      */
     abstract public Corporation choseFirstDissolved(List<Corporation> options, Corporation winner);
-    
+     
     /**
-     * Prompts the decider to sell, trade in or hold all of his or her stocks in
+     * Prompts the choose its actions to sell, trade in or hold all of his or her stocks in
      * the child for those in the parent.
      * @param parent Parent Corporation that is consuming the child corporation.
      * @param child Corporation that is being consumed by the parent in the merger.
+     * @return Returns the actions that the decider wishes to take took in the format:
+     *  {sold, traded}.
      */
-    abstract public void reactToMerger(Corporation parent, Corporation child);
+    abstract public int[] getMergerActions(Corporation parent, Corporation child);
     
     /**
      * Prompts the decider to buy stocks from the Established companies within

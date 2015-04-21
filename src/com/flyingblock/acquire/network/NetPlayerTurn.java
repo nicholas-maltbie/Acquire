@@ -18,7 +18,6 @@ import java.net.Socket;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A finite state machine for a net player's turn.
@@ -83,7 +82,6 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
             switch(type)
             {
                 case PIECE_PLAYED:
-                {
                     Hotel hotel = (Hotel) event.getMessage();
                     boolean isValid = true;
                     //check if valid
@@ -94,6 +92,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                 hotel.getLocation().getCol(), hotel);
                         server.updateAllClients();
                         //choose next state
+                        //MORE CODE HERE!!!!!!!!!!
                     }
                     else
                     {
@@ -103,11 +102,15 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                             hand[i] = player.getPlayer().getFromHand(i);
                         GameEvent piecePrompt = EventType.createEvent(EventType.PLAY_PIECE, hand);
                         player.sendMessage(piecePrompt);
-                        return;
                     }
-                }
+                    break;
             }
         }
+    }
+    
+    public void mergerComplete()
+    {
+        
     }
 
     @Override

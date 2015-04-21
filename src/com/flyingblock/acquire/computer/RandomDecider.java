@@ -86,29 +86,7 @@ public class RandomDecider extends Decider
     {
         return options.get(rng.nextInt(options.size()));
     }
-
-    @Override
-    public void reactToMerger(Corporation parent, Corporation child) 
-    {
-        int stocks = getPlayer().getStocks(child);
-        int traded = 0;
-        if(stocks > 4)
-            traded = rng.nextInt(stocks/3)*2;
-        stocks -= traded;
-        for(int i = 0; i < traded/2; i++)
-        {
-            child.returnStock(getPlayer().removeStock(child));
-            child.returnStock(getPlayer().removeStock(child));
-            getPlayer().addStock(parent.getStock());
-        }
-        int sold = stocks;
-        for(int i = 0; i < sold; i++)
-        {
-            child.returnStock(getPlayer().removeStock(child));
-            getPlayer().addMoney(child.getStockPrice());
-        }
-    }
-
+    
     @Override
     public void buyStocks(List<Corporation> established) 
     {
@@ -127,5 +105,16 @@ public class RandomDecider extends Decider
                 getPlayer().addStock(chosen.getStock());
             }
         }
+    }
+
+    @Override
+    public int[] getMergerActions(Corporation parent, Corporation child) {
+        int stocks = getPlayer().getStocks(child);
+        int traded = 0;
+        if(stocks > 4)
+            traded = rng.nextInt(stocks/3)*2;
+        stocks -= traded;
+        int sold = rng.nextInt(stocks);
+        return new int[]{sold, traded};
     }
 }

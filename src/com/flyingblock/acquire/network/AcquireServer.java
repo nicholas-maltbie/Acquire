@@ -12,12 +12,15 @@ package com.flyingblock.acquire.network;
 import com.flyingblock.acquire.computer.Decider;
 import com.flyingblock.acquire.controller.AbstractFSM;
 import com.flyingblock.acquire.controller.AcquireRules;
+import com.flyingblock.acquire.controller.MergerPanel;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.network.AcquireServer.ServerState;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -228,7 +231,22 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     @Override
     public void objectRecieved(Socket client, Object message)
     {
-        
+        if(clientOfInterest != null && clientOfInterest.equals(client))
+        {
+            if(message instanceof GameEvent)
+            {
+                GameEvent event = (GameEvent) message;
+                switch(EventType.identifyEvent(event))
+                {
+                    case MERGED_FIRST:
+                        mergerWinner = (Corporation) event.getMessage();
+                        break;
+                    case MERGER_ACTION:
+                        mergerAction = (int[]) event.getMessage();
+                        break;
+                }
+            }
+        }
     }
 
     @Override
@@ -251,7 +269,10 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     
     /**Saves a corporation for multi-thread communication. */
     private Corporation mergerWinner;
-    
+    /**Holding variable to wait for a player to send his or her merger requests*/
+    private int[] mergerAction;
+    /**Client that the server wants to get a message from*/
+    private Socket clientOfInterest;
     /**
      * Chooses the next company to be merged when they are of equal size.
      * @param options Companies of equal size to choose from.
@@ -271,6 +292,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         else
         {
             mergerWinner = null;
+            clientOfInterest = getClientFor(decider).getSocket();
             getClientFor(decider).sendMessage(EventType.createEvent(EventType.CHOOSE_FIRST,
                     options.toArray(new Corporation[options.size()])));
             while(mergerWinner == null)
@@ -291,9 +313,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * @param food Company(ies) that are consumed by the parent.
      */
     public void handelMerger(Corporation parent, List<Corporation> food)
-    {
-        //FINISH THIS
-        
+    {        
         int newSize = parent.getNumberOfHotels() + 1;
         for(Corporation c : food)
             newSize += c.getNumberOfHotels();
@@ -304,7 +324,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             handOutMajorityAndMinorityBonuses(c);
         }
         //Take merger actions to finalize the trade.
-        /*while(!food.isEmpty())
+        while(!food.isEmpty())
         {
             //chose the corporation to get consumed (order matters).
             List<Corporation> largest = new ArrayList<>();
@@ -321,10 +341,12 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                     largest.add(bite);
             }
             final Corporation next;
+            //get the next corporaiton to be dissolved
             if(largest.size() > 1)
                 next = getFirstMerged(largest, parent, getCurrentPlayer());
             else
                 next = largest.get(0);
+            //remove the corporation from the list because it can only be eaten once
             food.remove(next);
             
             //Players chose what to do with their stocks from the food.
@@ -336,52 +358,83 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             {
                 if(getPlayer(index).getStocks(next) > 0)
                     shareHolders.add(getPlayer(index));
-                index = (index+1) % getNumPlayers();
+                index = index % this.gamePlayers.size();
                 checked++;
             }
-            //have relevant investors take actions.
+            //have relevant investors take actions in the correct order
             for(Investor shareHolder :shareHolders)
             {
-                //start waiting
-                waiting = true;
-                //start a new thread to allow the player to make his/her choices.
-                new java.util.Timer().schedule( 
-                    new java.util.TimerTask() {
-                        @Override
-                        public void run() {
-                            getPlayerMerger(parent, next, shareHolder);
-                        }
-                    }, 0);
-                //wait until the player has finished his or her action.
-                long time = System.currentTimeMillis();
-                //System.out.println("started Waiting");
-                while(waiting)
-                    try {
-                        Thread.sleep(10l);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                //System.out.println("finished Waiting " + (System.currentTimeMillis() - time) + "ms elapsed");
+                //get the action of the current player. This should puase the thread
+                // and stop other players from taking actions
+                int[] action = getPlayerMerger(parent, next, shareHolder);
+                //do the action
+                
+                int traded = action[1];
+                for(int i = 0; i < traded/2; i++)
+                {
+                    next.returnStock(shareHolder.removeStock(next));
+                    next.returnStock(shareHolder.removeStock(next));
+                    shareHolder.addStock(parent.getStock());
+                }
+                int sold = action[0];
+                for(int i = 0; i < sold; i++)
+                {
+                    next.returnStock(shareHolder.removeStock(next));
+                    shareHolder.addMoney(next.getStockPrice());
+                }
+                //tell clients what's up
+                this.updateAllClients();
             }
             //finalize the action
             next.dissolve();
-            view.update();
-            view.repaint();
             parent.incorporateRegoin();
-            try {
-                Thread.sleep(100l);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(AcquireMachine.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            this.updateAllClients();
         }
         parent.incorporateRegoin();
-        view.update();
-        view.repaint();
-        //tell the turn that the player's have completed their actions.
-        if(getPlayer(currentPlayer).equals(player))
-            turn.mergerComplete();
+        this.updateAllClients();
+        //tell the turn that the players have completed their actions.
+        if(isPlayerComputer(getCurrentPlayer()))
+        {
+            computerTurn.mergerComplete();
+        } 
         else
-            computer.mergerComplete();*/
+        {
+            humanTurn.mergerComplete();
+        }
+    }
+    
+    /**
+     * Gets a player merger action where he or she will have to hold, trade in,
+     * or sell all of his or her stocks in the child company. If this is a client,
+     * it will hold the current thread until the action is completed
+     * @param parent Company that eats the child.
+     * @param child Company being merged.
+     * @param shareHolder Investor taking a merger action.
+     * @return Returns the actions that the player took in the format:
+     *  {sold, traded}.
+     */
+    public int[] getPlayerMerger(Corporation parent, Corporation child, Investor shareHolder)
+    {
+        //AI player
+        if(isPlayerComputer(shareHolder))
+        {
+            if(getDeciderFor(shareHolder) != null)
+            {
+                return getDeciderFor(shareHolder).getMergerActions(parent, child);
+            }
+        }
+        //Human player
+        mergerAction = null;
+        getClientFor(shareHolder).sendMessage(EventType.createEvent(
+                EventType.TAKE_MERGER, new Corporation[]{parent, child}));
+        clientOfInterest = getClientFor(shareHolder).getSocket();
+        while(mergerAction == null)
+            try {
+                Thread.sleep(10l);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(AcquireServer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        return mergerAction;
     }
     
     /**
