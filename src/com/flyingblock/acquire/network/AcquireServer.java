@@ -87,6 +87,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         this.market = market;
         this.delay = delay;
         currentPlayer = (int)(Math.random() * players.size());
+        server.addListener(this);
     }
 
     @Override
@@ -122,6 +123,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                     humanTurn = new NetPlayerTurn(this, getClientFor(getCurrentPlayer()), 
                         board, companies, market);
                     humanTurn.start();
+                    server.addListener(humanTurn);
                 }
                 
                 break;
@@ -498,6 +500,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void turnEnded(Investor player)
     {
+        server.removeListener(humanTurn);
         //Decide if game is over
         List<Corporation> established = board.getCompaniesOnBoard();
         boolean over = false;

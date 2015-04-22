@@ -105,7 +105,7 @@ public class AcquireClient implements ClientListener, PlayerListener
     
     public void parseEvent(GameEvent event, EventType type)
     {
-        System.out.println(type);
+        //System.out.println(type);
         switch(type)
         {
             case BOARD_UPDATE:
@@ -203,7 +203,6 @@ public class AcquireClient implements ClientListener, PlayerListener
         
         if(!isValid) {
             player.addPieceToHand(board.remove(loc.getRow(), loc.getCol()));
-            return;
         }
         else
         {
