@@ -122,8 +122,8 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                     //do Human turn, ughhhhh humans are so slow!
                     humanTurn = new NetPlayerTurn(this, getClientFor(getCurrentPlayer()), 
                         board, companies, market);
-                    humanTurn.start();
                     server.addListener(humanTurn);
+                    humanTurn.start();
                 }
                 
                 break;

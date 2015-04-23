@@ -84,6 +84,7 @@ public class AcquireClient implements ClientListener, PlayerListener
         manager = new PieceManager(view, player, board);
         manager.start();
         manager.disallowBoardPlacement();
+        manager.addPlayerListener(this);
     }
 
     @Override
@@ -170,7 +171,7 @@ public class AcquireClient implements ClientListener, PlayerListener
                 break;
             case PLAY_PIECE:
                 manager.allowBoardPlacement();
-                System.out.println(player.getName());
+                //System.out.println(player.getName());
                 break;
             default:
                 
@@ -200,7 +201,6 @@ public class AcquireClient implements ClientListener, PlayerListener
         }
         //check if the played location lines up with the hotel's location
         boolean isValid = placed.getLocation().equals(loc) && numSave < 2;
-        
         if(!isValid) {
             player.addPieceToHand(board.remove(loc.getRow(), loc.getCol()));
         }
@@ -210,5 +210,7 @@ public class AcquireClient implements ClientListener, PlayerListener
             client.sendObject(EventType.createEvent(EventType.PIECE_PLAYED, placed));
             manager.disallowBoardPlacement();
         }
+        
+        view.update();
     }
 }

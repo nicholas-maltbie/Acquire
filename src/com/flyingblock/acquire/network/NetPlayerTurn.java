@@ -50,7 +50,6 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
         this.board = board;
         this.companies = companies;
         this.deck = deck;
-        
     }
 
     @Override
@@ -82,8 +81,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
     
     @Override
     public void objectRecieved(Socket client, Object message) {
-        if(client.equals(player.getSocket()) && message instanceof GameEvent &&
-                EventType.isValid((GameEvent)message))
+        if(client.equals(player.getSocket()) && message instanceof GameEvent)
         {
             GameEvent event = (GameEvent) message;
             EventType type = EventType.identifyEvent(event);
@@ -96,6 +94,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     
                     if(isValid)
                     {
+                        System.out.println("asdf");
                         board.set(hotel.getLocation().getRow(), 
                                 hotel.getLocation().getCol(), hotel);
                         server.updateAllClients();
