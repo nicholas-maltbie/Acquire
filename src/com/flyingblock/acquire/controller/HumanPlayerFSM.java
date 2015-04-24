@@ -117,7 +117,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                         available.add(c);
                 Corporation chosenCompany = available.get(0);
                 if(available.size() > 1)
-                    chosenCompany = this.choseCorporationFromList(
+                    chosenCompany = this.chooseCorporationFromList(
                         available, "chose a corporation to create", "New Company");
                 if(chosenCompany != null)
                     chosenCompany.setHeadquarters(locationOfInterest);
@@ -209,7 +209,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
                 Corporation parent = largest.get(0);
                 if(largest.size() > 1)
                 {
-                    parent =  this.choseCorporationFromList(
+                    parent =  this.chooseCorporationFromList(
                             largest, "chose a corporation to win the merger", "Merger Resolution");
                 }
                 suspects.remove(parent);
@@ -225,7 +225,7 @@ public class HumanPlayerFSM extends AbstractFSM<TurnState> implements PlayerList
      * @param title Title text for the window.
      * @return Returns the corporation that the player chose.
      */
-    public Corporation choseCorporationFromList(List<Corporation> options,
+    public Corporation chooseCorporationFromList(List<Corporation> options,
             String text, String title)
     {
         String[] names = new String[options.size()];

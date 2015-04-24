@@ -156,4 +156,17 @@ public class AcquireBoard extends Board<Hotel> implements Serializable
         }
         return companies;
     }
+    
+    /**
+     * Gets a copy of this acquire board
+     * @return Returns a copy.
+     */
+    public AcquireBoard copy()
+    {
+        AcquireBoard board = new AcquireBoard(getNumRows(), getNumCols());
+        for(int r = 0; r < getNumRows(); r++)
+            for(int c = 0; c < getNumCols(); c++)
+                board.set(r, c, get(r,c));
+        return board;
+    }
 }

@@ -23,6 +23,8 @@ import com.flyingblock.acquire.model.Stock;
 import com.flyingblock.acquire.view.GameView;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  * A client that work with an acquire host and react to events sent from the host.
@@ -110,10 +112,11 @@ public class AcquireClient implements ClientListener, PlayerListener
         switch(type)
         {
             case BOARD_UPDATE:
-                Board<Hotel> update = (Board) event.getMessage();
+                AcquireBoard update = (AcquireBoard) event.getMessage();
                 for(int r = 0; r < board.getNumRows(); r++)
                     for(int c = 0; c < board.getNumCols(); c++)
                         board.set(r, c, update.get(r, c));
+                view.update();
                 break;
             case PLAYERS_UPDATE:
                 Investor[] playerUpdate = (Investor[]) event.getMessage();
@@ -158,7 +161,27 @@ public class AcquireClient implements ClientListener, PlayerListener
                 
                 break;
             case CREATE_CORPORATION:
-                
+                Corporation[] opts = (Corporation[]) event.getMessage();
+                String[] names = new String[opts.length];
+                for(int i = 0; i < opts.length; i++)
+                    names[i] = opts[i].getCorporateName();
+                JFrame compnayChoicePane = new JFrame();
+                String chosen = null;
+                do {
+                    chosen = (String)JOptionPane.showInputDialog(
+                                        compnayChoicePane,
+                                        "Choose which corporation you wish to create",
+                                        "Create Corporation",
+                                        JOptionPane.QUESTION_MESSAGE,
+                                        null,
+                                        names,
+                                        names[0]);
+                } while(chosen == null);
+                Corporation chosenCompany = null;
+                for(int i = 0; i < opts.length; i++)
+                    if(chosen.equals(opts[i].getCorporateName()))
+                        chosenCompany = opts[i];
+                client.sendObject(EventType.createEvent(EventType.CORPORATION_CREATED, chosenCompany));
                 break;
             case CHOOSE_WINNER:
                 

@@ -14,6 +14,7 @@ import com.flyingblock.acquire.controller.AbstractFSM;
 import com.flyingblock.acquire.controller.AcquireRules;
 import com.flyingblock.acquire.controller.MergerPanel;
 import com.flyingblock.acquire.model.AcquireBoard;
+import com.flyingblock.acquire.model.Board;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
@@ -98,9 +99,12 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             case GAME_START:
                 for(Investor i : gamePlayers)
                 {
-                    i.drawFromDeck(market);
-                    Hotel h = market.draw();
-                    board.set(h.getLocation().getRow(), h.getLocation().getCol(), h);
+                    for(int j = 0; j < 5; j++)
+                    {
+                        i.drawFromDeck(market);
+                        Hotel h = market.draw();
+                        board.set(h.getLocation().getRow(), h.getLocation().getCol(), h);
+                    }
                 }
                 server.stopAccepting();
                 for(NetInvestor netPlayer : humanPlayers)
@@ -223,7 +227,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void sendGameUpdate(NetInvestor client)
     {
-        client.sendMessage(EventType.createEvent(EventType.BOARD_UPDATE, board));
+        client.sendMessage(EventType.createEvent(EventType.BOARD_UPDATE, board.copy()));
         client.sendMessage(EventType.createEvent(EventType.PLAYERS_UPDATE, 
                 gamePlayers.toArray(new Investor[gamePlayers.size()])));
         client.sendMessage(EventType.createEvent(EventType.CORPORATIONS_UPDATE,

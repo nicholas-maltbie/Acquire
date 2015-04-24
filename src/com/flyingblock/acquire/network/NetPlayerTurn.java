@@ -64,6 +64,11 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 GameEvent piecePrompt = EventType.createEvent(EventType.PLAY_PIECE, hand);
                 player.sendMessage(piecePrompt);
                 break;
+            case BUY_STOCKS:
+                GameEvent buyPrompt = EventType.createEvent(EventType.BUY_STOCKS, 
+                        companies.toArray(new Corporation[companies.size()]));
+                player.sendMessage(buyPrompt);
+                break;
         }
     }
 
@@ -94,7 +99,6 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     
                     if(isValid)
                     {
-                        System.out.println("asdf");
                         board.set(hotel.getLocation().getRow(), 
                                 hotel.getLocation().getCol(), hotel);
                         server.updateAllClients();
@@ -122,7 +126,8 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                             nextState = TurnState.MERGER;
                         else
                             nextState = TurnState.BUY_STOCKS;
-
+                        
+                        //FIX THIS
                         if(formCompany && !merger)
                         {
                             chosenCompany = null;
@@ -138,7 +143,6 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                             chosenCompany.incorporateRegoin();
                             if(chosenCompany.getAvailableStocks() > 0)
                                 player.getPlayer().addStock(chosenCompany.getStock());
-                            server.updateAllClients();
                         }
 
                         new java.util.Timer().schedule( 

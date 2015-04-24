@@ -439,7 +439,7 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
         {
             view.update();
             view.repaint();
-            return turn.choseCorporationFromList(options, "Choose corporation to be eaten first", "Merger Choice");
+            return turn.chooseCorporationFromList(options, "Choose corporation to be eaten first", "Merger Choice");
         }
         //AI player
         else
