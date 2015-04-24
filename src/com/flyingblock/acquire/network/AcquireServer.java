@@ -505,6 +505,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     public void turnEnded(Investor player)
     {
         server.removeListener(humanTurn);
+        this.updateAllClients();
         //Decide if game is over
         List<Corporation> established = board.getCompaniesOnBoard();
         boolean over = false;
