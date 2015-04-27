@@ -60,7 +60,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     /**Current human player turn if the player is a human*/
     private NetPlayerTurn humanTurn;
     /**Current computer player turn if the player is a computer*/
-    private ComputerNetTurn computerTurn;
+    private NetComputerTurn computerTurn;
 
     /**
      * Constructs an acquire server.
@@ -87,7 +87,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         this.companies = companies;
         this.market = market;
         this.delay = delay;
-        currentPlayer = (int)(Math.random() * players.size());
+        currentPlayer = 0;// (int)(Math.random() * players.size());
         server.addListener(this);
     }
 
@@ -99,7 +99,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             case GAME_START:
                 for(Investor i : gamePlayers)
                 {
-                    for(int j = 0; j < 5; j++)
+                    for(int j = 0; j < 7; j++)
                     {
                         i.drawFromDeck(market);
                         Hotel h = market.draw();
@@ -114,10 +114,12 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 setState(ServerState.PLAYER_TURN);
                 break;
             case PLAYER_TURN:
+                
+                System.out.println(getCurrentPlayer().getName());
                 if(isPlayerComputer(getCurrentPlayer()))
                 {
                     //do computer turn
-                     computerTurn = new ComputerNetTurn(
+                     computerTurn = new NetComputerTurn(
                              getDeciderFor(getCurrentPlayer()), this, market);
                      computerTurn.start();
                 }
@@ -229,9 +231,9 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     {
         client.sendMessage(EventType.createEvent(EventType.BOARD_UPDATE, board.copy()));
         client.sendMessage(EventType.createEvent(EventType.PLAYERS_UPDATE, 
-                gamePlayers.toArray(new Investor[gamePlayers.size()])));
+                gamePlayers.toArray(new Investor[gamePlayers.size()]).clone()));
         client.sendMessage(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
-                companies.toArray(new Corporation[companies.size()])));
+                companies.toArray(new Corporation[companies.size()]).clone()));
     }
 
     @Override
@@ -504,8 +506,17 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void turnEnded(Investor player)
     {
-        server.removeListener(humanTurn);
-        this.updateAllClients();
+        System.out.println(board);        
+        //updateAllClients();
+        
+        try {
+            Thread.sleep(3000l);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AcquireServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //server.removeListener(humanTurn);
+        System.out.println(board);
         //Decide if game is over
         List<Corporation> established = board.getCompaniesOnBoard();
         boolean over = false;

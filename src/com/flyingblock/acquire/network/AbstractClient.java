@@ -36,17 +36,13 @@ public abstract class AbstractClient extends Thread
      * Constructs a client and connects to a server.
      * @param address Address to connect to.
      * @param port port that the server is running on.
+     * @throws java.io.IOException
      */
-    public AbstractClient(String address, int port)
+    public AbstractClient(String address, int port) throws IOException
     {
-        try {
-            server = new Socket(address, port);
-            output = new ObjectOutputStream(server.getOutputStream());
-            input = new ObjectInputStream(server.getInputStream());
-        } catch (IOException ex) {
-            Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
-            disconnect();
-        }
+        server = new Socket(address, port);
+        output = new ObjectOutputStream(server.getOutputStream());
+        input = new ObjectInputStream(server.getInputStream());
     }
     
     private boolean running = true;
@@ -109,7 +105,7 @@ public abstract class AbstractClient extends Thread
      */
     public boolean isConnected()
     {
-        return server.isConnected();
+        return server.isConnected() && !server.isClosed();
     }
     
     /**

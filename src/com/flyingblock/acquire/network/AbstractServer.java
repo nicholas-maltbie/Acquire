@@ -39,6 +39,7 @@ public abstract class AbstractServer
      * Whether or not to reject new arrivals.
      */
     private boolean acceptUsers = true;
+    private boolean running = true;
     
     /**
      * Constructs a server that can read and write to its clients.
@@ -52,36 +53,36 @@ public abstract class AbstractServer
     
     /**
      * Starts the server.
+     * @throws java.io.IOException
      */
-    public void start()
+    public void start() throws IOException
     {
-        try {
-            server = new ServerSocket(port);
-            while(true)
+        server = new ServerSocket(port);
+        running = true;
+        while(running)
+        {
+            ClientThread client = new ClientThread(server.accept(), this);
+            if(acceptUsers)
             {
-                ClientThread client = new ClientThread(server.accept(), this);
-                if(acceptUsers)
-                {
-                    clients.add(client);
-                    joinedNetwork(client.getSocket());
-                    client.start();
-                }
-                else
-                {
-                    client.disconnect();
-                    connectionRejected(client.getSocket());
-                }
+                clients.add(client);
+                joinedNetwork(client.getSocket());
+                client.start();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(AbstractServer.class.getName()).log(Level.SEVERE, null, ex);
+            else
+            {
+                client.disconnect();
+                connectionRejected(client.getSocket());
+            }
         }
     }
     
     /**
      * Stops the server.
      */
-    public void stop()
+    public void stop() throws IOException
     {
+        running = false;
+        server.close();
         for(ClientThread client : clients)
         {
             client.disconnect();
@@ -161,6 +162,16 @@ public abstract class AbstractServer
                 return thread;
         }
         return null;
+    }
+    
+    /**
+     * Gets if the server is open or not.
+     * @return Returns a boolean, true if the server is not closed and false
+     * if the server is closed.
+     */
+    public boolean isRunning()
+    {
+        return server != null && !server.isClosed();
     }
     
     /**

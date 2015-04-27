@@ -17,6 +17,7 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
 import java.awt.Color;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -39,14 +40,18 @@ public class TestAcquire
             new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    server.start();
+                    try {
+                        server.start();
+                    } catch (IOException ex) {
+                        Logger.getLogger(TestAcquire.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }, 0);
         String address = "localhost";
         try {
             address = Inet4Address.getLocalHost().getHostAddress();
         } catch (UnknownHostException ex) {
-            Logger.getLogger(TestClient.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TestAcquire.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         
@@ -76,18 +81,22 @@ public class TestAcquire
         List<NetInvestor> netPlayers = new ArrayList<>();
         for(int i = 2; i < players.size(); i++)
         {
-            Client client = new Client(address, 44);
-            new java.util.Timer().schedule( 
-                new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        client.start();
-                    }
-                }, 0);
-            AcquireClient acquireClient = new AcquireClient(client, game.getGameBoard(),
-                players, companies, players.get(i));
-
-            acquireClient.initView();
+            try {
+                Client client = new Client(address, 44);
+                new java.util.Timer().schedule(
+                        new java.util.TimerTask() {
+                            @Override
+                            public void run() {
+                                client.start();
+                            }
+                        }, 0);
+                AcquireClient acquireClient = new AcquireClient(client, game.getGameBoard(),
+                        players, companies, players.get(i));
+                
+                acquireClient.initView();
+            } catch (IOException ex) {
+                Logger.getLogger(TestAcquire.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
         int player = 2;

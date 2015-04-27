@@ -10,6 +10,8 @@
 package com.flyingblock.acquire.network;
 
 import com.flyingblock.acquire.controller.AcquireRules;
+import com.flyingblock.acquire.controller.BuyStockPanel;
+import com.flyingblock.acquire.controller.BuyStockPanelListener;
 import com.flyingblock.acquire.controller.HumanPlayerFSM;
 import com.flyingblock.acquire.controller.PieceManager;
 import com.flyingblock.acquire.controller.PlayerListener;
@@ -21,6 +23,7 @@ import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.model.Stock;
 import com.flyingblock.acquire.view.GameView;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFrame;
@@ -30,7 +33,8 @@ import javax.swing.JOptionPane;
  * A client that work with an acquire host and react to events sent from the host.
  * @author Nicholas Maltbie
  */
-public class AcquireClient implements ClientListener, PlayerListener
+public class AcquireClient implements ClientListener, PlayerListener,
+        BuyStockPanelListener
 {
     /**Connection to the server*/
     private Client client;
@@ -108,7 +112,6 @@ public class AcquireClient implements ClientListener, PlayerListener
     
     public void parseEvent(GameEvent event, EventType type)
     {
-        //System.out.println(type);
         switch(type)
         {
             case BOARD_UPDATE:
@@ -143,16 +146,47 @@ public class AcquireClient implements ClientListener, PlayerListener
                         if(c.getCorporateName().equals(corps[i].getCorporateName()))
                         {
                             c.setAvailableStocks(corps[i].getAvailableStocks());
-                            if(corps[i].isEstablished())
+                            if(corps[i].getHeadquarters() != null)
+                            {
                                 c.setHeadquarters(corps[i].getHeadquarters());
-                            else if(c.isEstablished())
-                                c.dissolve();
+                                c.incorporateRegoin();
+                            }
+                            if(c.isEstablished() && !corps[i].isEstablished())
+                            {
+                                //c.dissolve();
+                            }
                         }
                     }
                 }
                 break;
             case BUY_STOCKS:
+                manager.start();
+                manager.disallowBoardPlacement();
+                view.setDrag(true);
+                for(Corporation c : board.getCompaniesOnBoard())
+                    c.incorporateRegoin();
+                view.update();
+                view.repaint();
                 
+                List<Corporation> established = board.getCompaniesOnBoard();
+                int lowestPrice = 100000000;
+                if(!established.isEmpty())
+                    lowestPrice = established.get(0).getStockPrice();
+                for(Corporation e : established)
+                    if(e.getStockPrice() < lowestPrice)
+                        lowestPrice = e.getStockPrice();
+                boolean canBuy = player.getMoney() >= lowestPrice && !established.isEmpty();
+                if(canBuy)
+                {
+                    BuyStockPanel panel = new BuyStockPanel(companies.toArray(new Corporation[companies.size()]),
+                        player, 3, "TIMES NEW ROMAN", "TIMES NEW ROMAN", Color.BLACK);
+                    panel.addListener(this);
+                    panel.setupAndDisplayGUI();
+                }
+                else
+                {
+                    this.buyingComplete(new int[0], new Corporation[0]);
+                }
                 break;
             case SELL_STOCKS:
                 
@@ -235,5 +269,11 @@ public class AcquireClient implements ClientListener, PlayerListener
         }
         
         view.update();
+    }
+
+    @Override
+    public void buyingComplete(int[] stocksBought, Corporation[] companies) 
+    {
+        
     }
 }

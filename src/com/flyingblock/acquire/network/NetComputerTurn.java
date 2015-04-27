@@ -16,7 +16,7 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
-import com.flyingblock.acquire.network.ComputerNetTurn.ComputerState;
+import com.flyingblock.acquire.network.NetComputerTurn.ComputerState;
 import com.flyingblock.acquire.view.GameView;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -28,7 +28,7 @@ import java.util.Map;
  * FSM to run a computer turn.
  * @author Nicholas Maltbie
  */
-public class ComputerNetTurn extends AbstractFSM<ComputerState>
+public class NetComputerTurn extends AbstractFSM<ComputerState>
 {
     /**
      * Decider to make decisions for the investor.
@@ -53,7 +53,7 @@ public class ComputerNetTurn extends AbstractFSM<ComputerState>
      * @param machine Server that runs the game.
      * @param deck Deck for game.
      */
-    public ComputerNetTurn(Decider decider, AcquireServer machine,
+    public NetComputerTurn(Decider decider, AcquireServer machine,
             HotelMarket deck)
     {
         super(stateMap, ComputerState.PLAY_PIECE);
@@ -107,8 +107,9 @@ public class ComputerNetTurn extends AbstractFSM<ComputerState>
                 acquireServer.handelMerger(parent, suspects);
                 break;
             case PLAY_PIECE:
+                
                 Investor investor = decider.getPlayer();
-                Hotel play = decider.getPlayOption();                
+                Hotel play = decider.getPlayOption();
                 for(int i = 0; i < investor.getHandSize(); i++)
                     if(investor.getFromHand(i).equals(play))
                         investor.removeFromHand(i);
@@ -129,6 +130,7 @@ public class ComputerNetTurn extends AbstractFSM<ComputerState>
                     if(!taken.contains(c))
                         available.add(c);
                 //Chose if a new company is formed.
+                System.out.println(play);
                 List<Location> blob = decider.getBoard().getBlob(loc.getRow(), loc.getCol());
                 boolean formCompany = available.size() > 0 && blob.size() >= 2;
                 for(Location l : blob)
@@ -147,7 +149,7 @@ public class ComputerNetTurn extends AbstractFSM<ComputerState>
                     if(chosenCompany.getAvailableStocks() > 0)
                         decider.getPlayer().addStock(chosenCompany.getStock());
                 }
-
+                
                 new java.util.Timer().schedule( 
                     new java.util.TimerTask() {
                         @Override

@@ -22,6 +22,11 @@ import com.flyingblock.acquire.model.Location;
 public class AcquireRules 
 {
     /**
+     * Random names
+     */
+    public static final String[] RANDOM_NAMES = {"MARK", "KEYNES", "SMITH", "MARSHALL",
+        "GRAHAM", "KAHNEMAN", "MILTON", "LUXEMBURG", "GREENSPAN"};
+    /**
      * The size that a corporation needs to be in order to be safe.
      */
     public static final int SAFE_CORPORATION_SIZE = 11;
@@ -47,5 +52,13 @@ public class AcquireRules
         
         board.remove(loc.getRow(), loc.getCol());
         return numSafe <= 1;
+    }
+    /**
+     * Gets a random name.
+     * @return 
+     */
+    public static String getRandomName()
+    {
+        return RANDOM_NAMES[(int)(RANDOM_NAMES.length)];
     }
 }

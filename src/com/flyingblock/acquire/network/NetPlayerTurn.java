@@ -10,6 +10,7 @@
 package com.flyingblock.acquire.network;
 
 import com.flyingblock.acquire.controller.AbstractFSM;
+import com.flyingblock.acquire.controller.AcquireRules;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
@@ -65,9 +66,24 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 player.sendMessage(piecePrompt);
                 break;
             case BUY_STOCKS:
+                System.out.println("Buy stocks time");
                 GameEvent buyPrompt = EventType.createEvent(EventType.BUY_STOCKS, 
                         companies.toArray(new Corporation[companies.size()]));
                 player.sendMessage(buyPrompt);
+                break;
+            case CREATE_COMPANY:
+                System.out.println("Create corporation time");
+                List<Corporation> taken = board.getCompaniesOnBoard();
+                List<Corporation> available = new ArrayList<>();
+                for(Corporation c : board.getCompaniesOnBoard())
+                    if(!taken.contains(c))
+                        available.add(c);
+                chosenCompany = null;
+                player.sendMessage(EventType.createEvent(EventType.CREATE_CORPORATION,
+                        available.toArray(new Corporation[available.size()])));
+                break;
+            case MERGER:
+                System.out.println("Time for a merger");
                 break;
         }
     }
@@ -111,6 +127,13 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
 
                         //Choose if a merger happens.
                         boolean merger = accessories.size() > 1;
+                        for(Corporation c : accessories)
+                        {
+                            if(c.getNumberOfHotels() < AcquireRules.SAFE_CORPORATION_SIZE)
+                            {
+                                merger = false;
+                            }
+                        }
                         List<Corporation> taken = board.getCompaniesOnBoard();
                         List<Corporation> available = new ArrayList<>();
                         for(Corporation c : board.getCompaniesOnBoard())
@@ -124,35 +147,12 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                 formCompany = false;
                         if(merger)
                             nextState = TurnState.MERGER;
+                        else if(formCompany)
+                            nextState = TurnState.CREATE_COMPANY;
                         else
                             nextState = TurnState.BUY_STOCKS;
-                        
-                        //FIX THIS
-                        if(formCompany && !merger)
-                        {
-                            chosenCompany = null;
-                            player.sendMessage(EventType.createEvent(EventType.CREATE_CORPORATION,
-                                    available.toArray(new Corporation[available.size()])));
-                            while(chosenCompany == null)
-                                try {
-                                    Thread.sleep(10l);
-                                } catch (InterruptedException ex) {
-                                    Logger.getLogger(NetPlayerTurn.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                            chosenCompany.setHeadquarters(loc);
-                            chosenCompany.incorporateRegoin();
-                            if(chosenCompany.getAvailableStocks() > 0)
-                                player.getPlayer().addStock(chosenCompany.getStock());
-                        }
 
-                        new java.util.Timer().schedule( 
-                            new java.util.TimerTask() {
-                                @Override
-                                public void run() {
-                                    setState(nextState);
-                                }
-                            }, 0);
-                        break;
+                        setState(nextState);
                     }
                     else
                     {

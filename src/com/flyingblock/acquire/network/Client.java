@@ -9,6 +9,7 @@
  */
 package com.flyingblock.acquire.network;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +26,9 @@ public class Client extends AbstractClient {
      * Constructs a concrete server on a given port.
      * @param port Port that the clients need to connect to.
      * @param address Address to connect to.
+     * @throws java.io.IOException
      */
-    public Client(String address, int port) {
+    public Client(String address, int port) throws IOException {
         super(address, port);
         listeners = new ArrayList<>();
     }
