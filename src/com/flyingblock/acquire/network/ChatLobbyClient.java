@@ -51,6 +51,7 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
         jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Acquire Client");
 
         addressField.setText("Address");
         addressField.addActionListener(new java.awt.event.ActionListener() {
