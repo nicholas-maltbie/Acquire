@@ -40,7 +40,7 @@
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="portInputField" alignment="0" min="-2" pref="135" max="-2" attributes="0"/>
-                          <Component id="maxPlayersField" min="-2" pref="135" max="-2" attributes="0"/>
+                          <Component id="maxPlayersField" alignment="0" min="-2" pref="135" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Component id="gameStart" alignment="0" min="-2" max="-2" attributes="0"/>
