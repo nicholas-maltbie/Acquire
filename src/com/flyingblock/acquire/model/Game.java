@@ -54,6 +54,23 @@ public class Game implements Serializable
     }
     
     /**
+     * Constructs a game with players and a specified board size.
+     * @param players Player for the game.
+     * @param boardSize Size of the playing board.
+     */
+    public Game(List<Investor> players, Dimension boardSize)
+    {
+        this.players = players;
+        companies = new ArrayList<>(DEFAULT_COMPANIES.length);
+        for(int company = 0; company < DEFAULT_COMPANIES.length; company++)
+            companies.add(new Corporation(DEFAULT_COMPANIES[company], gameBoard,
+                    DEFAULT_VALUES[company], DEFAULT_COLORS[company],
+                    DEFAULT_STOCKS[company]));
+        gameBoard = new AcquireBoard((int)boardSize.getHeight(), (int)boardSize.getWidth());
+        gameTiles = new HotelMarket(gameBoard);
+    }    
+    
+    /**
      * Default company names.
      */
     private static final String[] DEFAULT_COMPANIES = {"Worldwide", "Nicklandia"

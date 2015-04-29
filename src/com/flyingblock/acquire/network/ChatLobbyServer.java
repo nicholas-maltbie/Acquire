@@ -9,10 +9,17 @@
  */
 package com.flyingblock.acquire.network;
 
+import com.flyingblock.acquire.computer.Decider;
+import com.flyingblock.acquire.computer.RandomDecider;
+import com.flyingblock.acquire.controller.AcquireRules;
+import com.flyingblock.acquire.model.Corporation;
+import com.flyingblock.acquire.model.Game;
 import com.flyingblock.acquire.model.Investor;
+import java.awt.Color;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -294,12 +301,48 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
         for(Socket pending : pendingConnections) {
             server.getClient(pending).disconnect();
         }
+        //Setup the game
+        
         //Construct the investors
-        List<String> names = new ArrayList<>();
+        List<String> investors = new ArrayList<>();
+        investors.addAll(names.values());
+        investors.addAll(AcquireRules.getRandomNames(maxPlayers - names.size(), names.values()));
         List<Investor> players = new ArrayList<>();
         for(int i = 0; i < maxPlayers; i++)
         {
-            
+            Investor investor = new Investor(investors.get(i), 6000, 6, Color.RED);
+            players.add(investor);
+        }
+        Game game = new Game(players);
+        List<Corporation> companies = new ArrayList<>();
+        for(int i = 0; i < game.getNumCorporations(); i++)
+            companies.add(game.getCorporation(i));
+        List<Decider> computers = new ArrayList<>();
+        List<NetInvestor> networkedPlayers = new ArrayList<>();
+        for(ClientThread client : server.getClients())
+        {
+            Investor i = players.get(0);
+            for(Investor player : players)
+            {
+                if(player.getName().equals(names.get(client.getSocket())))
+                    i = player;
+            }
+            networkedPlayers.add(new NetInvestor(i, client));
+        }
+        for(int i = names.values().size(); i < maxPlayers; i++)
+        {
+            List<Investor> opponents = new ArrayList<>(players);
+            opponents.remove(i);
+            computers.add(new RandomDecider(players.get(i), game.getGameBoard(), companies, opponents));
+        }
+        Collections.shuffle(players);
+        GameEvent startingEvent = EventType.createEvent(EventType.GAME_START, 
+                new Object[]{players.toArray(new Investor[players.size()]),
+                game.getGameBoard(), companies.toArray(new Corporation[companies.size()])});
+        
+        for(ClientThread thread : server.getClients())
+        {
+            thread.sendData(startingEvent);
         }
     }//GEN-LAST:event_gameStartActionPerformed
 

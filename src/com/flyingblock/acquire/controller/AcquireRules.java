@@ -13,6 +13,11 @@ import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.Location;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
 
 /**
  * A class that contains rules for the acquire board game and is implemented
@@ -24,8 +29,12 @@ public class AcquireRules
     /**
      * Random names
      */
-    public static final String[] RANDOM_NAMES = {"MARK", "KEYNES", "SMITH", "MARSHALL",
-        "GRAHAM", "KAHNEMAN", "MILTON", "LUXEMBURG", "GREENSPAN"};
+    public static final String[] RANDOM_NAMES = {"MARX", "KEYNES", "SMITH", "MARSHALL",
+        "GRAHAM", "KAHNEMAN", "MILTON", "LUXEMBURG", "GREENSPAN", "BEN", "ASDF", "BENELUX",
+        "NICKROMANCER", "PERSON", "HUE MAN", "JANA", "DRAUG", "FLYGUY", "ESCMO", "BUDEW",
+        "PIKACHU", "RIACHU", "L", "Q", "BISMARCK", "NONAME", "DEFAULT", "DEFACTO",
+        "LENNIN", "SWEED", "NOTCH", "TRUMP", "GATES", "LE GUIN", "AVALON", "HILL",
+        "NAME_43", "WINNER", "LOSER", "RANDOM", "NOT RANDOM", "#HASHTAG"};
     /**
      * The size that a corporation needs to be in order to be safe.
      */
@@ -60,5 +69,20 @@ public class AcquireRules
     public static String getRandomName()
     {
         return RANDOM_NAMES[(int)(RANDOM_NAMES.length)];
+    }
+    
+    public static List<String> getRandomNames(int num, Collection<String> filter)
+    {
+        return getRandomNames(num, new Random(), filter);
+    }
+    
+    public static List<String> getRandomNames(int num, Random random, Collection<String> filter)
+    {
+        ArrayList<String> names = new ArrayList<>(Arrays.asList(RANDOM_NAMES));
+        names.removeAll(filter);
+        ArrayList<String> chosen = new ArrayList<>();
+        for(int i = 0; i < num && i < names.size(); i++)
+            chosen.add(names.remove(random.nextInt(names.size())));
+        return chosen;
     }
 }
