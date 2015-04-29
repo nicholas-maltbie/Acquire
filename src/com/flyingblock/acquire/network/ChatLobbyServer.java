@@ -239,10 +239,12 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
                     @Override
                     public void run()
                     {
+                        updateOnlineUsers();
                         try {
                             server.start();
                         } catch (IOException ex) {
-                            displayMessage("The server cannot start: " + ex.getLocalizedMessage());
+                            Logger.getLogger(ChatLobbyServer.class.getName()).log(Level.SEVERE, null, ex);
+                            displayMessage(ex.toString());
                         }
                     }
                 }.start();
@@ -265,6 +267,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
         {
             try {
                 server.stop();
+                updateOnlineUsers();
             } catch (IOException ex) {
                 Logger.getLogger(ChatLobbyServer.class.getName()).log(Level.SEVERE, null, ex);
             }
