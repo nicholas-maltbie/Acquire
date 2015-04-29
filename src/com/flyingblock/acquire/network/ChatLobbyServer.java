@@ -64,6 +64,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
         gameStart = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Acquire Server");
 
         jLabel1.setText("Port");
 
