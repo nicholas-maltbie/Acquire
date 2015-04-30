@@ -36,7 +36,6 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     private Map<Socket, String> names;
     private List<Socket> pendingConnections;
     private Server server;
-    private int maxPlayers;
     /**
      * Creates new form ChatLobbyServer
      */
@@ -63,12 +62,12 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        maxPlayersField = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         chatTextArea = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         usersTextArea = new javax.swing.JTextArea();
         gameStart = new javax.swing.JButton();
+        playerNumberField = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Acquire Server");
@@ -112,13 +111,6 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
 
         jLabel6.setText("Max Players");
 
-        maxPlayersField.setText("Players");
-        maxPlayersField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                maxPlayersFieldActionPerformed(evt);
-            }
-        });
-
         chatTextArea.setEditable(false);
         chatTextArea.setColumns(20);
         chatTextArea.setLineWrap(true);
@@ -137,6 +129,11 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
             }
         });
 
+        playerNumberField.setModel(new javax.swing.SpinnerNumberModel(4, 0, 6, 1));
+        playerNumberField.setToolTipText("");
+        playerNumberField.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        playerNumberField.setName(""); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -154,9 +151,9 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
                             .addComponent(jLabel6)
                             .addComponent(jLabel1))
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(portInputField, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(maxPlayersField, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(portInputField, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                            .addComponent(playerNumberField)))
                     .addComponent(gameStart))
                 .addGap(164, 164, 164)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -190,7 +187,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
                 .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(maxPlayersField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(playerNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(startButton)
@@ -220,10 +217,6 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     private void portInputFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_portInputFieldActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_portInputFieldActionPerformed
-
-    private void maxPlayersFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_maxPlayersFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_maxPlayersFieldActionPerformed
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
         // TODO add your handling code here:
@@ -401,7 +394,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField maxPlayersField;
+    private javax.swing.JSpinner playerNumberField;
     private javax.swing.JTextField portInputField;
     private javax.swing.JButton startButton;
     private javax.swing.JButton stopButton;
@@ -493,6 +486,11 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
         }
     }
 
+    public int getMaxPlayers()
+    {
+        return 
+    }
+    
     @Override
     public void disconnectedFromNetwork(Socket client) 
     {
