@@ -30,6 +30,7 @@ public enum EventType
     PLAYERS_UPDATE(Investor[].class), 
     CORPORATIONS_UPDATE(Corporation[].class),
     
+    NAME_GIVEN(String.class),
     GAME_START(Object[].class), //in format {Investor[], AcquireBoard, Corporation[]}
     
     //information sent to the server

@@ -97,11 +97,12 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         switch(state)
         {
             case GAME_START:
+                System.out.println("STARTING");
                 for(Investor i : gamePlayers)
                 {
-                    for(int j = 0; j < 7; j++)
+                    i.drawFromDeck(market);
+                    for(int j = 0; j < 1; j++)
                     {
-                        i.drawFromDeck(market);
                         Hotel h = market.draw();
                         board.set(h.getLocation().getRow(), h.getLocation().getCol(), h);
                     }
@@ -114,7 +115,6 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 setState(ServerState.PLAYER_TURN);
                 break;
             case PLAYER_TURN:
-                
                 System.out.println(getCurrentPlayer().getName());
                 if(isPlayerComputer(getCurrentPlayer()))
                 {
@@ -229,11 +229,11 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void sendGameUpdate(NetInvestor client)
     {
-        client.sendMessage(EventType.createEvent(EventType.BOARD_UPDATE, board.copy()));
+        client.sendMessage(EventType.createEvent(EventType.BOARD_UPDATE, board));
         client.sendMessage(EventType.createEvent(EventType.PLAYERS_UPDATE, 
-                gamePlayers.toArray(new Investor[gamePlayers.size()]).clone()));
+                gamePlayers.toArray(new Investor[gamePlayers.size()])));
         client.sendMessage(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
-                companies.toArray(new Corporation[companies.size()]).clone()));
+                companies.toArray(new Corporation[companies.size()])));
     }
 
     @Override

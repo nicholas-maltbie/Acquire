@@ -13,7 +13,9 @@ import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Investor;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,7 +27,8 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
 {
 
     private Client client;
-    
+    private String name;
+    private AcquireClient gameClient;
     /**
      * Creates new form Chat
      */
@@ -290,17 +293,34 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
         {
             GameEvent event = (GameEvent) object;
             EventType type = EventType.identifyEvent(event);
-            if(type == EventType.GAME_START)
+            if(type == EventType.NAME_GIVEN)
+            {
+                name = (String) event.getMessage();
+            }
+            else if(type == EventType.GAME_START)
             {
                 Object[] gameParts = (Object[])event.getMessage();
                 Investor[] players = (Investor[]) gameParts[0];
                 AcquireBoard board = (AcquireBoard) gameParts[1];
                 Corporation[] companies = (Corporation[]) gameParts[2];
                 
-                displayMessage(Arrays.toString(players));
-                displayMessage(board.toString());
-                displayMessage(Arrays.toString(companies));
+                List<Investor> investors = new ArrayList<>(Arrays.asList(players));
+                Investor you = null;
+                int i = 0;
+                while(i < investors.size())
+                {
+                    if(investors.get(i).getName().equalsIgnoreCase(name))
+                        you = investors.remove(i);
+                    else
+                        i++;
+                }
+                
+                gameClient = new AcquireClient(client, board, investors,
+                    new ArrayList<>(Arrays.asList(companies)), you);
+                gameClient.initView();
             }
+            else
+                displayMessage(type.toString());
         }
     }
 

@@ -12,8 +12,10 @@ package com.flyingblock.acquire.network;
 import com.flyingblock.acquire.computer.Decider;
 import com.flyingblock.acquire.computer.RandomDecider;
 import com.flyingblock.acquire.controller.AcquireRules;
+import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Game;
+import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import java.awt.Color;
 import java.io.IOException;
@@ -38,6 +40,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     private Map<Socket, String> names;
     private List<Socket> pendingConnections;
     private Server server;
+    private AcquireServer acquireGame;
     /**
      * Creates new form ChatLobbyServer
      */
@@ -73,6 +76,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Acquire Server");
+        setResizable(false);
 
         jLabel1.setText("Port");
 
@@ -134,10 +138,17 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
         playerNumberField.setModel(new javax.swing.SpinnerNumberModel(4, 2, 6, 1));
         playerNumberField.setToolTipText("");
         playerNumberField.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        playerNumberField.setFocusable(false);
         playerNumberField.setName(""); // NOI18N
+        playerNumberField.setRequestFocusEnabled(false);
         playerNumberField.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 playerNumberFieldStateChanged(evt);
+            }
+        });
+        playerNumberField.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                playerNumberFieldPropertyChange(evt);
             }
         });
 
@@ -234,6 +245,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
                 int port = Integer.parseInt(portInputField.getText());
                 server = new Server(port);
                 server.addListener(this);
+                displayMessage("Starting server");
                 new Thread(){
                     @Override
                     public void run()
@@ -247,6 +259,11 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
                     }
                 }.start();
                 names = new HashMap<>();
+                if(acquireGame != null)
+                {
+                    acquireGame.stop();
+                    acquireGame = null;
+                }
             }
             catch (NumberFormatException ex)
             {
@@ -286,56 +303,68 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     private void gameStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gameStartActionPerformed
         // TODO add your handling code here:
         //start game
-        
-        //kick all pending connections
-        for(Socket pending : pendingConnections) {
-            server.getClient(pending).disconnect();
-        }
-        //Setup the game
-        List<String> humanNames = new ArrayList<>();
-        for(Entry<Socket, String> entry : names.entrySet())
-            humanNames.add(entry.getValue());
-        //Construct the investors
-        List<String> investors = new ArrayList<>();
-        investors.addAll(humanNames);
-        investors.addAll(AcquireRules.getRandomNames(getMaxPlayers() - humanNames.size(), humanNames));
-        List<Investor> players = new ArrayList<>();
-        for(int i = 0; i < getMaxPlayers(); i++)
+        System.out.println(acquireGame);
+        if(acquireGame == null)
         {
-            Investor investor = new Investor(investors.get(i), 6000, 6, Color.RED);
-            players.add(investor);
-        }
-        Game game = new Game(players);
-        List<Corporation> companies = new ArrayList<>();
-        for(int i = 0; i < game.getNumCorporations(); i++)
-            companies.add(game.getCorporation(i));
-        List<Decider> computers = new ArrayList<>();
-        List<NetInvestor> networkedPlayers = new ArrayList<>();
-        for(ClientThread client : server.getClients())
-        {
-            Investor i = players.get(0);
-            for(Investor player : players)
-            {
-                if(player.getName().equals(names.get(client.getSocket())))
-                    i = player;
+            //kick all pending connections
+            for(Socket pending : pendingConnections) {
+                server.getClient(pending).disconnect();
             }
-            networkedPlayers.add(new NetInvestor(i, client));
+            //Setup the game
+            List<String> humanNames = new ArrayList<>();
+            for(Entry<Socket, String> entry : names.entrySet())
+                humanNames.add(entry.getValue());
+            //Construct the investors
+            List<String> investors = new ArrayList<>();
+            investors.addAll(humanNames);
+            investors.addAll(AcquireRules.getRandomNames(getMaxPlayers() - humanNames.size(), humanNames));
+            List<Investor> players = new ArrayList<>();
+            for(int i = 0; i < getMaxPlayers(); i++)
+            {
+                Investor investor = new Investor(investors.get(i), 6000, 6, Color.RED);
+                players.add(investor);
+            }
+            Game game = new Game(players);
+            List<Corporation> companies = new ArrayList<>();
+            for(int i = 0; i < game.getNumCorporations(); i++)
+                companies.add(game.getCorporation(i));
+            List<Decider> computers = new ArrayList<>();
+            List<NetInvestor> networkedPlayers = new ArrayList<>();
+            for(ClientThread client : server.getClients())
+            {
+                Investor i = players.get(0);
+                for(Investor player : players)
+                {
+                    if(player.getName().equals(names.get(client.getSocket())))
+                        i = player;
+                }
+                networkedPlayers.add(new NetInvestor(i, client));
+            }
+            for(int i = humanNames.size(); i < getMaxPlayers(); i++)
+            {
+                List<Investor> opponents = new ArrayList<>(players);
+                opponents.remove(i);
+                computers.add(new RandomDecider(players.get(i), game.getGameBoard(), companies, opponents));
+            }
+            Collections.shuffle(players);
+            GameEvent startingEvent = EventType.createEvent(EventType.GAME_START, 
+                    new Object[]{players.toArray(new Investor[players.size()]),
+                    game.getGameBoard(), companies.toArray(new Corporation[companies.size()])});
+
+            for(ClientThread thread : server.getClients())
+            {
+                thread.sendData(startingEvent);
+            }
+            
+            acquireGame = new AcquireServer(server, computers, networkedPlayers,
+                players, game.getGameBoard(), companies, game.getMarket(), 100);
+            
+            this.sendChatEvent("Server", "Game starting in 1 second");
+            
+            acquireGame.start();
         }
-        for(int i = humanNames.size(); i < getMaxPlayers(); i++)
-        {
-            List<Investor> opponents = new ArrayList<>(players);
-            opponents.remove(i);
-            computers.add(new RandomDecider(players.get(i), game.getGameBoard(), companies, opponents));
-        }
-        Collections.shuffle(players);
-        GameEvent startingEvent = EventType.createEvent(EventType.GAME_START, 
-                new Object[]{players.toArray(new Investor[players.size()]),
-                game.getGameBoard(), companies.toArray(new Corporation[companies.size()])});
-        
-        for(ClientThread thread : server.getClients())
-        {
-            thread.sendData(startingEvent);
-        }
+        else
+            displayMessage("Game has already started");
     }//GEN-LAST:event_gameStartActionPerformed
 
     private void playerNumberFieldStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_playerNumberFieldStateChanged
@@ -347,6 +376,10 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
             playerNumberField.setValue(max);
         }
     }//GEN-LAST:event_playerNumberFieldStateChanged
+
+    private void playerNumberFieldPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_playerNumberFieldPropertyChange
+        // TODO add your handling code here:
+    }//GEN-LAST:event_playerNumberFieldPropertyChange
 
     public void displayMessage(String message)
     {
@@ -439,6 +472,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
             else
             {
                 names.put(client, name);
+                server.getClient(client).sendData(EventType.createEvent(EventType.NAME_GIVEN, name));
                 sendChatEvent(names.get(client), "Has joined the server");
                 pendingConnections.remove(client);
                 updateOnlineUsers();
