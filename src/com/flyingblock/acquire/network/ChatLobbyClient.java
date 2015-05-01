@@ -9,7 +9,11 @@
  */
 package com.flyingblock.acquire.network;
 
+import com.flyingblock.acquire.model.AcquireBoard;
+import com.flyingblock.acquire.model.Corporation;
+import com.flyingblock.acquire.model.Investor;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -220,6 +224,7 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
             chatTextArea.append("\n" + message);
         else
             chatTextArea.append(message);
+        chatTextArea.setCaretPosition(chatTextArea.getDocument().getLength());
     }
     
     /**
@@ -280,6 +285,22 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
         if(object instanceof String)
         {
             displayMessage(object.toString());
+        }
+        else if(object instanceof GameEvent)
+        {
+            GameEvent event = (GameEvent) object;
+            EventType type = EventType.identifyEvent(event);
+            if(type == EventType.GAME_START)
+            {
+                Object[] gameParts = (Object[])event.getMessage();
+                Investor[] players = (Investor[]) gameParts[0];
+                AcquireBoard board = (AcquireBoard) gameParts[1];
+                Corporation[] companies = (Corporation[]) gameParts[2];
+                
+                displayMessage(Arrays.toString(players));
+                displayMessage(board.toString());
+                displayMessage(Arrays.toString(companies));
+            }
         }
     }
 

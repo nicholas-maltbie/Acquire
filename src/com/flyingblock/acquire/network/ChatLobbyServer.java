@@ -19,10 +19,12 @@ import java.awt.Color;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -129,10 +131,15 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
             }
         });
 
-        playerNumberField.setModel(new javax.swing.SpinnerNumberModel(4, 0, 6, 1));
+        playerNumberField.setModel(new javax.swing.SpinnerNumberModel(4, 2, 6, 1));
         playerNumberField.setToolTipText("");
         playerNumberField.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         playerNumberField.setName(""); // NOI18N
+        playerNumberField.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                playerNumberFieldStateChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -220,18 +227,9 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
         // TODO add your handling code here:
-        names = new HashMap<>();
         pendingConnections = new ArrayList<>();
         if(server == null || !server.isRunning())
         {
-            try{
-                maxPlayers = Integer.parseInt(maxPlayersField.getText());
-            }
-            catch (NumberFormatException ex)
-            {
-                displayMessage("Invalid max players, it mus tbe a number");
-                return;
-            }
             try {
                 int port = Integer.parseInt(portInputField.getText());
                 server = new Server(port);
@@ -244,12 +242,11 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
                         try {
                             server.start();
                         } catch (IOException ex) {
-                            Logger.getLogger(ChatLobbyServer.class.getName()).log(Level.SEVERE, null, ex);
                             displayMessage(ex.toString());
                         }
                     }
                 }.start();
-                displayMessage("Server started");
+                names = new HashMap<>();
             }
             catch (NumberFormatException ex)
             {
@@ -295,13 +292,15 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
             server.getClient(pending).disconnect();
         }
         //Setup the game
-        
+        List<String> humanNames = new ArrayList<>();
+        for(Entry<Socket, String> entry : names.entrySet())
+            humanNames.add(entry.getValue());
         //Construct the investors
         List<String> investors = new ArrayList<>();
-        investors.addAll(names.values());
-        investors.addAll(AcquireRules.getRandomNames(maxPlayers - names.size(), names.values()));
+        investors.addAll(humanNames);
+        investors.addAll(AcquireRules.getRandomNames(getMaxPlayers() - humanNames.size(), humanNames));
         List<Investor> players = new ArrayList<>();
-        for(int i = 0; i < maxPlayers; i++)
+        for(int i = 0; i < getMaxPlayers(); i++)
         {
             Investor investor = new Investor(investors.get(i), 6000, 6, Color.RED);
             players.add(investor);
@@ -322,7 +321,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
             }
             networkedPlayers.add(new NetInvestor(i, client));
         }
-        for(int i = names.values().size(); i < maxPlayers; i++)
+        for(int i = humanNames.size(); i < getMaxPlayers(); i++)
         {
             List<Investor> opponents = new ArrayList<>(players);
             opponents.remove(i);
@@ -339,12 +338,23 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
         }
     }//GEN-LAST:event_gameStartActionPerformed
 
+    private void playerNumberFieldStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_playerNumberFieldStateChanged
+        // TODO add your handling code here:
+        int max = (Integer)playerNumberField.getValue();
+        if(names != null && max < names.values().size())
+        {
+            max = names.values().size();
+            playerNumberField.setValue(max);
+        }
+    }//GEN-LAST:event_playerNumberFieldStateChanged
+
     public void displayMessage(String message)
     {
         if(!chatTextArea.getText().isEmpty())
             chatTextArea.append("\n" + message);
         else
             chatTextArea.append(message);
+        chatTextArea.setCaretPosition(chatTextArea.getDocument().getLength());
     }
     
     /**
@@ -432,7 +442,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
                 sendChatEvent(names.get(client), "Has joined the server");
                 pendingConnections.remove(client);
                 updateOnlineUsers();
-                if(names.size() >= maxPlayers)
+                if(names.size() >= getMaxPlayers())
                 {
                     for(Socket connection : pendingConnections)
                     {
@@ -472,7 +482,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     public void joinedNetwork(Socket client) 
     {
         ClientThread thread = server.getClient(client);
-        if(names.size() >= maxPlayers)
+        if(names.size() >= getMaxPlayers())
         {
             thread.sendData("The game is full, sorry");
             thread.disconnect();
@@ -488,7 +498,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
 
     public int getMaxPlayers()
     {
-        return 
+        return (Integer)playerNumberField.getValue();
     }
     
     @Override
