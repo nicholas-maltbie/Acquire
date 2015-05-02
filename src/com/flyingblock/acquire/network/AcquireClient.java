@@ -128,10 +128,10 @@ public class AcquireClient implements ClientListener, PlayerListener,
                 break;
             case PLAYERS_UPDATE:
                 Investor[] playerUpdate = (Investor[]) event.getMessage();
+                List<Investor> investors = new ArrayList<>(this.investors);
+                investors.add(this.player);
                 for(Investor player : playerUpdate)
                 {
-                	List<Investor> investors = new ArrayList<>(this.investors);
-                	investors.add(this.player);
                     for(int i = 0; i < investors.size(); i++)
                     {
                         if(player.getName().equals(investors.get(i).getName()))
@@ -140,9 +140,20 @@ public class AcquireClient implements ClientListener, PlayerListener,
                             edit.addMoney(player.getMoney() - edit.getMoney());
                             edit.clearStocks();
                             edit.addStocks(edit.getStocks());
+                            for(int j = 0; j < edit.getHandSize(); j++)
+                            {
+                                edit.setInHand(j, player.getFromHand(j));
+                            }
                         }
                     }
                 }
+                
+                String hand = "";
+                for(int i = 0; i < player.getHandSize(); i++)
+                {
+                    hand += player.getFromHand(i);
+                }
+                System.out.println(hand);
                 break;
             case CORPORATIONS_UPDATE:
                 Corporation[] corps = (Corporation[]) event.getMessage();
