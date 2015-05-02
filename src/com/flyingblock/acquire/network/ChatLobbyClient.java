@@ -317,7 +317,9 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
                 
                 gameClient = new AcquireClient(client, board, investors,
                     new ArrayList<>(Arrays.asList(companies)), you);
+                client.addListener(gameClient);
                 gameClient.initView();
+                
             }
             else
                 displayMessage(type.toString());

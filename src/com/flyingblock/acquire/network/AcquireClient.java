@@ -112,6 +112,7 @@ public class AcquireClient implements ClientListener, PlayerListener,
     
     public void parseEvent(GameEvent event, EventType type)
     {
+        System.out.println(type + " " + event.getMessage().toString());
         switch(type)
         {
             case BOARD_UPDATE:
@@ -134,6 +135,13 @@ public class AcquireClient implements ClientListener, PlayerListener,
                             edit.clearStocks();
                             edit.addStocks(edit.getStocks());
                         }
+                    }
+                    if(player.getName().equals(this.player.getName()))
+                    {
+                        Investor edit = this.player;
+                        edit.addMoney(player.getMoney() - edit.getMoney());
+                        edit.clearStocks();
+                        edit.addStocks(edit.getStocks());
                     }
                 }
                 break;

@@ -39,24 +39,34 @@ public class Client extends AbstractClient {
      */
     public void addListener(ClientListener listener)
     {
-        listeners.add(listener);
+        synchronized(listeners)
+        {
+            listeners.add(listener);
+        }
     }
     
     /**
      * Removes a listener from the listeners listening to events.
      * @param listener Listener to remove
      */
-    public void removeListener(ServerListener listener)
+    public void removeListener(ClientListener listener)
     {
-        listeners.remove(listener);
+        synchronized(listeners)
+        {
+            listeners.remove(listener);
+        }
     }
 
     @Override
     public void objectRecieved(Object object) {
         synchronized(listeners)
         {
-            for(ClientListener listener : listeners)
-                listener.objectRecieved(object);
+            int i = 0;
+            while(i < listeners.size())
+            {
+                listeners.get(i).objectRecieved(object);
+                i++;
+            }
         }
     }
 
@@ -64,8 +74,12 @@ public class Client extends AbstractClient {
     public void disconnectedFromServer() {
         synchronized(listeners)
         {
-            for(ClientListener listener : listeners)
-                listener.disconnectedFromServer();
+            int i = 0;
+            while(i < listeners.size())
+            {
+                listeners.get(i).disconnectedFromServer();
+                i++;
+            }
         }
     }
 }
