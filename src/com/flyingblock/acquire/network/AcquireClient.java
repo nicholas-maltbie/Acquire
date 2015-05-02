@@ -112,7 +112,6 @@ public class AcquireClient implements ClientListener, PlayerListener,
     
     public void parseEvent(GameEvent event, EventType type)
     {
-        System.out.println(type + " " + event.getMessage().toString());
         switch(type)
         {
             case BOARD_UPDATE:
