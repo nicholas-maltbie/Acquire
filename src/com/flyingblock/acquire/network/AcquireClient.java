@@ -23,9 +23,13 @@ import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
 import com.flyingblock.acquire.model.Stock;
 import com.flyingblock.acquire.view.GameView;
+import com.flyingblock.acquire.view.HotelView;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -120,11 +124,14 @@ public class AcquireClient implements ClientListener, PlayerListener,
                     for(int c = 0; c < board.getNumCols(); c++)
                         board.set(r, c, update.get(r, c));
                 view.update();
+                //System.out.println(update);
                 break;
             case PLAYERS_UPDATE:
                 Investor[] playerUpdate = (Investor[]) event.getMessage();
                 for(Investor player : playerUpdate)
                 {
+                	List<Investor> investors = new ArrayList<>(this.investors);
+                	investors.add(this.player);
                     for(int i = 0; i < investors.size(); i++)
                     {
                         if(player.getName().equals(investors.get(i).getName()))
@@ -134,13 +141,6 @@ public class AcquireClient implements ClientListener, PlayerListener,
                             edit.clearStocks();
                             edit.addStocks(edit.getStocks());
                         }
-                    }
-                    if(player.getName().equals(this.player.getName()))
-                    {
-                        Investor edit = this.player;
-                        edit.addMoney(player.getMoney() - edit.getMoney());
-                        edit.clearStocks();
-                        edit.addStocks(edit.getStocks());
                     }
                 }
                 break;

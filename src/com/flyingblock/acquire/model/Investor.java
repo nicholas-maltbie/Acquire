@@ -12,6 +12,7 @@ package com.flyingblock.acquire.model;
 import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -287,6 +288,6 @@ public class Investor implements Serializable
     @Override
     public String toString()
     {
-        return getName() + " $" + getMoney();
+        return getName() + " $" + getMoney() + " " + Arrays.toString(hand) + " " + stocks.toString();
     }
 }

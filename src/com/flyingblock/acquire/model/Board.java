@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Nicholas Maltbie
  * @param <E> Object that will fill the board of the board
  */
-public class Board<E> implements Serializable
+public class Board<E extends Serializable> implements Serializable
 {
     /**
      * Saved board of E
@@ -36,7 +36,7 @@ public class Board<E> implements Serializable
      */
     public Board(int rows, int cols)
     {
-        board = (E[][])new Object[rows] [cols];
+        board = (E[][])new Serializable[rows] [cols];
     }
 
     /**

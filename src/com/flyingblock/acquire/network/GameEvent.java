@@ -10,6 +10,7 @@
 package com.flyingblock.acquire.network;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * A message that can be used to code and parse messages sent between servers
@@ -17,19 +18,19 @@ import java.io.Serializable;
  * @author Nicholas Maltbie
  * @param <E> Type of message
  */
-public class GameEvent<E> implements Serializable
+public class GameEvent implements Serializable
 {
     /**Code that describes the message*/
     private String code;
     /**Message that is being sent*/
-    private E message;
+    private Serializable message;
     
     /**
      * Constructs a game event with a code and message.
      * @param code String that describes the message and can be parsed.
      * @param message Message to send.
      */
-    public GameEvent(String code, E message)
+    public GameEvent(String code, Serializable message)
     {
         this.code = code;
         this.message = message;
@@ -48,8 +49,16 @@ public class GameEvent<E> implements Serializable
      * Gets the message included in this event.
      * @return An Object that was sent with the message
      */
-    public E getMessage()
+    public Serializable getMessage()
     {
         return message;
+    }
+    
+    @Override
+    public String toString()
+    {
+    	if(message instanceof Object[])
+    		return code + " " + Arrays.toString((Object[]) message);
+    	return code + " " + message;
     }
 }

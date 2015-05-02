@@ -9,6 +9,8 @@
  */
 package com.flyingblock.acquire.network;
 
+import java.io.Serializable;
+
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Board;
 import com.flyingblock.acquire.model.Corporation;
@@ -92,7 +94,7 @@ public enum EventType
      * @param message Message to attach to the event.
      * @return Returns a new GameEvent.
      */
-    public static <E> GameEvent<E> createEvent(EventType type, E message)
+    public static GameEvent createEvent(EventType type, Serializable message)
     {
         return new GameEvent(type.toString(), message);
     }

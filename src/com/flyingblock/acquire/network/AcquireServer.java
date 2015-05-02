@@ -97,7 +97,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         switch(state)
         {
             case GAME_START:
-                System.out.println("STARTING");
+                //System.out.println("STARTING");
                 for(Investor i : gamePlayers)
                 {
                     i.drawFromDeck(market);
@@ -108,14 +108,11 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                     }
                 }
                 server.stopAccepting();
-                for(NetInvestor netPlayer : humanPlayers)
-                {
-                    sendGameUpdate(netPlayer);
-                }
+                updateAllClients();
                 setState(ServerState.PLAYER_TURN);
                 break;
             case PLAYER_TURN:
-                System.out.println(getCurrentPlayer().getName());
+                //System.out.println(getCurrentPlayer().getName());
                 if(isPlayerComputer(getCurrentPlayer()))
                 {
                     //do computer turn
@@ -125,7 +122,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 }
                 else
                 {
-                    //do Human turn, ughhhhh humans are so slow!
+                    //do Human turn, ugh! humans are so slow!
                     humanTurn = new NetPlayerTurn(this, getClientFor(getCurrentPlayer()), 
                         board, companies, market);
                     server.addListener(humanTurn);
@@ -153,7 +150,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     public void updateAllClients()
     {
         for(NetInvestor netPlayer : humanPlayers)
-            sendGameUpdate(netPlayer);
+            sendGameUpdate(server.getClient(netPlayer.getSocket()));
     }
     
     /**
@@ -227,12 +224,16 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * Sends game updates to a client
      * @param client Client to send Update to.
      */
-    public void sendGameUpdate(NetInvestor client)
+    public void sendGameUpdate(ClientThread client)
     {
-        client.sendMessage(EventType.createEvent(EventType.BOARD_UPDATE, board));
-        client.sendMessage(EventType.createEvent(EventType.PLAYERS_UPDATE, 
+    	//System.out.println(boardUpdate.getMessage());
+        //client.sendObject(board.toString());
+        //client.sendObject(gamePlayers.toString());
+        //client.sendObject(companies.toString());
+        client.sendData(EventType.createEvent(EventType.BOARD_UPDATE, board));
+        client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE, 
                 gamePlayers.toArray(new Investor[gamePlayers.size()])));
-        client.sendMessage(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
+        client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
                 companies.toArray(new Corporation[companies.size()])));
     }
 
@@ -506,7 +507,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void turnEnded(Investor player)
     {
-        System.out.println(board);        
+        //System.out.println(board);        
         //updateAllClients();
         
         try {
@@ -516,7 +517,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         }
         
         //server.removeListener(humanTurn);
-        System.out.println(board);
+        //System.out.println(board);
         //Decide if game is over
         List<Corporation> established = board.getCompaniesOnBoard();
         boolean over = false;

@@ -174,7 +174,7 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
      * actions that are located within the hand.
      * @param listener Listener to add.
      */
-    public void addHandLIstener(HandListener listener)
+    public void addHandListener(HandListener listener)
     {
         synchronized(listeners)
         {

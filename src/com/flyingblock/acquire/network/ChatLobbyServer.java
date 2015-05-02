@@ -15,8 +15,11 @@ import com.flyingblock.acquire.controller.AcquireRules;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Game;
+import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
+import com.flyingblock.acquire.model.Location;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.net.Socket;
@@ -303,7 +306,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     private void gameStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gameStartActionPerformed
         // TODO add your handling code here:
         //start game
-        System.out.println(acquireGame);
+        //System.out.println(acquireGame);
         if(acquireGame == null)
         {
             //kick all pending connections
@@ -350,7 +353,9 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
             GameEvent startingEvent = EventType.createEvent(EventType.GAME_START, 
                     new Object[]{players.toArray(new Investor[players.size()]),
                     game.getGameBoard(), companies.toArray(new Corporation[companies.size()])});
-
+            game.getMarket().shuffle();
+            //game.getGameBoard().set(0,0,new Hotel(new Location(0,0)));
+            
             for(ClientThread thread : server.getClients())
             {
                 thread.sendData(startingEvent);

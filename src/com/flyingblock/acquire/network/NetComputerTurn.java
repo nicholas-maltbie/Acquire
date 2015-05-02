@@ -130,7 +130,7 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
                     if(!taken.contains(c))
                         available.add(c);
                 //Chose if a new company is formed.
-                System.out.println(play);
+                //System.out.println(play);
                 List<Location> blob = decider.getBoard().getBlob(loc.getRow(), loc.getCol());
                 boolean formCompany = available.size() > 0 && blob.size() >= 2;
                 for(Location l : blob)

@@ -58,7 +58,9 @@ public abstract class AbstractClient extends Thread
             try {
                 Object message = null;
                 if((message = input.readObject()) != null)
+                {
                     objectRecieved(message);
+                }
             } catch (IOException | ClassNotFoundException ex) {
                 if(running)
                 {
@@ -94,6 +96,7 @@ public abstract class AbstractClient extends Thread
     {
         try {
             output.writeObject(message);
+            output.reset();
         } catch (IOException ex) {
             Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -321,8 +321,6 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
                 gameClient.initView();
                 
             }
-            else
-                displayMessage(type.toString());
         }
     }
 

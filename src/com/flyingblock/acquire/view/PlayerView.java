@@ -189,7 +189,7 @@ public class PlayerView extends JPanel
      */
     public void addHandLIstener(HandListener listener)
     {
-        handView.addHandLIstener(listener);
+        handView.addHandListener(listener);
     }
     
     /**

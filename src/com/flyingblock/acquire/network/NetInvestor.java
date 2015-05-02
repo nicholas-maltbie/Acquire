@@ -49,6 +49,14 @@ public class NetInvestor
     {
         client.sendData(event);
     }
+    /**
+     * Sends an object to the client.
+     * @param object to send.
+     */
+    public void sendObject(Object event)
+    {
+        client.sendData(event);
+    }
     
     /**
      * Gets the socket of the player connected to the server.
