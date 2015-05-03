@@ -147,13 +147,6 @@ public class AcquireClient implements ClientListener, PlayerListener,
                         }
                     }
                 }
-                
-                String hand = "";
-                for(int i = 0; i < player.getHandSize(); i++)
-                {
-                    hand += player.getFromHand(i);
-                }
-                System.out.println(hand);
                 break;
             case CORPORATIONS_UPDATE:
                 Corporation[] corps = (Corporation[]) event.getMessage();

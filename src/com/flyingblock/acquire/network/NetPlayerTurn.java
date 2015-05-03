@@ -66,13 +66,11 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 player.sendMessage(piecePrompt);
                 break;
             case BUY_STOCKS:
-                System.out.println("Buy stocks time");
                 GameEvent buyPrompt = EventType.createEvent(EventType.BUY_STOCKS, 
                         companies.toArray(new Corporation[companies.size()]));
                 player.sendMessage(buyPrompt);
                 break;
             case CREATE_COMPANY:
-                System.out.println("Create corporation time");
                 List<Corporation> taken = board.getCompaniesOnBoard();
                 List<Corporation> available = new ArrayList<>();
                 for(Corporation c : board.getCompaniesOnBoard())
@@ -83,7 +81,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                         available.toArray(new Corporation[available.size()])));
                 break;
             case MERGER:
-                System.out.println("Time for a merger");
+                
                 break;
         }
     }
@@ -115,6 +113,13 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     
                     if(isValid)
                     {
+                        for(int i = 0; i < player.getPlayer().getHandSize(); i++)
+                        {
+                            if(player.getPlayer().getFromHand(i) != null && player.getPlayer().getFromHand(i).equals(hotel))
+                            {
+                                player.getPlayer().removeFromHand(i);
+                            }
+                        }
                         board.set(hotel.getLocation().getRow(), 
                                 hotel.getLocation().getCol(), hotel);
                         server.updateAllClients();
@@ -136,7 +141,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                         }
                         List<Corporation> taken = board.getCompaniesOnBoard();
                         List<Corporation> available = new ArrayList<>();
-                        for(Corporation c : board.getCompaniesOnBoard())
+                        for(Corporation c : companies)
                             if(!taken.contains(c))
                                 available.add(c);
                         //Chose if a new company is formed.
