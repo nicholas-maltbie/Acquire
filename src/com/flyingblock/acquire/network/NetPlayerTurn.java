@@ -106,16 +106,35 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
             EventType type = EventType.identifyEvent(event);
             switch(type)
             {
+                case CORPORATION_CREATED:
+                    Corporation created = (Corporation) event.getMessage();
+                    boolean validCorporation = true;
+                    //asdf check stuff
+                    if(validCorporation)
+                    {
+                        Corporation corp = null;
+                        for(int i = 0; i < companies.size(); i++)
+                        {
+                            Corporation temp = companies.get(i);
+                            if(created.getCorporateName().equals(temp.getNumberOfHotels()))
+                                corp = temp;
+                        }
+                        if(corp != null)
+                        {
+                            
+                        }
+                    }
+                    break;
                 case PIECE_PLAYED:
                     Hotel hotel = (Hotel) event.getMessage();
-                    boolean isValid = true;
+                    boolean validPlay = true;
                     //check if valid
-                    
-                    if(isValid)
+                    if(validPlay)
                     {
                         for(int i = 0; i < player.getPlayer().getHandSize(); i++)
                         {
-                            if(player.getPlayer().getFromHand(i) != null && player.getPlayer().getFromHand(i).equals(hotel))
+                            if(player.getPlayer().getFromHand(i) != null && 
+                                    player.getPlayer().getFromHand(i).equals(hotel))
                             {
                                 player.getPlayer().removeFromHand(i);
                             }
@@ -156,7 +175,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                             nextState = TurnState.CREATE_COMPANY;
                         else
                             nextState = TurnState.BUY_STOCKS;
-
+                        
                         setState(nextState);
                     }
                     else

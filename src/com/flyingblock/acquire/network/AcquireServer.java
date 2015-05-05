@@ -267,7 +267,14 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     @Override
     public void disconnectedFromNetwork(Socket client)
     {
-        
+        int i = 0; 
+        while(i < humanPlayers.size())
+        {
+            if(humanPlayers.get(i).getSocket().equals(client))
+                humanPlayers.remove(i);
+            else
+                i++;
+        }
     }
 
     @Override

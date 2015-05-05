@@ -84,4 +84,17 @@ public class Product implements Serializable
     {
         return other.getOwner().equals(supplier);
     }
+    
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other instanceof Product)
+        {
+            Product p = (Product) other;
+            return (p.getOwner() == null && getOwner() == null) || 
+                    (p.getOwner() != null && getOwner() != null && p.getOwner().equals(getOwner())) &&
+                    getProductName().equals(p.getProductName());
+        }
+        return false;
+    }
 }
