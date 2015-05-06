@@ -68,7 +68,7 @@ public class AcquireRules
      */
     public static String getRandomName()
     {
-        return RANDOM_NAMES[(int)(RANDOM_NAMES.length)];
+        return RANDOM_NAMES[(RANDOM_NAMES.length)];
     }
     
     public static List<String> getRandomNames(int num, Collection<String> filter)

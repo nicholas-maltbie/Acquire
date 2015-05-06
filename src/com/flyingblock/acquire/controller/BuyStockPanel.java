@@ -233,10 +233,10 @@ public class BuyStockPanel extends JPanel implements ComponentListener, ActionLi
         for(int i = 0; i < companies.length; i++)
         {
             Rectangle bounds = views[i].getBounds();
-            g2.draw(new Line2D.Float(0, (int)bounds.getY(), this.getWidth(),
-                    (int)bounds.getY()));
-            g2.draw(new Line2D.Float(0, (int)(bounds.getY()+bounds.getHeight()),
-                    this.getWidth(), (int)(bounds.getY()+bounds.getHeight())));
+            g2.draw(new Line2D.Float(0, (float)bounds.getY(), this.getWidth(),
+                    (float)bounds.getY()));
+            g2.draw(new Line2D.Float(0, (float)(bounds.getY()+bounds.getHeight()),
+                    this.getWidth(), (float)(bounds.getY()+bounds.getHeight())));
         }
     }
     

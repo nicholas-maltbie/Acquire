@@ -11,6 +11,7 @@ package com.flyingblock.acquire.network;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A message that can be used to code and parse messages sent between servers
@@ -52,6 +53,25 @@ public class GameEvent implements Serializable
     public Serializable getMessage()
     {
         return message;
+    }
+    
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other instanceof GameEvent)
+        {
+            GameEvent evt = (GameEvent) other;
+            return code.equals(evt.getCode()) && message.equals(evt.getMessage());
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + Objects.hashCode(this.code);
+        hash = 53 * hash + Objects.hashCode(this.message);
+        return hash;
     }
     
     @Override

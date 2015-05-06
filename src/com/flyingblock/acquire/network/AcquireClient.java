@@ -66,7 +66,6 @@ public class AcquireClient implements ClientListener, PlayerListener,
     public AcquireClient(Client client, AcquireBoard board, List<Investor> investors, 
             List<Corporation> companies, Investor player)
     {
-        client.addListener(this);
         this.client = client;
         this.board = board;
         this.investors = investors;

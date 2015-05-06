@@ -73,7 +73,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
             case CREATE_COMPANY:
                 List<Corporation> taken = board.getCompaniesOnBoard();
                 List<Corporation> available = new ArrayList<>();
-                for(Corporation c : board.getCompaniesOnBoard())
+                for(Corporation c : companies)
                     if(!taken.contains(c))
                         available.add(c);
                 chosenCompany = null;
@@ -97,6 +97,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
 
     /**holding variable*/
     private Corporation chosenCompany;
+    private Location locOfInterest;
     
     @Override
     public void objectRecieved(Socket client, Object message) {
@@ -104,25 +105,38 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
         {
             GameEvent event = (GameEvent) message;
             EventType type = EventType.identifyEvent(event);
+            System.out.println(type);
             switch(type)
             {
                 case CORPORATION_CREATED:
                     Corporation created = (Corporation) event.getMessage();
                     boolean validCorporation = true;
-                    //asdf check stuff
+                    //check stuff
                     if(validCorporation)
                     {
-                        Corporation corp = null;
                         for(int i = 0; i < companies.size(); i++)
                         {
                             Corporation temp = companies.get(i);
-                            if(created.getCorporateName().equals(temp.getNumberOfHotels()))
-                                corp = temp;
+                            if(created.getCorporateName().equals(temp.getCorporateName()))
+                            {
+                                temp.setHeadquarters(locOfInterest);
+                                server.updateAllClients();
+                                this.setState(TurnState.BUY_STOCKS);
+                                return;
+                            }
                         }
-                        if(corp != null)
-                        {
-                            
-                        }
+                    }
+                    else
+                    {
+                        //resend request
+                        List<Corporation> taken = board.getCompaniesOnBoard();
+                        List<Corporation> available = new ArrayList<>();
+                        for(Corporation c : companies)
+                            if(!taken.contains(c))
+                                available.add(c);
+                        chosenCompany = null;
+                        player.sendMessage(EventType.createEvent(EventType.CREATE_CORPORATION,
+                                available.toArray(new Corporation[available.size()])));
                     }
                     break;
                 case PIECE_PLAYED:
@@ -175,7 +189,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                             nextState = TurnState.CREATE_COMPANY;
                         else
                             nextState = TurnState.BUY_STOCKS;
-                        
+                        locOfInterest = hotel.getLocation();
                         setState(nextState);
                     }
                     else
