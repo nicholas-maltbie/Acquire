@@ -16,8 +16,10 @@ import com.flyingblock.acquire.model.Corporation;
 import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Location;
+import com.flyingblock.acquire.model.Stock;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -106,8 +108,23 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
             GameEvent event = (GameEvent) message;
             EventType type = EventType.identifyEvent(event);
             System.out.println(type);
+            if(event.getMessage() instanceof Object[])
+                System.out.println(Arrays.toString((Object[]) event.getMessage()));
+            else
+                System.out.println(event.getMessage());
             switch(type)
             {
+                case STOCKS_BOUGHT:
+                    Stock[] bought = (Stock[]) event.getMessage();
+                    for(Stock stock : bought)
+                    {
+                        Stock taken = stock.getOwner().getStock();
+                        player.getPlayer().addStock(taken);
+                    }
+                    player.getPlayer().drawFromDeck(deck);
+                    server.turnEnded(player.getPlayer());
+                    server.updateAllClients();
+                    break;
                 case CORPORATION_CREATED:
                     Corporation created = (Corporation) event.getMessage();
                     boolean validCorporation = true;

@@ -291,6 +291,16 @@ public class PieceManager implements HandListener, MouseListener,
     {
         
     }
+    
+    /**
+     * Gets the piece held by the player.
+     * @return Returns the pice the player is holding or null if the player
+     * isn't holding anything.
+     */
+    public Hotel getHeld()
+    {
+        return piece;
+    }
 
     @Override
     public void buttonRelease(Location button, MouseEvent event)

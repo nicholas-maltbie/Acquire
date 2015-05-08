@@ -63,9 +63,17 @@ public class ClientThread extends Thread
     {
         try {
             outputStream.writeObject(message);
-            outputStream.reset();
         } catch (IOException ex) {
             Logger.getLogger(AbstractServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void resetOutputStream()
+    {
+        try {
+            outputStream.reset();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -73,7 +73,10 @@ public class Corporation implements Serializable
      */
     public void setHeadquarters(Location loc)
     {
-        hq = new Hotel(loc, this);
+        if(loc != null)
+            hq = new Hotel(loc, this);
+        else
+            dissolve();
     }
     
     /**
@@ -104,11 +107,14 @@ public class Corporation implements Serializable
      */
     public void dissolve()
     {
-        for(Location l : gameBoard.getBlob(hq.getLocation().getRow(), hq.getLocation().getCol()))
+        if(hq != null)
         {
-            Hotel h = gameBoard.get(l.getRow(), l.getCol());
-            if(h.isIncorporated() && h.getOwner().equals(this))
-                h.removeOwner();
+            for(Location l : gameBoard.getBlob(hq.getLocation().getRow(), hq.getLocation().getCol()))
+            {
+                Hotel h = gameBoard.get(l.getRow(), l.getCol());
+                if(h.isIncorporated() && h.getOwner().equals(this))
+                    h.removeOwner();
+            }
         }
         hq = null;
     }

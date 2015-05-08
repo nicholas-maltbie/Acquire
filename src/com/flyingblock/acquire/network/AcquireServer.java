@@ -226,15 +226,12 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void sendGameUpdate(ClientThread client)
     {
-    	//System.out.println(boardUpdate.getMessage());
-        //client.sendObject(board.toString());
-        //client.sendObject(gamePlayers.toString());
-        //client.sendObject(companies.toString());
         client.sendData(EventType.createEvent(EventType.BOARD_UPDATE, board));
-        client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE, 
+        client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE,
                 gamePlayers.toArray(new Investor[gamePlayers.size()])));
         client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
                 companies.toArray(new Corporation[companies.size()])));
+        client.resetOutputStream();
     }
 
     @Override

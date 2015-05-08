@@ -27,6 +27,7 @@ import com.flyingblock.acquire.view.HotelView;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.Box;
@@ -115,6 +116,11 @@ public class AcquireClient implements ClientListener, PlayerListener,
     
     public void parseEvent(GameEvent event, EventType type)
     {
+        System.out.println(type);
+        if(event.getMessage() instanceof Object[])
+            System.out.println(Arrays.toString((Object[]) event.getMessage()));
+        else
+            System.out.println(event.getMessage());
         switch(type)
         {
             case BOARD_UPDATE:
@@ -146,25 +152,27 @@ public class AcquireClient implements ClientListener, PlayerListener,
                         }
                     }
                 }
+                for(int i = 0; i < player.getHandSize(); i++)
+                {
+                    if(player.getFromHand(i) != null && manager.isHoldingPiece() 
+                            && manager.getHeld().equals(player.getFromHand(i)))
+                    {
+                        player.removeFromHand(i);
+                    }
+                }
                 break;
             case CORPORATIONS_UPDATE:
                 Corporation[] corps = (Corporation[]) event.getMessage();
-                for(Corporation c : corps)
+                for(Corporation c : companies)
                 {
                     for(int i = 0; i < corps.length; i++)
                     {
                         if(c.getCorporateName().equals(corps[i].getCorporateName()))
                         {
                             c.setAvailableStocks(corps[i].getAvailableStocks());
-                            if(corps[i].getHeadquarters() != null)
-                            {
-                                c.setHeadquarters(corps[i].getHeadquarters());
+                            c.setHeadquarters(corps[i].getHeadquarters());
+                            if(c.isEstablished())
                                 c.incorporateRegoin();
-                            }
-                            if(c.isEstablished() && !corps[i].isEstablished())
-                            {
-                                //c.dissolve();
-                            }
                         }
                     }
                 }
@@ -284,6 +292,12 @@ public class AcquireClient implements ClientListener, PlayerListener,
     @Override
     public void buyingComplete(int[] stocksBought, Corporation[] companies) 
     {
-        
+        List<Stock> stocks = new ArrayList<>();
+        for(int company = 0; company < companies.length; company++)
+        {
+            for(int i = 0; i < stocksBought[company]; i++)
+                stocks.add(companies[company].getStock());
+        }
+        client.sendObject(EventType.createEvent(EventType.STOCKS_BOUGHT, stocks.toArray(new Stock[stocks.size()])));
     }
 }
