@@ -20,6 +20,7 @@ import java.util.HashSet;
  */
 public class Location implements Serializable
 {
+    public static final long serialVersionUID = 1L;
     /**The immutable coordinates of a location within the grid.*/
     private int row, col;
     

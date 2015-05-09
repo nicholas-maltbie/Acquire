@@ -151,8 +151,8 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     {
         for(NetInvestor netPlayer : humanPlayers)
         {
-            server.getClient(netPlayer.getSocket()).resetStream();
             sendGameUpdate(server.getClient(netPlayer.getSocket()));
+            server.getClient(netPlayer.getSocket()).flushStream();
         }
     }
     
@@ -229,11 +229,15 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void sendGameUpdate(ClientThread client)
     {
-        client.sendData(EventType.createEvent(EventType.BOARD_UPDATE, board));
-        client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE,
-                gamePlayers.toArray(new Investor[gamePlayers.size()])));
-        client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
-                companies.toArray(new Corporation[companies.size()])));
+        client.sendData(EventType.createEvent(EventType.BOARD_UPDATE, board.copy()));
+        Investor[] players = new Investor[gamePlayers.size()];
+        for(int i = 0; i < gamePlayers.size(); i++)
+            players[i] = new Investor(gamePlayers.get(i));
+        client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE, players));
+        Corporation[] corps = new Corporation[companies.size()];
+        for(int i = 0; i < companies.size(); i++)
+            corps[i] = new Corporation(companies.get(i));
+        client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE, corps));
     }
 
     @Override

@@ -17,6 +17,7 @@ import java.io.Serializable;
  */
 public class Product implements Serializable
 {
+    public static final long serialVersionUID = 1L;
     /**Corporation that currently owns rights to the product.*/
     private Corporation supplier; 
     

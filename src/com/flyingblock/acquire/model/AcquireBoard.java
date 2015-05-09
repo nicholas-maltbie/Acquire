@@ -20,6 +20,8 @@ import java.util.List;
  */
 public class AcquireBoard extends Board<Hotel> implements Serializable
 {
+    public static final long serialVersionUID = 1L;
+    
     /**
      * Constructs a game board of the specified dimensions.
      * @param rows Number of rows that the grid will have.
@@ -169,7 +171,8 @@ public class AcquireBoard extends Board<Hotel> implements Serializable
         AcquireBoard board = new AcquireBoard(getNumRows(), getNumCols());
         for(int r = 0; r < getNumRows(); r++)
             for(int c = 0; c < getNumCols(); c++)
-                board.set(r, c, get(r,c));
+                if(!isEmpty(r, c))
+                    board.set(r, c, new Hotel(get(r,c).getLocation(), get(r,c).getOwner()));
         return board;
     }
 }

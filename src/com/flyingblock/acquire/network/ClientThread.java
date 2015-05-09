@@ -76,6 +76,15 @@ public class ClientThread extends Thread
             Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void flushStream()
+    {
+        try {
+            outputStream.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     /**
      * Stops listening and sending messages to the client and then closes the 
@@ -98,11 +107,11 @@ public class ClientThread extends Thread
     @Override
     public void run()
     {
-        Object input;
         while(run)
         {
             try {
-                if((input = inputStream.readObject()) != null)
+                Object input = this.inputStream.readObject();
+                if(input != null)
                 {
                     server.objectRecieved(client, input);
                 }

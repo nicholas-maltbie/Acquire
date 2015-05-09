@@ -16,6 +16,8 @@ public enum MarketValue implements Serializable
     MEDIUM,
     HIGH;
     
+    public static final long serialVersionUID = 1L;
+    
     /**
      * Based on the company's level, this will return the majority
      * shareholder bonus.

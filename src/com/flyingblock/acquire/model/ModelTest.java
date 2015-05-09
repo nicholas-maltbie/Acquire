@@ -18,6 +18,7 @@ import java.io.Serializable;
  */
 public class ModelTest implements Serializable
 {
+    public static final long serialVersionUID = 1L;
     public static void main(String[] args)
     {
         AcquireBoard board = new AcquireBoard();

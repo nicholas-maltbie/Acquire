@@ -55,7 +55,8 @@ public class AcquireClient implements ClientListener, PlayerListener,
     private Investor player;
     /**Manages board actions*/
     private PieceManager manager;
-    
+    /**GUI for buying stocks*/
+    private BuyStockPanel panel;
     /**
      * Creates an acquire client from a client that is already connected to a server
      * @param client Client that is connected to the server.
@@ -134,7 +135,7 @@ public class AcquireClient implements ClientListener, PlayerListener,
             case PLAYERS_UPDATE:
                 Investor[] playerUpdate = (Investor[]) event.getMessage();
                 List<Investor> investors = new ArrayList<>(this.investors);
-                investors.add(this.player);
+                investors.add(player);
                 for(Investor player : playerUpdate)
                 {
                     for(int i = 0; i < investors.size(); i++)
@@ -144,7 +145,7 @@ public class AcquireClient implements ClientListener, PlayerListener,
                             Investor edit = investors.get(i);
                             edit.addMoney(player.getMoney() - edit.getMoney());
                             edit.clearStocks();
-                            edit.addStocks(edit.getStocks());
+                            edit.addStocks(player.getStocks());
                             for(int j = 0; j < edit.getHandSize(); j++)
                             {
                                 edit.setInHand(j, player.getFromHand(j));
@@ -195,9 +196,10 @@ public class AcquireClient implements ClientListener, PlayerListener,
                     if(e.getStockPrice() < lowestPrice)
                         lowestPrice = e.getStockPrice();
                 boolean canBuy = player.getMoney() >= lowestPrice && !established.isEmpty();
+                sendStocks = true;
                 if(canBuy)
                 {
-                    BuyStockPanel panel = new BuyStockPanel(companies.toArray(new Corporation[companies.size()]),
+                    panel = new BuyStockPanel(companies.toArray(new Corporation[companies.size()]),
                         player, 3, "TIMES NEW ROMAN", "TIMES NEW ROMAN", Color.BLACK);
                     panel.addListener(this);
                     panel.setupAndDisplayGUI();
@@ -290,16 +292,22 @@ public class AcquireClient implements ClientListener, PlayerListener,
         view.update();
     }
 
+    private boolean sendStocks = false;
+    
     @Override
     public void buyingComplete(int[] stocksBought, Corporation[] companies) 
     {
-        //System.out.println("BUYING STUFF: " + stocksBought + " " + companies);
-        List<Stock> stocks = new ArrayList<>();
-        for(int company = 0; company < companies.length; company++)
+        if(sendStocks)
         {
-            for(int i = 0; i < stocksBought[company]; i++)
-                stocks.add(companies[company].getStock());
+            sendStocks = false;
+            //System.out.println("BUYING STUFF: " + stocksBought + " " + companies);
+            List<Stock> stocks = new ArrayList<>();
+            for(int company = 0; company < companies.length; company++)
+            {
+                for(int i = 0; i < stocksBought[company]; i++)
+                    stocks.add(companies[company].getStock());
+            }
+            client.sendObject(EventType.createEvent(EventType.STOCKS_BOUGHT, stocks.toArray(new Stock[stocks.size()])));
         }
-        client.sendObject(EventType.createEvent(EventType.STOCKS_BOUGHT, stocks.toArray(new Stock[stocks.size()])));
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
  */
 public class Investor implements Serializable
 {
+    public static final long serialVersionUID = 1L;
     /**
      * Name of the investor.
      */
@@ -60,6 +61,19 @@ public class Investor implements Serializable
         money = startingMoney;
         hand = new Hotel[handSize];
         stocks = new ArrayList<>();
+    }
+    
+    /**
+     * Copy constructor
+     * @param other Investor to copy
+     */
+    public Investor(Investor other)
+    {
+        this.name = other.name;
+        this.money = other.money;
+        this.stocks = new ArrayList<>(other.stocks);
+        this.color = other.color;
+        this.hand = Arrays.copyOf(other.hand, other.getHandSize());
     }
     
     /**
@@ -271,7 +285,7 @@ public class Investor implements Serializable
      */
     public void addStocks(List<Stock> stocks)
     {
-        stocks.addAll(stocks);
+        this.stocks.addAll(stocks);
     }
     
     /**

@@ -19,6 +19,7 @@ import java.util.Objects;
  */
 public class Stock extends Product implements Serializable
 {
+    public static final long serialVersionUID = 1L;
     /**
      * The Market value for a stock. This is from a game element to give certain
      * stocks a higher starting value. Trade in values for stocks can be 

@@ -56,8 +56,8 @@ public abstract class AbstractClient extends Thread
         while(running && isConnected())
         {
             try {
-                Object message = null;
-                if((message = input.readObject()) != null)
+                Object message = input.readObject();
+                if(message != null)
                 {
                     objectRecieved(message);
                 }

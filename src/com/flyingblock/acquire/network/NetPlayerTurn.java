@@ -87,7 +87,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 break;
         }
     }
-
+    
     @Override
     protected void stateEnded(TurnState state)
     {
@@ -115,15 +115,18 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
             switch(type)
             {
                 case STOCKS_BOUGHT:
-                    Stock[] bought = (Stock[]) event.getMessage();
-                    for(Stock stock : bought)
+                    if(this.getState() == TurnState.BUY_STOCKS)
                     {
-                        Stock taken = stock.getOwner().getStock();
-                        player.getPlayer().addStock(taken);
-                        player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
+                        Stock[] bought = (Stock[]) event.getMessage();
+                        for(Stock stock : bought)
+                        {
+                            Stock taken = stock.getOwner().getStock();
+                            player.getPlayer().addStock(taken);
+                            player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
+                        }
+                        player.getPlayer().drawFromDeck(deck);
+                        server.turnEnded(player.getPlayer());
                     }
-                    player.getPlayer().drawFromDeck(deck);
-                    server.turnEnded(player.getPlayer());
                     break;
                 case CORPORATION_CREATED:
                     //System.out.println("TRIED TO CREATE COROPRATION");
@@ -142,7 +145,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                 if(temp.getAvailableStocks() > 0)
                                     player.getPlayer().addStock(temp.getStock());
                                 server.updateAllClients();
-                                this.setState(TurnState.BUY_STOCKS);
+                                setState(TurnState.BUY_STOCKS);
                                 return;
                             }
                         }
@@ -161,67 +164,71 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     }
                     break;
                 case PIECE_PLAYED:
-                    Hotel hotel = (Hotel) event.getMessage();
-                    boolean validPlay = true;
-                    //check if valid
-                    if(validPlay)
+                    if(this.getState() == TurnState.PLACE_PIECE)
                     {
-                        System.out.println("PIECE WAS PLAYED");
-                        for(int i = 0; i < player.getPlayer().getHandSize(); i++)
+                        Hotel hotel = (Hotel) event.getMessage();
+                        boolean validPlay = true;
+                        //check if valid
+                        if(validPlay)
                         {
-                            if(player.getPlayer().getFromHand(i) != null && 
-                                    player.getPlayer().getFromHand(i).equals(hotel))
+                            //System.out.println("PIECE WAS PLAYED");
+                            for(int i = 0; i < player.getPlayer().getHandSize(); i++)
                             {
-                                player.getPlayer().removeFromHand(i);
+                                if(player.getPlayer().getFromHand(i) != null && 
+                                        player.getPlayer().getFromHand(i).equals(hotel))
+                                {
+                                    player.getPlayer().removeFromHand(i);
+                                }
                             }
-                        }
-                        board.set(hotel.getLocation().getRow(), 
-                                hotel.getLocation().getCol(), hotel);
-                        server.updateAllClients();
-                        Location loc = hotel.getLocation();
-                        //choose next state
-                        List<Corporation> accessories = board.getCorporationsInBlob(
-                                loc.getRow(), loc.getCol());
+                            board.set(hotel.getLocation().getRow(), 
+                                    hotel.getLocation().getCol(), hotel);
+                            server.updateAllClients();
+                            Location loc = hotel.getLocation();
+                            //choose next state
+                            List<Corporation> accessories = board.getCorporationsInBlob(
+                                    loc.getRow(), loc.getCol());
 
-                        final TurnState nextState;
+                            final TurnState nextState;
 
-                        //Choose if a merger happens.
-                        boolean merger = accessories.size() > 1;
-                        for(Corporation c : accessories)
-                        {
-                            if(c.getNumberOfHotels() < AcquireRules.SAFE_CORPORATION_SIZE)
+                            //Choose if a merger happens.
+                            boolean merger = accessories.size() > 1;
+                            for(Corporation c : accessories)
                             {
-                                merger = false;
+                                if(c.getNumberOfHotels() < AcquireRules.SAFE_CORPORATION_SIZE)
+                                {
+                                    merger = false;
+                                }
                             }
+                            List<Corporation> taken = board.getCompaniesOnBoard();
+                            List<Corporation> available = new ArrayList<>();
+                            for(Corporation c : companies)
+                                if(!taken.contains(c))
+                                    available.add(c);
+                            //Chose if a new company is formed.
+                            List<Location> blob = board.getBlob(loc.getRow(), loc.getCol());
+                            boolean formCompany = available.size() > 0 && blob.size() >= 2;
+                            for(Location l : blob)
+                                if(board.getCorporation(l.getRow(), l.getCol()) != null)
+                                    formCompany = false;
+                            if(merger)
+                                nextState = TurnState.MERGER;
+                            else if(formCompany)
+                                nextState = TurnState.CREATE_COMPANY;
+                            else
+                                nextState = TurnState.BUY_STOCKS;
+                            locOfInterest = hotel.getLocation();
+                            if(this.getState() == TurnState.PLACE_PIECE)
+                                setState(nextState);
                         }
-                        List<Corporation> taken = board.getCompaniesOnBoard();
-                        List<Corporation> available = new ArrayList<>();
-                        for(Corporation c : companies)
-                            if(!taken.contains(c))
-                                available.add(c);
-                        //Chose if a new company is formed.
-                        List<Location> blob = board.getBlob(loc.getRow(), loc.getCol());
-                        boolean formCompany = available.size() > 0 && blob.size() >= 2;
-                        for(Location l : blob)
-                            if(board.getCorporation(l.getRow(), l.getCol()) != null)
-                                formCompany = false;
-                        if(merger)
-                            nextState = TurnState.MERGER;
-                        else if(formCompany)
-                            nextState = TurnState.CREATE_COMPANY;
                         else
-                            nextState = TurnState.BUY_STOCKS;
-                        locOfInterest = hotel.getLocation();
-                        setState(nextState);
-                    }
-                    else
-                    {
-                        //resend request
-                        Hotel[] hand = new Hotel[player.getPlayer().getHandSize()];
-                        for(int i = 0; i < hand.length; i++)
-                            hand[i] = player.getPlayer().getFromHand(i);
-                        GameEvent piecePrompt = EventType.createEvent(EventType.PLAY_PIECE, hand);
-                        player.sendMessage(piecePrompt);
+                        {
+                            //resend request
+                            Hotel[] hand = new Hotel[player.getPlayer().getHandSize()];
+                            for(int i = 0; i < hand.length; i++)
+                                hand[i] = player.getPlayer().getFromHand(i);
+                            GameEvent piecePrompt = EventType.createEvent(EventType.PLAY_PIECE, hand);
+                            player.sendMessage(piecePrompt);
+                        }
                     }
                     break;
             }

@@ -56,7 +56,7 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
     public NetComputerTurn(Decider decider, AcquireServer machine,
             HotelMarket deck)
     {
-        super(stateMap, ComputerState.PLAY_PIECE);
+        super(stateMap, ComputerState.COMPUTER_PLAY_PIECE);
         this.decider = decider;
         this.acquireServer = machine;
         this.deck = deck;
@@ -67,7 +67,7 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
     {
         switch(state)
         {
-            case BUY_STOCKS:
+            case COMPUTER_BUY_STOCKS:
                 for(Corporation c : decider.getBoard().getCompaniesOnBoard())
                     c.incorporateRegoin();
                 for(int i = 0; i < decider.getPlayer().getHandSize(); i++)
@@ -77,7 +77,7 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
                 decider.getPlayer().drawFromDeck(deck);
                 acquireServer.turnEnded(decider.getPlayer());
                 break;
-            case MERGER:
+            case COMPUTER_MERGER:
                 List<Corporation> suspects = new ArrayList<>();
                 for(Location l : decider.getBoard().getBlob(loc.getRow(), loc.getCol()))
                     if(decider.getBoard().isIncorporated(l.getRow(), l.getCol()) && 
@@ -105,12 +105,12 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
                 suspects.remove(parent);
                 acquireServer.handelMerger(parent, suspects);
                 break;
-            case PLAY_PIECE:
+            case COMPUTER_PLAY_PIECE:
                 
                 Investor investor = decider.getPlayer();
                 Hotel play = decider.getPlayOption();
                 for(int i = 0; i < investor.getHandSize(); i++)
-                    if(investor.getFromHand(i).equals(play))
+                    if(investor.getFromHand(i) != null && investor.getFromHand(i).equals(play))
                         investor.removeFromHand(i);
                 
                 loc = play.getLocation();
@@ -136,9 +136,9 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
                     if(decider.getBoard().getCorporation(l.getRow(), l.getCol()) != null)
                         formCompany = false;
                 if(merger)
-                    nextState = ComputerState.MERGER;
+                    nextState = ComputerState.COMPUTER_MERGER;
                 else
-                    nextState = ComputerState.BUY_STOCKS;
+                    nextState = ComputerState.COMPUTER_BUY_STOCKS;
                 
                 if(formCompany && !merger)
                 {
@@ -182,7 +182,7 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
             new java.util.TimerTask() {
                 @Override
                 public void run() {
-                    setState(ComputerState.BUY_STOCKS);
+                    setState(ComputerState.COMPUTER_BUY_STOCKS);
                 }
             }, 0);
     }
@@ -194,7 +194,7 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
     
     
     
-    public static enum ComputerState {PLAY_PIECE, MERGER, BUY_STOCKS};
+    public static enum ComputerState {COMPUTER_PLAY_PIECE, COMPUTER_MERGER, COMPUTER_BUY_STOCKS};
     /**
      * State map for the turn states.
      */
@@ -204,9 +204,9 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
      */
     static {
         stateMap = new HashMap<>();
-        stateMap.put(ComputerState.PLAY_PIECE, EnumSet.of(ComputerState.MERGER, 
-                ComputerState.BUY_STOCKS));
-        stateMap.put(ComputerState.MERGER, EnumSet.of(ComputerState.BUY_STOCKS));
-        stateMap.put(ComputerState.BUY_STOCKS, EnumSet.noneOf(ComputerState.class));
+        stateMap.put(ComputerState.COMPUTER_PLAY_PIECE, EnumSet.of(ComputerState.COMPUTER_MERGER, 
+                ComputerState.COMPUTER_BUY_STOCKS));
+        stateMap.put(ComputerState.COMPUTER_MERGER, EnumSet.of(ComputerState.COMPUTER_BUY_STOCKS));
+        stateMap.put(ComputerState.COMPUTER_BUY_STOCKS, EnumSet.noneOf(ComputerState.class));
     }
 }

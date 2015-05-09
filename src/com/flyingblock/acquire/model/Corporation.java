@@ -11,6 +11,7 @@ import java.util.Objects;
  */
 public class Corporation implements Serializable
 {
+    public static final long serialVersionUID = 1L;
     /**
      * Name of the corporation.
      */
@@ -54,6 +55,20 @@ public class Corporation implements Serializable
         this.value = value;
         this.color = color;
         this.numStocks = maxStocks;
+    }
+    
+    /**
+     * Copy constructor.
+     * @param other Corporation to copy. 
+     */
+    public Corporation(Corporation other)
+    {
+        this.corporateName = other.getCorporateName();
+        this.gameBoard = other.gameBoard;
+        this.value = other.value;
+        this.color = other.color;
+        this.numStocks = other.numStocks;
+        this.hq = other.hq;
     }
     
     /**
