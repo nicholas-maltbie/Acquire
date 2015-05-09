@@ -256,8 +256,7 @@ public class Corporation implements Serializable
         if(other instanceof Corporation)
         {
             Corporation c = (Corporation) other;
-            return c.corporateName.equals(corporateName) &&
-                    c.value.equals(value) && c.gameBoard.equals(gameBoard);
+            return c.corporateName.equals(corporateName) && c.value.equals(value);
         }
         return false;
     }

@@ -150,7 +150,10 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     public void updateAllClients()
     {
         for(NetInvestor netPlayer : humanPlayers)
+        {
+            server.getClient(netPlayer.getSocket()).resetStream();
             sendGameUpdate(server.getClient(netPlayer.getSocket()));
+        }
     }
     
     /**
@@ -231,7 +234,6 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 gamePlayers.toArray(new Investor[gamePlayers.size()])));
         client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE,
                 companies.toArray(new Corporation[companies.size()])));
-        client.resetOutputStream();
     }
 
     @Override
@@ -511,15 +513,13 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void turnEnded(Investor player)
     {
-        //System.out.println(board);        
-        //updateAllClients();
+        updateAllClients();
         
         try {
-            Thread.sleep(3000l);
+            Thread.sleep(100l);
         } catch (InterruptedException ex) {
             Logger.getLogger(AcquireServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
         //server.removeListener(humanTurn);
         //System.out.println(board);
         //Decide if game is over

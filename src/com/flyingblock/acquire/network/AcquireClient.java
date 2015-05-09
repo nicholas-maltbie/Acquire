@@ -116,11 +116,11 @@ public class AcquireClient implements ClientListener, PlayerListener,
     
     public void parseEvent(GameEvent event, EventType type)
     {
-        System.out.println(type);
+        /*System.out.println(type);
         if(event.getMessage() instanceof Object[])
             System.out.println(Arrays.toString((Object[]) event.getMessage()));
         else
-            System.out.println(event.getMessage());
+            System.out.println(event.getMessage());*/
         switch(type)
         {
             case BOARD_UPDATE:
@@ -160,6 +160,7 @@ public class AcquireClient implements ClientListener, PlayerListener,
                         player.removeFromHand(i);
                     }
                 }
+                //System.out.println(player.getStocks());
                 break;
             case CORPORATIONS_UPDATE:
                 Corporation[] corps = (Corporation[]) event.getMessage();
@@ -292,6 +293,7 @@ public class AcquireClient implements ClientListener, PlayerListener,
     @Override
     public void buyingComplete(int[] stocksBought, Corporation[] companies) 
     {
+        //System.out.println("BUYING STUFF: " + stocksBought + " " + companies);
         List<Stock> stocks = new ArrayList<>();
         for(int company = 0; company < companies.length; company++)
         {

@@ -65,7 +65,6 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
     @Override
     protected void stateStarted(ComputerState state)
     {
-        acquireServer.updateAllClients();
         switch(state)
         {
             case BUY_STOCKS:

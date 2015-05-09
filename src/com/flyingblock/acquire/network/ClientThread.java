@@ -68,7 +68,7 @@ public class ClientThread extends Thread
         }
     }
     
-    public void resetOutputStream()
+    public void resetStream()
     {
         try {
             outputStream.reset();

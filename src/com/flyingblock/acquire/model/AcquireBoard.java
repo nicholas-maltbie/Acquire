@@ -128,9 +128,12 @@ public class AcquireBoard extends Board<Hotel> implements Serializable
         List<Corporation> companies = new ArrayList<>();
         for(Location loc: getBlob(row, col))
         {
-            Corporation owner = get(loc.getRow(), loc.getCol()).getOwner();
-            if(owner != null && !companies.contains(owner))
-                companies.add(owner);
+            if(!isEmpty(loc.getRow(), loc.getCol()))
+            {
+                Corporation owner = get(loc.getRow(), loc.getCol()).getOwner();
+                if(owner != null && !companies.contains(owner))
+                    companies.add(owner);
+            }
         }
         return companies;
     }

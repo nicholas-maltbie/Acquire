@@ -107,11 +107,11 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
         {
             GameEvent event = (GameEvent) message;
             EventType type = EventType.identifyEvent(event);
-            System.out.println(type);
+            /*System.out.println(type);
             if(event.getMessage() instanceof Object[])
                 System.out.println(Arrays.toString((Object[]) event.getMessage()));
             else
-                System.out.println(event.getMessage());
+                System.out.println(event.getMessage());*/
             switch(type)
             {
                 case STOCKS_BOUGHT:
@@ -120,12 +120,13 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     {
                         Stock taken = stock.getOwner().getStock();
                         player.getPlayer().addStock(taken);
+                        player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
                     }
                     player.getPlayer().drawFromDeck(deck);
                     server.turnEnded(player.getPlayer());
-                    server.updateAllClients();
                     break;
                 case CORPORATION_CREATED:
+                    //System.out.println("TRIED TO CREATE COROPRATION");
                     Corporation created = (Corporation) event.getMessage();
                     boolean validCorporation = true;
                     //check stuff
@@ -137,6 +138,9 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                             if(created.getCorporateName().equals(temp.getCorporateName()))
                             {
                                 temp.setHeadquarters(locOfInterest);
+                                temp.incorporateRegoin();
+                                if(temp.getAvailableStocks() > 0)
+                                    player.getPlayer().addStock(temp.getStock());
                                 server.updateAllClients();
                                 this.setState(TurnState.BUY_STOCKS);
                                 return;
@@ -162,6 +166,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     //check if valid
                     if(validPlay)
                     {
+                        System.out.println("PIECE WAS PLAYED");
                         for(int i = 0; i < player.getPlayer().getHandSize(); i++)
                         {
                             if(player.getPlayer().getFromHand(i) != null && 
