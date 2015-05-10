@@ -88,7 +88,7 @@ public class Game implements Serializable
      */
     private static final Color[] DEFAULT_COLORS = {new Color(76,0,153),
             new Color(204,102,0), new Color(76,153,0), new Color(204,204,0),
-            new Color(0,76,153), new Color(204,0,0), new Color(51,25,0)};
+            new Color(0,76,153), new Color(204,0,0), new Color(220,176,119)};
     /**
      * Default company starting stock values.
      */
