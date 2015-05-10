@@ -34,6 +34,7 @@ public enum EventType
     
     NAME_GIVEN(String.class),
     GAME_START(Object[].class), //in format {Investor[], AcquireBoard, Corporation[]}
+    GAME_END(Investor[].class),
     
     //information sent to the server
     CHAT_SEND(String.class),
@@ -48,7 +49,7 @@ public enum EventType
     //prompts sent to clients to get information
     PLAY_PIECE(Hotel[].class),
     BUY_STOCKS(Corporation[].class),
-    SELL_STOCKS(Stock[].class),
+    //SELL_STOCKS(Stock[].class) uhhh, I don't remember why this event is here...
     TAKE_MERGER(Corporation[].class), //in format {parent, child}
     CREATE_CORPORATION(Corporation[].class),
     CHOOSE_WINNER(Corporation[].class),

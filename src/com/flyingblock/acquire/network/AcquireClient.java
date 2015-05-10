@@ -13,6 +13,8 @@ import com.flyingblock.acquire.controller.AcquireRules;
 import com.flyingblock.acquire.controller.BuyStockPanel;
 import com.flyingblock.acquire.controller.BuyStockPanelListener;
 import com.flyingblock.acquire.controller.HumanPlayerFSM;
+import com.flyingblock.acquire.controller.MergerPanel;
+import com.flyingblock.acquire.controller.MergerPanelListener;
 import com.flyingblock.acquire.controller.PieceManager;
 import com.flyingblock.acquire.controller.PlayerListener;
 import com.flyingblock.acquire.model.AcquireBoard;
@@ -26,6 +28,7 @@ import com.flyingblock.acquire.view.GameView;
 import com.flyingblock.acquire.view.HotelView;
 
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +42,7 @@ import javax.swing.JOptionPane;
  * @author Nicholas Maltbie
  */
 public class AcquireClient implements ClientListener, PlayerListener,
-        BuyStockPanelListener
+        BuyStockPanelListener, MergerPanelListener
 {
     /**Connection to the server*/
     private Client client;
@@ -209,50 +212,104 @@ public class AcquireClient implements ClientListener, PlayerListener,
                     this.buyingComplete(new int[0], new Corporation[0]);
                 }
                 break;
-            case SELL_STOCKS:
-                
-                break;
             case TAKE_MERGER:
-                
+                action = true;
+                Corporation[] involved = (Corporation[]) event.getMessage();
+                Corporation parent = involved[0];
+                Corporation child = involved[1];
+                MergerPanel panel = new MergerPanel(parent, child, player, Color.BLACK,
+                        Color.WHITE);
+                panel.setupAndDisplayGUI(new Rectangle(100,100,700,700));
+                panel.addListener(this);
                 break;
             case CREATE_CORPORATION:
-                Corporation[] opts = (Corporation[]) event.getMessage();
-                String[] names = new String[opts.length];
-                for(int i = 0; i < opts.length; i++)
-                    names[i] = opts[i].getCorporateName();
-                JFrame compnayChoicePane = new JFrame();
-                String chosen = null;
-                do {
-                    chosen = (String)JOptionPane.showInputDialog(
-                                        compnayChoicePane,
-                                        "Choose which corporation you wish to create",
-                                        "Create Corporation",
-                                        JOptionPane.QUESTION_MESSAGE,
-                                        null,
-                                        names,
-                                        names[0]);
-                } while(chosen == null);
-                Corporation chosenCompany = null;
-                for(int i = 0; i < opts.length; i++)
-                    if(chosen.equals(opts[i].getCorporateName()))
-                        chosenCompany = opts[i];
-                client.sendObject(EventType.createEvent(EventType.CORPORATION_CREATED, chosenCompany));
+                {
+                    Corporation[] opts = (Corporation[]) event.getMessage();
+                    String[] names = new String[opts.length];
+                    for(int i = 0; i < opts.length; i++)
+                        names[i] = opts[i].getCorporateName();
+                    JFrame compnayChoicePane = new JFrame();
+                    String chosen = null;
+                    do {
+                        chosen = (String)JOptionPane.showInputDialog(
+                                            compnayChoicePane,
+                                            "Choose which corporation you wish to create",
+                                            "Create Corporation",
+                                            JOptionPane.QUESTION_MESSAGE,
+                                            null,
+                                            names,
+                                            names[0]);
+                    } while(chosen == null);
+                    Corporation chosenCompany = null;
+                    for(int i = 0; i < opts.length; i++)
+                        if(chosen.equals(opts[i].getCorporateName()))
+                            chosenCompany = opts[i];
+                    client.sendObject(EventType.createEvent(EventType.CORPORATION_CREATED, chosenCompany));
+                }
                 break;
             case CHOOSE_WINNER:
-                
+                {
+                    Corporation[] opts = (Corporation[]) event.getMessage();
+                    String[] names = new String[opts.length];
+                    for(int i = 0; i < opts.length; i++)
+                        names[i] = opts[i].getCorporateName();
+                    JFrame compnayChoicePane = new JFrame();
+                    String chosen = null;
+                    do {
+                        chosen = (String)JOptionPane.showInputDialog(
+                                            compnayChoicePane,
+                                            "Choose which corporation you want to win the merger",
+                                            "Choose Merger Winer",
+                                            JOptionPane.QUESTION_MESSAGE,
+                                            null,
+                                            names,
+                                            names[0]);
+                    } while(chosen == null);
+                    Corporation chosenCompany = null;
+                    for(int i = 0; i < opts.length; i++)
+                        if(chosen.equals(opts[i].getCorporateName()))
+                            chosenCompany = opts[i];
+                    client.sendObject(EventType.createEvent(EventType.MERGER_WINNER, chosenCompany));
+                }
                 break;
             case CHOOSE_FIRST:
-                
-                break;
-            case INVALID_RESPONSE:
-                
+                {
+                    List<Corporation> options = new ArrayList<>(Arrays.asList((Corporation[]) event.getMessage()));
+                    String[] names = new String[options.size()];
+                    for(int i = 0; i < options.size(); i++)
+                        names[i] = options.get(i).getCorporateName();
+                    JFrame compnayChoicePane = new JFrame();
+                    String chosen = null;
+                    do {
+                        chosen = (String)JOptionPane.showInputDialog(
+                                            compnayChoicePane,
+                                            "Choose corporation to be eaten first",
+                                            "Merger Choice",
+                                            JOptionPane.QUESTION_MESSAGE,
+                                            null,
+                                            names,
+                                            names[0]);
+                    } while(chosen == null);
+                    Corporation chosenCompany = null;
+                    for(int i = 0; i < options.size(); i++)
+                        if(chosen.equals(options.get(i).getCorporateName()))
+                            chosenCompany = options.get(i);
+                    client.sendObject(EventType.createEvent(EventType.MERGED_FIRST, chosenCompany));
+                }
                 break;
             case PLAY_PIECE:
                 manager.allowBoardPlacement();
                 //System.out.println(player.getName());
                 break;
-            default:
-                
+            case GAME_END:
+                Investor[] allPlayers = (Investor[]) event.getMessage();
+                String endMessage = "";
+                for(int i = 0; i < allPlayers.length; i++)
+                    endMessage += (i+1) + ". " + allPlayers[i].getName() + " $" + allPlayers[i].getMoney() +"\n";
+                JFrame frame = new JFrame();
+                JOptionPane.showMessageDialog(frame, endMessage,
+                        allPlayers[0].getName() + "wins",
+                        JOptionPane.INFORMATION_MESSAGE);
                 break;
         }
         view.update();
@@ -308,6 +365,18 @@ public class AcquireClient implements ClientListener, PlayerListener,
                     stocks.add(companies[company].getStock());
             }
             client.sendObject(EventType.createEvent(EventType.STOCKS_BOUGHT, stocks.toArray(new Stock[stocks.size()])));
+        }
+    }
+    
+    private boolean action = false;
+
+    @Override
+    public void finished(Corporation parent, Corporation child, int kept, int sold, int traded) 
+    {
+        if(action)
+        {
+            action = false;
+            client.sendObject(EventType.createEvent(EventType.MERGER_ACTION, new int[]{sold, traded}));
         }
     }
 }

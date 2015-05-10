@@ -53,40 +53,40 @@ public class Server extends AbstractServer
     @Override
     public void objectRecieved(Socket client, Object message)
     {
-        synchronized(listeners)
+        for(int i = 0; i < listeners.size(); i++)
         {
-            for(ServerListener listener : listeners)
-                listener.objectRecieved(client, message);
+            ServerListener listener = listeners.get(i);
+            listener.objectRecieved(client, message);
         }
     }
 
     @Override
     public void joinedNetwork(Socket client) 
     {
-        synchronized(listeners)
+        for(int i = 0; i < listeners.size(); i++)
         {
-            for(ServerListener listener : listeners)
-                listener.joinedNetwork(client);
+            ServerListener listener = listeners.get(i);
+            listener.joinedNetwork(client);
         }
     }
 
     @Override
     public void disconnectedFromNetwork(Socket client) 
     {
-        synchronized(listeners)
+        for(int i = 0; i < listeners.size(); i++)
         {
-            for(ServerListener listener : listeners)
-                listener.disconnectedFromNetwork(client);
+            ServerListener listener = listeners.get(i);
+            listener.disconnectedFromNetwork(client);
         }
     }
 
     @Override
     public void connectionRejected(Socket client) 
     {
-        synchronized(listeners)
+        for(int i = 0; i < listeners.size(); i++)
         {
-            for(ServerListener listener : listeners)
-                listener.connectionRejected(client);
+            ServerListener listener = listeners.get(i);
+            listener.connectionRejected(client);
         }
     }
     

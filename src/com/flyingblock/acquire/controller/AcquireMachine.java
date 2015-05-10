@@ -487,7 +487,7 @@ public class AcquireMachine extends AbstractFSM<GameState> implements MergerPane
             view.update();
             view.repaint();
             MergerPanel panel = new MergerPanel(parent, child, shareholder, Color.BLACK,
-            Color.WHITE);
+                    Color.WHITE);
             panel.setupAndDisplayGUI(new Rectangle(100,100,700,700));
             panel.addListener(this);
         }

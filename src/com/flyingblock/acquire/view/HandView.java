@@ -120,7 +120,7 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
      */
     public void update()
     {        
-        for(Component c : this.getComponents())
+        for(Component c : hotels)
             this.remove(c);
         
         for(int i = 0; i < player.getHandSize(); i++)

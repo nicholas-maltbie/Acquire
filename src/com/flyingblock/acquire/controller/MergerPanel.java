@@ -215,6 +215,7 @@ public class MergerPanel extends JPanel implements ActionListener
     {
         frame = new JFrame();
         frame.setVisible(true);
+        frame.setTitle(parent.getCorporateName() + " Is Consuming " + child.getCorporateName());
         frame.setBounds(bounds);
         frame.setResizable(true);
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);

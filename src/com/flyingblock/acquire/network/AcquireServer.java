@@ -12,6 +12,7 @@ package com.flyingblock.acquire.network;
 import com.flyingblock.acquire.computer.Decider;
 import com.flyingblock.acquire.controller.AbstractFSM;
 import com.flyingblock.acquire.controller.AcquireRules;
+import com.flyingblock.acquire.controller.InvestorComparator;
 import com.flyingblock.acquire.controller.MergerPanel;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Board;
@@ -24,6 +25,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -129,6 +131,24 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                     humanTurn.start();
                 }
                 
+                break;
+            case GAME_END:
+                //Hand out majority and minority bonuses
+                for(Corporation c : companies)
+                    handOutMajorityAndMinorityBonuses(c);
+                //cash in player stocks
+                for(Investor p : gamePlayers)
+                    while(p.getNumStocks() > 0)
+                        p.addMoney(p.removeStock(0).getTradeInValue());
+                //organize players by money.
+                List<Investor> allPlayers = new ArrayList<>(gamePlayers);
+                allPlayers.sort(new InvestorComparator());
+                updateAllClients();
+                for(NetInvestor player : humanPlayers)
+                {
+                    player.sendMessage(EventType.createEvent(EventType.GAME_END, 
+                            allPlayers.toArray(new Investor[allPlayers.size()])));
+                }
                 break;
         }
     }
@@ -243,20 +263,17 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     @Override
     public void objectRecieved(Socket client, Object message)
     {
-        if(clientOfInterest != null && clientOfInterest.equals(client))
+        if(message instanceof GameEvent)
         {
-            if(message instanceof GameEvent)
+            GameEvent event = (GameEvent) message;
+            switch(EventType.identifyEvent(event))
             {
-                GameEvent event = (GameEvent) message;
-                switch(EventType.identifyEvent(event))
-                {
-                    case MERGED_FIRST:
-                        mergerWinner = (Corporation) event.getMessage();
-                        break;
-                    case MERGER_ACTION:
-                        mergerAction = (int[]) event.getMessage();
-                        break;
-                }
+                case MERGED_FIRST:
+                    mergerWinner = (Corporation) event.getMessage();
+                    break;
+                case MERGER_ACTION:
+                    mergerAction = (int[]) event.getMessage();
+                    break;
             }
         }
     }
@@ -290,8 +307,6 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     private Corporation mergerWinner;
     /**Holding variable to wait for a player to send his or her merger requests*/
     private int[] mergerAction;
-    /**Client that the server wants to get a message from*/
-    private Socket clientOfInterest;
     /**
      * Chooses the next company to be merged when they are of equal size.
      * @param options Companies of equal size to choose from.
@@ -311,7 +326,6 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         else
         {
             mergerWinner = null;
-            clientOfInterest = getClientFor(decider).getSocket();
             getClientFor(decider).sendMessage(EventType.createEvent(EventType.CHOOSE_FIRST,
                     options.toArray(new Corporation[options.size()])));
             while(mergerWinner == null)
@@ -377,7 +391,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             {
                 if(getPlayer(index).getStocks(next) > 0)
                     shareHolders.add(getPlayer(index));
-                index = index % this.gamePlayers.size();
+                index = (index+1) % this.gamePlayers.size();
                 checked++;
             }
             //have relevant investors take actions in the correct order
@@ -446,7 +460,6 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         mergerAction = null;
         getClientFor(shareHolder).sendMessage(EventType.createEvent(
                 EventType.TAKE_MERGER, new Corporation[]{parent, child}));
-        clientOfInterest = getClientFor(shareHolder).getSocket();
         while(mergerAction == null)
             try {
                 Thread.sleep(10l);

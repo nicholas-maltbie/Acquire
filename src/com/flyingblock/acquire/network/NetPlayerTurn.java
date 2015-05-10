@@ -83,7 +83,42 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                         available.toArray(new Corporation[available.size()])));
                 break;
             case MERGER:
+                List<Corporation> suspects = new ArrayList<>();
+                for(Location l : board.getBlob(locOfInterest.getRow(), locOfInterest.getCol()))
+                    if(board.isIncorporated(l.getRow(), l.getCol()) && 
+                            !suspects.contains(board.getCorporation(l.getRow(), l.getCol())))
+                        suspects.add(board.getCorporation(l.getRow(), l.getCol()));
+                List<Corporation> largest = new ArrayList<>();
+                for(Corporation suspect : suspects)
+                {
+                    if(largest.isEmpty())
+                        largest.add(suspect);
+                    else if(suspect.getNumberOfHotels() > largest.get(0).getNumberOfHotels())
+                    {
+                        largest.clear();
+                        largest.add(suspect);
+                    }
+                    else if(suspect.getNumberOfHotels() == largest.get(0).getNumberOfHotels())
+                        largest.add(suspect);
+                }
                 
+                Corporation parent = largest.get(0);
+                chosenCompany = null;
+                if(largest.size() > 1)
+                {
+                    player.sendMessage(EventType.createEvent(EventType.CHOOSE_WINNER, 
+                            largest.toArray(new Corporation[largest.size()])));
+                    while(chosenCompany == null)
+                    {
+                        try {
+                            Thread.sleep(10l);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(NetPlayerTurn.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                }
+                suspects.remove(parent);
+                server.handelMerger(parent, suspects);
                 break;
         }
     }
@@ -100,6 +135,8 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
     /**holding variable*/
     private Corporation chosenCompany;
     private Location locOfInterest;
+    private boolean boughtStocks;
+    private boolean createdCorporation;
     
     @Override
     public void objectRecieved(Socket client, Object message) {
@@ -114,53 +151,54 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 System.out.println(event.getMessage());*/
             switch(type)
             {
-                case STOCKS_BOUGHT:
-                    if(this.getState() == TurnState.BUY_STOCKS)
+                case MERGER_WINNER:
+                    if(this.getState() == TurnState.MERGER)
                     {
+                        chosenCompany = (Corporation) event.getMessage();
+                    }
+                    break;
+                case STOCKS_BOUGHT:
+                    if(this.getState() == TurnState.BUY_STOCKS && !boughtStocks)
+                    {
+                        boughtStocks = true;
                         Stock[] bought = (Stock[]) event.getMessage();
                         for(Stock stock : bought)
                         {
-                            Stock taken = stock.getOwner().getStock();
-                            player.getPlayer().addStock(taken);
-                            player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
+                            if(stock != null && stock.getOwner() != null)
+                            {
+                                Stock taken = stock.getOwner().getStock();
+                                player.getPlayer().addStock(taken);
+                                player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
+                            }
                         }
                         player.getPlayer().drawFromDeck(deck);
                         server.turnEnded(player.getPlayer());
                     }
                     break;
                 case CORPORATION_CREATED:
-                    //System.out.println("TRIED TO CREATE COROPRATION");
-                    Corporation created = (Corporation) event.getMessage();
-                    boolean validCorporation = true;
-                    //check stuff
-                    if(validCorporation)
+                    if(this.getState() == TurnState.CREATE_COMPANY && !createdCorporation)
                     {
-                        for(int i = 0; i < companies.size(); i++)
+                        createdCorporation = false;
+                        Corporation created = (Corporation) event.getMessage();
+                        boolean validCorporation = true;
+                        //check stuff
+                        if(validCorporation)
                         {
-                            Corporation temp = companies.get(i);
-                            if(created.getCorporateName().equals(temp.getCorporateName()))
+                            for(int i = 0; i < companies.size(); i++)
                             {
-                                temp.setHeadquarters(locOfInterest);
-                                temp.incorporateRegoin();
-                                if(temp.getAvailableStocks() > 0)
-                                    player.getPlayer().addStock(temp.getStock());
-                                server.updateAllClients();
-                                setState(TurnState.BUY_STOCKS);
-                                return;
+                                Corporation temp = companies.get(i);
+                                if(created.getCorporateName().equals(temp.getCorporateName()))
+                                {
+                                    temp.setHeadquarters(locOfInterest);
+                                    temp.incorporateRegoin();
+                                    if(temp.getAvailableStocks() > 0)
+                                        player.getPlayer().addStock(temp.getStock());
+                                    server.updateAllClients();
+                                    setState(TurnState.BUY_STOCKS);
+                                    return;
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        //resend request
-                        List<Corporation> taken = board.getCompaniesOnBoard();
-                        List<Corporation> available = new ArrayList<>();
-                        for(Corporation c : companies)
-                            if(!taken.contains(c))
-                                available.add(c);
-                        chosenCompany = null;
-                        player.sendMessage(EventType.createEvent(EventType.CREATE_CORPORATION,
-                                available.toArray(new Corporation[available.size()])));
                     }
                     break;
                 case PIECE_PLAYED:
@@ -192,13 +230,6 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
 
                             //Choose if a merger happens.
                             boolean merger = accessories.size() > 1;
-                            for(Corporation c : accessories)
-                            {
-                                if(c.getNumberOfHotels() < AcquireRules.SAFE_CORPORATION_SIZE)
-                                {
-                                    merger = false;
-                                }
-                            }
                             List<Corporation> taken = board.getCompaniesOnBoard();
                             List<Corporation> available = new ArrayList<>();
                             for(Corporation c : companies)
@@ -238,6 +269,13 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
     public void mergerComplete()
     {
         
+        new java.util.Timer().schedule( 
+            new java.util.TimerTask() {
+                @Override
+                public void run() {
+                    setState(TurnState.BUY_STOCKS);
+                }
+            }, 0);
     }
 
     @Override
