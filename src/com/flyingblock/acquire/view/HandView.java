@@ -238,11 +238,14 @@ public class HandView extends JPanel implements MouseListener, MouseMotionListen
         if(relative != null)
         {
             int index = getGridLocation(relative);
-            synchronized(listeners)
+            if(index >= 0 && index < player.getHandSize())
             {
-                listeners.stream().forEach((listener) -> {
-                    listener.handPressed(index, e);
-                });
+                synchronized(listeners)
+                {
+                    listeners.stream().forEach((listener) -> {
+                        listener.handPressed(index, e);
+                    });
+                }
             }
         }
     }
