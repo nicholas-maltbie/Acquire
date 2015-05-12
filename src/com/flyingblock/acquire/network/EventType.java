@@ -45,6 +45,7 @@ public enum EventType
     CORPORATION_CREATED(Corporation.class),
     MERGER_WINNER(Corporation.class),
     MERGED_FIRST(Corporation.class),
+    TILES_REMOVED(Hotel[].class),
     
     //prompts sent to clients to get information
     PLAY_PIECE(Hotel[].class),
@@ -54,6 +55,7 @@ public enum EventType
     CREATE_CORPORATION(Corporation[].class),
     CHOOSE_WINNER(Corporation[].class),
     CHOOSE_FIRST(Corporation[].class),
+    REMOVE_TILES(Hotel[].class),
     
     //prmpts sent to server to get information
     GET_BOARD(Object.class),            //

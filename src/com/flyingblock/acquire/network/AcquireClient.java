@@ -17,6 +17,8 @@ import com.flyingblock.acquire.controller.MergerPanel;
 import com.flyingblock.acquire.controller.MergerPanelListener;
 import com.flyingblock.acquire.controller.PieceManager;
 import com.flyingblock.acquire.controller.PlayerListener;
+import com.flyingblock.acquire.controller.SelectGroupListener;
+import com.flyingblock.acquire.controller.SelectGroupPanel;
 import com.flyingblock.acquire.model.AcquireBoard;
 import com.flyingblock.acquire.model.Board;
 import com.flyingblock.acquire.model.Corporation;
@@ -28,6 +30,7 @@ import com.flyingblock.acquire.view.GameView;
 import com.flyingblock.acquire.view.HotelView;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,7 +45,7 @@ import javax.swing.JOptionPane;
  * @author Nicholas Maltbie
  */
 public class AcquireClient implements ClientListener, PlayerListener,
-        BuyStockPanelListener, MergerPanelListener
+        BuyStockPanelListener, MergerPanelListener, SelectGroupListener
 {
     /**Connection to the server*/
     private Client client;
@@ -311,6 +314,27 @@ public class AcquireClient implements ClientListener, PlayerListener,
                         allPlayers[0].getName() + "wins",
                         JOptionPane.INFORMATION_MESSAGE);
                 break;
+            case REMOVE_TILES:
+                //remove un-playable tiles
+                List<HotelView> hotels = new ArrayList<>();
+                for(Hotel h : (Hotel[])event.getMessage())
+                {
+                    if(!AcquireRules.canPieceBePlayed(h, board))
+                        hotels.add(new HotelView(h, Color.BLACK, "TIMES NEW ROMAN"));
+                }
+                if(!hotels.isEmpty())
+                {
+                    SelectGroupPanel selectPanel = new SelectGroupPanel(hotels.toArray(
+                            new HotelView[hotels.size()]), "<html>You cannot play these tiles,<br>"
+                            + " do you want to keep any?</html>", "KEEP", "REPLACE");
+                    selectPanel.setupAndDisplayGUI(new Rectangle(100,100,400+150*(hotels.size()-1),700));
+                    selectPanel.addListener(this);
+                }
+                else
+                    finished(new Component[0], new boolean[0]);
+                view.update();
+                view.repaint();
+                break;
         }
         view.update();
     }
@@ -378,5 +402,18 @@ public class AcquireClient implements ClientListener, PlayerListener,
             action = false;
             client.sendObject(EventType.createEvent(EventType.MERGER_ACTION, new int[]{sold, traded}));
         }
+    }
+
+    @Override
+    public void finished(Component[] options, boolean[] states)
+    {
+        List<Hotel> removed = new ArrayList<>();
+        for(int i = 0; i < options.length; i++)
+        {
+            if(states[i])
+                removed.add(((HotelView)options[i]).getHotel());
+        }
+        client.sendObject(EventType.createEvent(EventType.TILES_REMOVED, 
+                removed.toArray(new Hotel[removed.size()])));
     }
 }

@@ -151,6 +151,17 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 System.out.println(event.getMessage());*/
             switch(type)
             {
+                case TILES_REMOVED:
+                    Hotel[] removed = (Hotel[]) event.getMessage();
+                    for(int i = 0; i < removed.length; i++)
+                    {
+                        for(int h = 0; h < player.getPlayer().getHandSize(); h++)
+                            if(player.getPlayer().getFromHand(h) != null && player.getPlayer().getFromHand(h).equals(removed[i]))
+                                player.getPlayer().removeFromHand(h);
+                    }
+                    player.getPlayer().drawFromDeck(deck);
+                    server.turnEnded(player.getPlayer());
+                    break;
                 case MERGER_WINNER:
                     if(this.getState() == TurnState.MERGER)
                     {
@@ -171,8 +182,15 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                 player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
                             }
                         }
-                        player.getPlayer().drawFromDeck(deck);
-                        server.turnEnded(player.getPlayer());
+                        List<Hotel> hotels = new ArrayList<>();
+                        for(int i = 0; i < player.getPlayer().getHandSize(); i++)
+                        {
+                            if(player.getPlayer().getFromHand(i) != null && 
+                                    !AcquireRules.canPieceBePlayed(player.getPlayer().getFromHand(i), board))
+                                hotels.add(player.getPlayer().getFromHand(i));
+                        }
+                        player.sendMessage(EventType.createEvent(EventType.REMOVE_TILES,
+                                hotels.toArray(new Hotel[hotels.size()])));
                     }
                     break;
                 case CORPORATION_CREATED:
