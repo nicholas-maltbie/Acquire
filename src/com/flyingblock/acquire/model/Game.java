@@ -22,7 +22,6 @@ import java.util.List;
  */
 public class Game implements Serializable
 {
-    public static final long serialVersionUID = 1L;
     /**
      * The region for the game.
      */

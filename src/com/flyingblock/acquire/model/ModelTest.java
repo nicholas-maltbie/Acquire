@@ -16,9 +16,8 @@ import java.io.Serializable;
  *
  * @author Nicholas Maltbie
  */
-public class ModelTest implements Serializable
+public class ModelTest
 {
-    public static final long serialVersionUID = 1L;
     public static void main(String[] args)
     {
         AcquireBoard board = new AcquireBoard();

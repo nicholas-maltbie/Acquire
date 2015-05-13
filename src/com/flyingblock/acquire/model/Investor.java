@@ -22,7 +22,6 @@ import java.util.List;
  */
 public class Investor implements Serializable
 {
-    public static final long serialVersionUID = 1L;
     /**
      * Name of the investor.
      */

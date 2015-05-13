@@ -21,7 +21,6 @@ import java.util.Random;
  */
 public class HotelMarket implements Serializable
 {
-    public static final long serialVersionUID = 1L;
     /**
      * Seed for shuffling the market.
      */

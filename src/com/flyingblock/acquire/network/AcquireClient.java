@@ -152,9 +152,61 @@ public class AcquireClient implements ClientListener, PlayerListener,
                             edit.addMoney(player.getMoney() - edit.getMoney());
                             edit.clearStocks();
                             edit.addStocks(player.getStocks());
+                            
+                            Hotel[] myHand = new Hotel[edit.getHandSize()];
+                            Hotel[] serverHand = new Hotel[edit.getHandSize()];
                             for(int j = 0; j < edit.getHandSize(); j++)
                             {
-                                edit.setInHand(j, player.getFromHand(j));
+                                myHand[j] = edit.getFromHand(j);
+                                serverHand[j] = player.getFromHand(j);
+                            }
+                            Hotel[] newHand = new Hotel[edit.getHandSize()];
+                            for(int index = 0; index < edit.getHandSize(); index++)
+                            {
+                                Hotel check = myHand[index];
+                                if(check != null)
+                                {
+                                    for(int serverIndex = 0; serverIndex < edit.getHandSize(); serverIndex++)
+                                    {
+                                        Hotel serverCheck = serverHand[serverIndex];
+                                        if(serverCheck != null && serverCheck.equals(check))
+                                        {
+                                            newHand[index] = check;
+                                        }
+                                    }
+                                }
+                            }
+                            for(int serverIndex = 0; serverIndex < edit.getHandSize(); serverIndex++)
+                            {
+                                Hotel serverAdd = serverHand[serverIndex];
+                                boolean add = true;
+                                if(serverAdd != null)
+                                {
+                                    for(int index = 0; index < edit.getHandSize(); index++)
+                                    {
+                                        Hotel check = myHand[index];
+                                        if(check != null && check.equals(serverAdd))
+                                        {
+                                            add = false;
+                                        }
+                                    }
+                                }
+                                if(add)
+                                {
+                                    boolean hold = true;
+                                    for(int index = 0; index < edit.getHandSize(); index++)
+                                    {
+                                        if(newHand[index] == null && hold)
+                                        {
+                                            newHand[index] = serverAdd;
+                                            hold = false;
+                                        }
+                                    }
+                                }
+                            }
+                            for(int index = 0; index < edit.getHandSize(); index++)
+                            {
+                                edit.setInHand(index, newHand[index]);
                             }
                         }
                     }

@@ -19,9 +19,7 @@ import java.util.List;
  * @author Nicholas Maltbie
  */
 public class AcquireBoard extends Board<Hotel> implements Serializable
-{
-    public static final long serialVersionUID = 1L;
-    
+{    
     /**
      * Constructs a game board of the specified dimensions.
      * @param rows Number of rows that the grid will have.

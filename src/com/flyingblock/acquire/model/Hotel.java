@@ -19,7 +19,6 @@ import java.util.Objects;
  */
 public class Hotel extends Product implements Serializable
 {
-    public static final long serialVersionUID = 1L;
     /**Start of the capital letters in the ASCII character table**/
     public static final int CAPITAL_LETTER_START = 65;
     
