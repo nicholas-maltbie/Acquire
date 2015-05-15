@@ -61,7 +61,7 @@ public abstract class AbstractClient extends Thread
                 {
                     objectRecieved(message);
                 }
-            } catch (IOException | ClassNotFoundException ex) {
+            } catch (IOException | ClassNotFoundException | ClassCastException ex) {
                 if(running)
                 {
                     //Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
