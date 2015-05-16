@@ -160,6 +160,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                 player.getPlayer().removeFromHand(h);
                     }
                     player.getPlayer().drawFromDeck(deck);
+                    
                     server.turnEnded(player.getPlayer());
                     break;
                 case MERGER_WINNER:
@@ -196,7 +197,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 case CORPORATION_CREATED:
                     if(this.getState() == TurnState.CREATE_COMPANY && !createdCorporation)
                     {
-                        createdCorporation = false;
+                        createdCorporation = true;
                         Corporation created = (Corporation) event.getMessage();
                         boolean validCorporation = true;
                         //check stuff

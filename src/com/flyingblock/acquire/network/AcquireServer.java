@@ -169,9 +169,19 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void updateAllClients()
     {
+        AcquireBoard boardCopy = board.copy();
+        Investor[] players = new Investor[gamePlayers.size()];
+        for(int i = 0; i < gamePlayers.size(); i++)
+            players[i] = new Investor(gamePlayers.get(i));
+        Corporation[] corps = new Corporation[companies.size()];
+        for(int i = 0; i < companies.size(); i++)
+            corps[i] = new Corporation(companies.get(i));
         for(NetInvestor netPlayer : humanPlayers)
         {
-            sendGameUpdate(server.getClient(netPlayer.getSocket()));
+            ClientThread client = server.getClient(netPlayer.getSocket());
+            client.sendData(EventType.createEvent(EventType.BOARD_UPDATE, boardCopy));
+            client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE, players));
+            client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE, corps));
             server.getClient(netPlayer.getSocket()).flushStream();
         }
     }
@@ -249,15 +259,6 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void sendGameUpdate(ClientThread client)
     {
-        client.sendData(EventType.createEvent(EventType.BOARD_UPDATE, board.copy()));
-        Investor[] players = new Investor[gamePlayers.size()];
-        for(int i = 0; i < gamePlayers.size(); i++)
-            players[i] = new Investor(gamePlayers.get(i));
-        client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE, players));
-        Corporation[] corps = new Corporation[companies.size()];
-        for(int i = 0; i < companies.size(); i++)
-            corps[i] = new Corporation(companies.get(i));
-        client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE, corps));
     }
 
     @Override
@@ -554,6 +555,11 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                     allSafe = false;
             }
             over = full || allSafe;
+        }
+        
+        if(!isPlayerComputer(getCurrentPlayer()))
+        {
+            server.removeListener(humanTurn);
         }
         
         if(!over)

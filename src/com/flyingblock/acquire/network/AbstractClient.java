@@ -56,17 +56,17 @@ public abstract class AbstractClient extends Thread
         while(running && isConnected())
         {
             try {
-                 Object message = input.readObject();
+                Object message = input.readObject();
                 if(message != null)
                 {
                     objectRecieved(message);
                 }
-            } catch (IOException | ClassNotFoundException | ClassCastException ex) {
+            } catch (IOException | ClassNotFoundException | ClassCastException | NullPointerException ex) {
                 if(running)
                 {
-                    //Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
-                    disconnect();
-                    disconnectedFromServer();
+                    Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
+                    //disconnect();
+                    //disconnectedFromServer();
                 }
             }
         }
@@ -96,7 +96,7 @@ public abstract class AbstractClient extends Thread
     {
         try {
             output.writeObject(message);
-            output.reset();
+            //output.reset();
         } catch (IOException ex) {
             Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
         }
