@@ -82,6 +82,15 @@ public class ComputerPlayerFSM extends AbstractFSM<ComputerState>
                         decider.getPlayer().removeFromHand(i);
                 decider.buyStocks(decider.getBoard().getCompaniesOnBoard());
                 decider.getPlayer().drawFromDeck(deck);
+                
+                List<Hotel> hotels = new ArrayList<>();
+                for(int i = 0; i < decider.getPlayer().getHandSize(); i++)
+                {
+                    if(decider.getPlayer().getFromHand(i) != null && 
+                            !AcquireRules.canPieceBePlayed(decider.getPlayer().getFromHand(i), decider.getBoard()))
+                        hotels.add(decider.getPlayer().getFromHand(i));
+                }
+                decider.removeNonPlayableTiles(hotels);
                 machine.turnEnded(decider.getPlayer());
                 break;
             case MERGER:

@@ -174,13 +174,27 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     {
                         boughtStocks = true;
                         Stock[] bought = (Stock[]) event.getMessage();
+                        String stocksMessage = player.getPlayer().getName() + " bought stocks ";
                         for(Stock stock : bought)
                         {
                             if(stock != null && stock.getOwner() != null)
                             {
-                                Stock taken = stock.getOwner().getStock();
-                                player.getPlayer().addStock(taken);
-                                player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
+                                Corporation owner = null;
+                                for(Corporation c : companies)
+                                {
+                                    if(c.getCorporateName().equals(stock.getOwner().getCorporateName()))
+                                    {
+                                        owner = c;
+                                    }
+                                }
+                                if(owner != null)
+                                {
+                                    Stock taken = owner.getStock();
+                                    player.getPlayer().addStock(taken);
+                                    player.getPlayer().addMoney(-stock.getOwner().getStockPrice());
+                                    stocksMessage += owner.getCorporateName() + " ";
+                                }
+                                
                             }
                         }
                         List<Hotel> hotels = new ArrayList<>();
@@ -190,6 +204,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                     !AcquireRules.canPieceBePlayed(player.getPlayer().getFromHand(i), board))
                                 hotels.add(player.getPlayer().getFromHand(i));
                         }
+                        server.reportEvent(stocksMessage);
                         player.sendMessage(EventType.createEvent(EventType.REMOVE_TILES,
                                 hotels.toArray(new Hotel[hotels.size()])));
                     }
@@ -213,6 +228,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                     if(temp.getAvailableStocks() > 0)
                                         player.getPlayer().addStock(temp.getStock());
                                     server.updateAllClients();
+                                    server.reportEvent(player.getPlayer().getName()+ " established " + created.getCorporateName());
                                     setState(TurnState.BUY_STOCKS);
                                     return;
                                 }
@@ -266,6 +282,7 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                                 nextState = TurnState.CREATE_COMPANY;
                             else
                                 nextState = TurnState.BUY_STOCKS;
+                            server.reportEvent(player.getPlayer().getName()+ " played " + hotel.getLocationText());
                             locOfInterest = hotel.getLocation();
                             if(this.getState() == TurnState.PLACE_PIECE)
                                 setState(nextState);

@@ -166,4 +166,10 @@ public abstract class Decider
      * @param established Corporations currently established on the board.
      */
     abstract public void buyStocks(List<Corporation> established);
+    
+    /**
+     * Prompts the decider to remove the tiles from its hand that cannot be played.
+     * @param tiles Tiles that cannot be played.
+     */
+    abstract public void removeNonPlayableTiles(List<Hotel> tiles);
 }

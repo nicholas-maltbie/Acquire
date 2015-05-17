@@ -144,6 +144,8 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 List<Investor> allPlayers = new ArrayList<>(gamePlayers);
                 allPlayers.sort(new InvestorComparator());
                 updateAllClients();
+                reportEvent(allPlayers.get(0).getName() + 
+                        " won the game with $" + allPlayers.get(0).getMoney());
                 for(NetInvestor player : humanPlayers)
                 {
                     player.sendMessage(EventType.createEvent(EventType.GAME_END, 
@@ -267,7 +269,9 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         if(message instanceof GameEvent)
         {
             GameEvent event = (GameEvent) message;
-            switch(EventType.identifyEvent(event))
+            EventType type = EventType.identifyEvent(event);
+            System.out.println("Recieved a " + type + " message");
+            switch(type)
             {
                 case MERGED_FIRST:
                     mergerWinner = (Corporation) event.getMessage();
@@ -525,6 +529,14 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             p.addMoney(minorityBonus);
     }
     
+    public void reportEvent(String event)
+    {
+        for(NetInvestor player : humanPlayers)
+        {
+            server.getClient(player.getSocket()).sendData("[GameEvent] " + event);
+        }
+    }
+    
     /**
      * Method called when a player finished his/her/its turn.
      * @param player Player that finished his/her/its turn.
@@ -567,6 +579,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             //if not, go to next turn
             currentPlayer++;
             currentPlayer %= gamePlayers.size();
+            reportEvent("It is now " + getCurrentPlayer().getName() + "'s turn");
             setState(ServerState.PLAYER_TURN);
         }
         else

@@ -68,13 +68,26 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
         switch(state)
         {
             case COMPUTER_BUY_STOCKS:
+                String stocksMessage = decider.getPlayer().getName() + " bought stocks ";
                 for(Corporation c : decider.getBoard().getCompaniesOnBoard())
+                {
                     c.incorporateRegoin();
+                    stocksMessage += c.getCorporateName() + " ";
+                }
                 for(int i = 0; i < decider.getPlayer().getHandSize(); i++)
                     if(decider.getPlayer().getFromHand(i) != null && !AcquireRules.canPieceBePlayed(decider.getPlayer().getFromHand(i), decider.getBoard()))
                         decider.getPlayer().removeFromHand(i);
+                acquireServer.reportEvent(stocksMessage);
                 decider.buyStocks(decider.getBoard().getCompaniesOnBoard());
                 decider.getPlayer().drawFromDeck(deck);
+                List<Hotel> hotels = new ArrayList<>();
+                for(int i = 0; i < decider.getPlayer().getHandSize(); i++)
+                {
+                    if(decider.getPlayer().getFromHand(i) != null && 
+                            !AcquireRules.canPieceBePlayed(decider.getPlayer().getFromHand(i), decider.getBoard()))
+                        hotels.add(decider.getPlayer().getFromHand(i));
+                }
+                decider.removeNonPlayableTiles(hotels);
                 acquireServer.turnEnded(decider.getPlayer());
                 break;
             case COMPUTER_MERGER:
@@ -106,7 +119,6 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
                 acquireServer.handelMerger(parent, suspects);
                 break;
             case COMPUTER_PLAY_PIECE:
-                
                 Investor investor = decider.getPlayer();
                 Hotel play = decider.getPlayOption();
                 for(int i = 0; i < investor.getHandSize(); i++)
@@ -147,8 +159,10 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
                     chosenCompany.incorporateRegoin();
                     if(chosenCompany.getAvailableStocks() > 0)
                         decider.getPlayer().addStock(chosenCompany.getStock());
+                    acquireServer.reportEvent(decider.getPlayer().getName()+ 
+                            " established " + chosenCompany.getCorporateName());
                 }
-                
+                acquireServer.reportEvent(decider.getPlayer().getName() + " played " + play.getLocationText());
                 new java.util.Timer().schedule( 
                     new java.util.TimerTask() {
                         @Override

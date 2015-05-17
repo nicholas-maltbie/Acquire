@@ -117,4 +117,16 @@ public class RandomDecider extends Decider
         int sold = rng.nextInt(stocks);
         return new int[]{sold, traded};
     }
+
+    @Override
+    public void removeNonPlayableTiles(List<Hotel> tiles) 
+    {
+        for(int i = 0; i < getPlayer().getHandSize(); i++)
+        {
+            if(getPlayer().getFromHand(i) != null && 
+                    tiles.contains(getPlayer().getFromHand(i)))
+                getPlayer().removeFromHand(i);
+        }
+        
+    }
 }
