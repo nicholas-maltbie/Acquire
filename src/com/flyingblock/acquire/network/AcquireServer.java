@@ -184,7 +184,6 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
             client.sendData(EventType.createEvent(EventType.BOARD_UPDATE, boardCopy));
             client.sendData(EventType.createEvent(EventType.PLAYERS_UPDATE, players));
             client.sendData(EventType.createEvent(EventType.CORPORATIONS_UPDATE, corps));
-            server.getClient(netPlayer.getSocket()).flushStream();
         }
     }
     
@@ -270,7 +269,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         {
             GameEvent event = (GameEvent) message;
             EventType type = EventType.identifyEvent(event);
-            System.out.println("Recieved a " + type + " message");
+            //System.out.println("Recieved a " + type + " message");
             switch(type)
             {
                 case MERGED_FIRST:

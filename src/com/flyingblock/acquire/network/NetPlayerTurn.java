@@ -156,7 +156,8 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                     for(int i = 0; i < removed.length; i++)
                     {
                         for(int h = 0; h < player.getPlayer().getHandSize(); h++)
-                            if(player.getPlayer().getFromHand(h) != null && player.getPlayer().getFromHand(h).equals(removed[i]))
+                            if(player.getPlayer().getFromHand(h) != null &&
+                                    player.getPlayer().getFromHand(h).getLocation().equals(removed[i].getLocation()))
                                 player.getPlayer().removeFromHand(h);
                     }
                     player.getPlayer().drawFromDeck(deck);

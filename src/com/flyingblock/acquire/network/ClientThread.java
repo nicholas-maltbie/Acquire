@@ -63,26 +63,11 @@ public class ClientThread extends Thread
     {
         try {
             outputStream.writeObject(message);
+            outputStream.flush();
+            outputStream.reset();
+            System.out.println("SENT " + message);
         } catch (IOException ex) {
             Logger.getLogger(AbstractServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void resetStream()
-    {
-        try {
-            outputStream.reset();
-        } catch (IOException ex) {
-            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public void flushStream()
-    {
-        try {
-            outputStream.flush();
-        } catch (IOException ex) {
-            Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -113,13 +98,12 @@ public class ClientThread extends Thread
                 Object input = this.inputStream.readObject();
                 if(input != null)
                 {
+                    System.out.println("RECIEVED " + input);
                     server.objectRecieved(client, input);
                 }
-            } catch (IOException ex) {
-                //client has disconnected. tell server and bail.
-                server.leaveNetwork(this);
-            } catch (ClassNotFoundException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
+                server.leaveNetwork(this);
             }
         }
     }

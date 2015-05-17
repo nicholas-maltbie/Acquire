@@ -57,6 +57,7 @@ public abstract class AbstractClient extends Thread
         {
             try {
                 Object message = input.readObject();
+                System.out.println("RECIEVED " + message);
                 if(message != null)
                 {
                     objectRecieved(message);
@@ -96,7 +97,9 @@ public abstract class AbstractClient extends Thread
     {
         try {
             output.writeObject(message);
-            //output.reset();
+            output.flush();
+            output.reset();
+            System.out.println("SENT " + message);
         } catch (IOException ex) {
             Logger.getLogger(AbstractClient.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -108,7 +111,7 @@ public abstract class AbstractClient extends Thread
      */
     public boolean isConnected()
     {
-        return server.isConnected() && !server.isClosed();
+        return server.isConnected();
     }
     
     /**

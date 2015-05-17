@@ -217,6 +217,7 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
         else
         {
             client.disconnect();
+            client = null;
             displayMessage("Disconnected from the server");
         }
     }//GEN-LAST:event_disconnectButtonActionPerformed
