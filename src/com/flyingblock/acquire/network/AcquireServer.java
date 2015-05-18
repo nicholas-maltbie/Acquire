@@ -99,7 +99,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 for(Investor i : gamePlayers)
                 {
                     i.drawFromDeck(market);
-                    for(int j = 0; j < 6; j++)
+                    for(int j = 0; j < 1; j++)
                     {
                         Hotel h = market.draw();
                         board.set(h.getLocation().getRow(), h.getLocation().getCol(), h);
