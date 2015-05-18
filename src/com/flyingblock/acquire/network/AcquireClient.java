@@ -359,7 +359,7 @@ public class AcquireClient implements ClientListener, PlayerListener,
                     endMessage += (i+1) + ". " + allPlayers[i].getName() + " $" + allPlayers[i].getMoney() +"\n";
                 JFrame frame = new JFrame();
                 JOptionPane.showMessageDialog(frame, endMessage,
-                        allPlayers[0].getName() + "wins",
+                        allPlayers[0].getName() + " wins",
                         JOptionPane.INFORMATION_MESSAGE);
                 break;
             case REMOVE_TILES:
@@ -458,7 +458,7 @@ public class AcquireClient implements ClientListener, PlayerListener,
         List<Hotel> removed = new ArrayList<>();
         for(int i = 0; i < options.length; i++)
         {
-            if(states[i])
+            if(!states[i])
                 removed.add(((HotelView)options[i]).getHotel());
         }
         client.sendObject(EventType.createEvent(EventType.TILES_REMOVED, 

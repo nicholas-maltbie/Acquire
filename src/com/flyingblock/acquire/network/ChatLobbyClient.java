@@ -319,6 +319,13 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
                 Investor[] players = (Investor[]) gameParts[0];
                 AcquireBoard board = (AcquireBoard) gameParts[1];
                 Corporation[] companies = (Corporation[]) gameParts[2];
+                List<Corporation> correctCompanies = new ArrayList<>();
+                for(int i = 0; i < companies.length; i++)
+                {
+                    Corporation c = companies[i];
+                    correctCompanies.add(new Corporation(c.getCorporateName(), board,
+                            c.getMarketValue(), c.getColor(), c.getStocksLeft()));
+                }
                 
                 List<Investor> investors = new ArrayList<>(Arrays.asList(players));
                 Investor you = null;
@@ -331,8 +338,7 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
                         i++;
                 }
                 
-                gameClient = new AcquireClient(client, board, investors,
-                    new ArrayList<>(Arrays.asList(companies)), you);
+                gameClient = new AcquireClient(client, board, investors, correctCompanies, you);
                 client.addListener(gameClient);
                 gameClient.initView();
                 

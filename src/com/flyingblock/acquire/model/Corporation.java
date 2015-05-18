@@ -148,7 +148,7 @@ public class Corporation implements Serializable
             {
                 if(!gameBoard.isEmpty(row, col) &&
                         gameBoard.isIncorporated(row, col) && 
-                        gameBoard.getCorporation(row, col) == this)
+                        gameBoard.getCorporation(row, col).equals(this))
                     hotels++;
             }
         return hotels;
@@ -177,6 +177,15 @@ public class Corporation implements Serializable
     public int getMajorityBonus()
     {
         return MarketValue.getMajorityBonus(MarketValue.getLevel(value, this));
+    }
+    
+    /**
+     * Gets the number of stocks the corporation has left to sell.
+     * @return Returns the number of stocks the corporation has left.
+     */
+    public int getStocksLeft()
+    {
+        return numStocks;
     }
     
     /**

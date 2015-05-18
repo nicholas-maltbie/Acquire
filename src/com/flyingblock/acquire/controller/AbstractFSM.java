@@ -122,11 +122,6 @@ abstract public class AbstractFSM<State extends Enum<State>>
             log.log(Level.SEVERE, "State {0} cannot be reached from State {1}"
                     + " and has not changed", new Object[]{state.toString(),
                         currentState.toString()});
-            try {
-                throw new Exception("ASDF");
-            } catch (Exception ex) {
-                Logger.getLogger(AbstractFSM.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }
     }
     

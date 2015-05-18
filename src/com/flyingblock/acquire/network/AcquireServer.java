@@ -58,6 +58,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     private NetPlayerTurn humanTurn;
     /**Current computer player turn if the player is a computer*/
     private NetComputerTurn computerTurn;
+    private NetworkMerger merger;
 
     /**
      * Constructs an acquire server.
@@ -98,7 +99,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 for(Investor i : gamePlayers)
                 {
                     i.drawFromDeck(market);
-                    for(int j = 0; j < 1; j++)
+                    for(int j = 0; j < 6; j++)
                     {
                         Hotel h = market.draw();
                         board.set(h.getLocation().getRow(), h.getLocation().getCol(), h);
@@ -260,21 +261,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     @Override
     public void objectRecieved(Socket client, Object message)
     {
-        if(message instanceof GameEvent)
-        {
-            GameEvent event = (GameEvent) message;
-            EventType type = EventType.identifyEvent(event);
-            //System.out.println("Recieved a " + type + " message");
-            switch(type)
-            {
-                case MERGED_FIRST:
-                    mergerWinner = (Corporation) event.getMessage();
-                    break;
-                case MERGER_ACTION:
-                    mergerAction = (int[]) event.getMessage();
-                    break;
-            }
-        }
+        
     }
 
     @Override
@@ -303,9 +290,9 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
     }
     
     /**Saves a corporation for multi-thread communication. */
-    private Corporation mergerWinner;
+    //private Corporation mergerWinner;
     /**Holding variable to wait for a player to send his or her merger requests*/
-    private int[] mergerAction;
+    //private int[] mergerAction;
     /**
      * Chooses the next company to be merged when they are of equal size.
      * @param options Companies of equal size to choose from.
@@ -313,7 +300,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * @param decider player who chooses the winner.
      * @return Returns the chosen corporation.
      */
-    public Corporation getFirstMerged(List<Corporation> options, Corporation 
+    /*public Corporation getFirstMerged(List<Corporation> options, Corporation 
             winner, Investor decider)
     {
         //computer player
@@ -335,7 +322,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 }
             return mergerWinner;
         }
-    }
+    }*/
     
     /**
      * Does a merger including, handing out majority and minority bonuses, 
@@ -345,12 +332,15 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * @param food Company(ies) that are consumed by the parent.
      */
     public void handelMerger(Corporation parent, List<Corporation> food)
-    {        
-        
-        for(Corporation f : food)
-        {
-            f.dissolve();
-        }
+    {
+        merger = new NetworkMerger(this, parent, food);
+        server.addListener(merger);
+        merger.start();
+    }
+    
+    public void mergerComplete(Corporation parent)
+    {
+        server.removeListener(merger);
         parent.incorporateRegoin();
         this.updateAllClients();
         //tell the turn that the players have completed their actions.
@@ -374,7 +364,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      * @return Returns the actions that the player took in the format:
      *  {sold, traded}.
      */
-    public int[] getPlayerMerger(Corporation parent, Corporation child, Investor shareHolder)
+    /*public int[] getPlayerMerger(Corporation parent, Corporation child, Investor shareHolder)
     {
         //AI player
         if(isPlayerComputer(shareHolder))
@@ -395,7 +385,7 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
                 Logger.getLogger(AcquireServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         return mergerAction;
-    }
+    }*/
     
     /**
      * Gives out the majority and minority bonuses to players in the game.
@@ -509,6 +499,16 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
         {
             setState(ServerState.GAME_END);
         }
+    }
+    
+    public int getCurrentPlayerIndex()
+    {
+        return currentPlayer;
+    }
+    
+    public int getNumPlayers()
+    {
+        return gamePlayers.size();
     }
     
     public static enum ServerState {GAME_START, PLAYER_TURN,
