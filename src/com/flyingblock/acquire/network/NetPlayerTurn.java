@@ -43,6 +43,8 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
     private List<Corporation> companies;
     /**Deck. */
     private HotelMarket deck;
+    
+    private List<Corporation> suspects;
 
     public NetPlayerTurn(AcquireServer server, NetInvestor player,AcquireBoard board, 
             List<Corporation> companies, HotelMarket deck)
@@ -78,7 +80,6 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 for(Corporation c : companies)
                     if(!taken.contains(c))
                         available.add(c);
-                chosenCompany = null;
                 player.sendMessage(EventType.createEvent(EventType.CREATE_CORPORATION,
                         available.toArray(new Corporation[available.size()])));
                 break;
@@ -103,22 +104,17 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 }
                 
                 Corporation parent = largest.get(0);
-                chosenCompany = null;
                 if(largest.size() > 1)
                 {
+                    this.suspects = suspects;
                     player.sendMessage(EventType.createEvent(EventType.CHOOSE_WINNER, 
                             largest.toArray(new Corporation[largest.size()])));
-                    while(chosenCompany == null)
-                    {
-                        try {
-                            Thread.sleep(10l);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(NetPlayerTurn.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
                 }
-                suspects.remove(parent);
-                server.handelMerger(parent, suspects);
+                else
+                {
+                    suspects.remove(parent);
+                    server.handelMerger(parent, suspects);
+                }
                 break;
         }
     }
@@ -133,7 +129,6 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
     }
 
     /**holding variable*/
-    private Corporation chosenCompany;
     private Location locOfInterest;
     private boolean boughtStocks;
     private boolean createdCorporation;
@@ -167,7 +162,9 @@ public class NetPlayerTurn extends AbstractFSM<NetPlayerTurn.TurnState> implemen
                 case MERGER_WINNER:
                     if(this.getState() == TurnState.MERGER)
                     {
-                        chosenCompany = (Corporation) event.getMessage();
+                        Corporation parent = (Corporation) event.getMessage();
+                        suspects.remove(parent);
+                        server.handelMerger(parent, suspects);
                     }
                     break;
                 case STOCKS_BOUGHT:

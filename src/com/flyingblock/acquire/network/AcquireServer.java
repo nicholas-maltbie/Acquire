@@ -346,81 +346,10 @@ public class AcquireServer extends AbstractFSM<AcquireServer.ServerState>
      */
     public void handelMerger(Corporation parent, List<Corporation> food)
     {        
-        int newSize = parent.getNumberOfHotels() + 1;
-        for(Corporation c : food)
-            newSize += c.getNumberOfHotels();
-        parent.incorporateRegoin();
-        //Hand out majority and minory bonus for all food eaten.
-        for(Corporation c : food)
+        
+        for(Corporation f : food)
         {
-            handOutMajorityAndMinorityBonuses(c);
-        }
-        //Take merger actions to finalize the trade.
-        while(!food.isEmpty())
-        {
-            //chose the corporation to get consumed (order matters).
-            List<Corporation> largest = new ArrayList<>();
-            for(Corporation bite : food)
-            {
-                if(largest.isEmpty())
-                    largest.add(bite);
-                else if(bite.getNumberOfHotels() > largest.get(0).getNumberOfHotels())
-                {
-                    largest.clear();
-                    largest.add(bite);
-                }
-                else if(bite.getNumberOfHotels() == largest.get(0).getNumberOfHotels())
-                    largest.add(bite);
-            }
-            final Corporation next;
-            //get the next corporaiton to be dissolved
-            if(largest.size() > 1)
-                next = getFirstMerged(largest, parent, getCurrentPlayer());
-            else
-                next = largest.get(0);
-            //remove the corporation from the list because it can only be eaten once
-            food.remove(next);
-            
-            //Players chose what to do with their stocks from the food.
-            List<Investor> shareHolders = new ArrayList<>();
-            int checked = 0;
-            int index = currentPlayer;
-            //get relevant investors.
-            while(checked < gamePlayers.size())
-            {
-                if(getPlayer(index).getStocks(next) > 0)
-                    shareHolders.add(getPlayer(index));
-                index = (index+1) % this.gamePlayers.size();
-                checked++;
-            }
-            //have relevant investors take actions in the correct order
-            for(Investor shareHolder :shareHolders)
-            {
-                //get the action of the current player. This should puase the thread
-                // and stop other players from taking actions
-                int[] action = getPlayerMerger(parent, next, shareHolder);
-                //do the action
-                
-                int traded = action[1];
-                for(int i = 0; i < traded/2; i++)
-                {
-                    next.returnStock(shareHolder.removeStock(next));
-                    next.returnStock(shareHolder.removeStock(next));
-                    shareHolder.addStock(parent.getStock());
-                }
-                int sold = action[0];
-                for(int i = 0; i < sold; i++)
-                {
-                    next.returnStock(shareHolder.removeStock(next));
-                    shareHolder.addMoney(next.getStockPrice());
-                }
-                //tell clients what's up
-                this.updateAllClients();
-            }
-            //finalize the action
-            next.dissolve();
-            parent.incorporateRegoin();
-            this.updateAllClients();
+            f.dissolve();
         }
         parent.incorporateRegoin();
         this.updateAllClients();
