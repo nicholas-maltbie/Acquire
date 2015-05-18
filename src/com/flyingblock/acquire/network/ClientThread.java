@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -88,6 +91,8 @@ public class ClientThread extends Thread
      * Are we listening to the client?
      */
     private boolean run = true;
+    private static final ScheduledExecutorService worker = 
+        Executors.newSingleThreadScheduledExecutor();
     
     @Override
     public void run()
@@ -96,11 +101,14 @@ public class ClientThread extends Thread
         {
             try {
                 Object input = this.inputStream.readObject();
-                if(input != null)
-                {
-                    System.out.println("RECIEVED " + input);
-                    server.objectRecieved(client, input);
-                }
+                Runnable task = () -> {
+                    if(input != null)
+                    {
+                        System.out.println("RECIEVED " + input);
+                        server.objectRecieved(client, input);
+                    }
+                };
+                worker.schedule(task, 1, TimeUnit.MILLISECONDS);
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(ClientThread.class.getName()).log(Level.SEVERE, null, ex);
                 server.leaveNetwork(this);

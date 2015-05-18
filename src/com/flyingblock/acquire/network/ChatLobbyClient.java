@@ -181,7 +181,22 @@ public class ChatLobbyClient extends javax.swing.JFrame implements ClientListene
         {
             String text = inputTextArea.getText();
             inputTextArea.setText("");
-            client.sendObject(text);
+            if(text.isEmpty())
+                client.sendObject(null);
+            else
+                client.sendObject(text);
+            try {
+                int input = Integer.parseInt(text);
+                /*for(int i = 0; i < input; i++)
+                {
+                    Object message = EventType.createEvent(EventType.MERGER_ACTION, new int[]{10,10});
+                    client.sendObject(message);
+                }*/
+            }
+            catch (NumberFormatException ex)
+            {
+                
+            }
         }
     }//GEN-LAST:event_inputTextAreaActionPerformed
 

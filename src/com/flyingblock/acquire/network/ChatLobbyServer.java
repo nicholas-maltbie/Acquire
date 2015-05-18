@@ -467,6 +467,7 @@ public class ChatLobbyServer extends javax.swing.JFrame implements ServerListene
     @Override
     public void objectRecieved(Socket client, Object message) 
     {
+        //server.getClient(client).sendData(message);
         if(!names.containsKey(client) && message instanceof String)
         {
             String name = ((String) message).toUpperCase().trim();
