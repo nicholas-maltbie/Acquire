@@ -16,6 +16,7 @@ import com.flyingblock.acquire.model.Hotel;
 import com.flyingblock.acquire.model.HotelMarket;
 import com.flyingblock.acquire.model.Investor;
 import com.flyingblock.acquire.model.Location;
+import com.flyingblock.acquire.model.Stock;
 import com.flyingblock.acquire.network.NetComputerTurn.ComputerState;
 import com.flyingblock.acquire.view.GameView;
 import java.util.ArrayList;
@@ -68,17 +69,22 @@ public class NetComputerTurn extends AbstractFSM<ComputerState>
         switch(state)
         {
             case COMPUTER_BUY_STOCKS:
-                String stocksMessage = decider.getPlayer().getName() + " bought stocks ";
-                for(Corporation c : decider.getBoard().getCompaniesOnBoard())
-                {
-                    c.incorporateRegoin();
-                    stocksMessage += c.getCorporateName() + " ";
-                }
                 for(int i = 0; i < decider.getPlayer().getHandSize(); i++)
                     if(decider.getPlayer().getFromHand(i) != null && !AcquireRules.canPieceBePlayed(decider.getPlayer().getFromHand(i), decider.getBoard()))
                         decider.getPlayer().removeFromHand(i);
-                acquireServer.reportEvent(stocksMessage);
+                List<Stock> before = new ArrayList<>(decider.getPlayer().getStocks());
                 decider.buyStocks(decider.getBoard().getCompaniesOnBoard());
+                List<Stock> bought = new ArrayList<>(decider.getPlayer().getStocks());
+                for(Stock stock : before)
+                {
+                    bought.remove(stock);
+                }
+                String stocksMessage = decider.getPlayer().getName() + " bought stocks ";
+                for(Stock s : bought)
+                {
+                    stocksMessage += s.getOwner().getCorporateName() + " ";
+                }
+                acquireServer.reportEvent(stocksMessage);
                 decider.getPlayer().drawFromDeck(deck);
                 List<Hotel> hotels = new ArrayList<>();
                 for(int i = 0; i < decider.getPlayer().getHandSize(); i++)

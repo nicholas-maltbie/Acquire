@@ -51,6 +51,12 @@ public class NetworkMerger extends AbstractFSM<NetworkMerger.MergerState> implem
                 for(Corporation c : food)
                     newSize += c.getNumberOfHotels();
                 parent.incorporateRegoin();
+                String event = parent.getCorporateName() + " will consume ";
+                for(Corporation food : food)
+                {
+                    event += food.getCorporateName() + " ";
+                }
+                server.reportEvent(event);
                 //Hand out majority and minory bonus for all food eaten.
                 for(Corporation c : food)
                 {
@@ -121,6 +127,7 @@ public class NetworkMerger extends AbstractFSM<NetworkMerger.MergerState> implem
             case END_MERGER:
                 //finalize the action
                 next.dissolve();
+                server.reportEvent("Merger has finished with " +parent.getCorporateName() + " victorious");
                 parent.incorporateRegoin();
                 server.updateAllClients();
                 server.mergerComplete(parent);
@@ -227,6 +234,7 @@ public class NetworkMerger extends AbstractFSM<NetworkMerger.MergerState> implem
                     index = (index+1) % server.getNumPlayers();
                     checked++;
                 }
+                server.reportEvent(parent.getCorporateName() + " is consuming " + next.getCorporateName());
                 break;
         }
     }
